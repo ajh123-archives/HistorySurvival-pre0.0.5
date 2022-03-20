@@ -5,6 +5,8 @@ import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Entity;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Player;
+import net.ddns.minersonline.HistorySurvival.engine.guis.GuiRenderer;
+import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
 import net.ddns.minersonline.HistorySurvival.engine.models.TexturedModel;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.Terrain;
 import net.ddns.minersonline.HistorySurvival.engine.textures.ModelTexture;
@@ -13,6 +15,7 @@ import net.ddns.minersonline.HistorySurvival.engine.textures.TerrainTexturePack;
 import net.ddns.minersonline.HistorySurvival.engine.DisplayManager;
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
 import net.ddns.minersonline.HistorySurvival.engine.ObjLoader;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
@@ -96,9 +99,15 @@ public class Game {
         Light light = new Light(new Vector3f(3000, 2000, 2000), new Vector3f(1, 1,1));
         MasterRenderer masterRenderer = new MasterRenderer();
 
-        TexturedModel bunnyModel = new TexturedModel(ObjLoader.loadObjModel("stanfordBunny.obj", modelLoader), new ModelTexture(modelLoader.loadTexture("white.png")));
-        Player player = new Player(bunnyModel, new Vector3f(100, 0, -100), 0,0,0,0.6f);
+        TexturedModel playerOBJ = new TexturedModel(ObjLoader.loadObjModel("person.obj", modelLoader), new ModelTexture(modelLoader.loadTexture("playerTexture.png")));
+        Player player = new Player(playerOBJ, new Vector3f(100, 0, -100), 0,0,0,0.6f);
         Camera camera = new Camera(player);
+
+        List<GuiTexture> guis = new ArrayList<>();
+        GuiTexture gui = new GuiTexture(modelLoader.loadTexture("playerTexture.png"), new Vector2f(0.5f, 0.5f), new Vector2f(0.25f, 0.25f));
+        guis.add(gui);
+
+        GuiRenderer guiRenderer = new GuiRenderer(modelLoader);
 
         while (DisplayManager.shouldDisplayClose()) {
             player.move(terrain);   // to do this with multiple Terrain, need to test first to know which Terrain the player's position is in
@@ -113,9 +122,11 @@ public class Game {
             }
 
             masterRenderer.render(light, camera);
+            guiRenderer.render(guis);
             DisplayManager.updateDisplay();
         }
 
+        guiRenderer.cleanUp();
         masterRenderer.destory();
         modelLoader.destroy();
         DisplayManager.closeDisplay();
