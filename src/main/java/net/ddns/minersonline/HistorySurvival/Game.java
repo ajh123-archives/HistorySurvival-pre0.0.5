@@ -96,7 +96,11 @@ public class Game {
             }
         }
 
+        List<Light> lights = new ArrayList<>();
         Light light = new Light(new Vector3f(3000, 2000, 2000), new Vector3f(1, 1,1));
+        lights.add(light);
+        Light light2 = new Light(new Vector3f(2000, 2000, 2000), new Vector3f(0, .5f,0));
+        lights.add(light2);
         MasterRenderer masterRenderer = new MasterRenderer();
 
         TexturedModel playerOBJ = new TexturedModel(ObjLoader.loadObjModel("person.obj", modelLoader), new ModelTexture(modelLoader.loadTexture("playerTexture.png")));
@@ -121,7 +125,7 @@ public class Game {
                 masterRenderer.processEntity(entity);
             }
 
-            masterRenderer.render(light, camera);
+            masterRenderer.render(lights, camera);
             guiRenderer.render(guis);
             DisplayManager.updateDisplay();
         }

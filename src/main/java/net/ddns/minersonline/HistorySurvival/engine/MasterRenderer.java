@@ -68,17 +68,17 @@ public class MasterRenderer {
         entityList.add(entity);
     }
 
-    public void render(Light light, Camera camera) {
+    public void render(List<Light> lights, Camera camera) {
         prepare();
         staticShader.bind();
         staticShader.loadSkyColor(SKY_RED, SKY_GREEN, SKY_BLUE);
-        staticShader.loadDiffuseLight(light);
+        staticShader.loadDiffuseLights(lights);
         staticShader.loadViewMatrix(camera);
         entityRenderer.render(entities);
         staticShader.unbind();
         terrainShader.bind();
         terrainShader.loadSkyColor(SKY_RED, SKY_GREEN, SKY_BLUE);
-        terrainShader.loadDiffuseLight(light);
+        terrainShader.loadDiffuseLights(lights);
         terrainShader.loadViewMatrix(camera);
         terrainRenderer.render(terrainList);
         terrainShader.unbind();
