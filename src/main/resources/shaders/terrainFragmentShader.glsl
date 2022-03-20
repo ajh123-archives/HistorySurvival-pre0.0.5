@@ -19,6 +19,7 @@ uniform vec3 lightColor[4];
 uniform float shineDamper;
 uniform float reflectivity;
 uniform vec3 skyColor;
+uniform vec3 attenuation[4];
 
 void main(void) {
     vec3 unitVectorToCamera = normalize(toCameraVector);
@@ -38,16 +39,18 @@ void main(void) {
     vec3 unitNormal = normalize(surfaceNormal);// normalize makes the size of the vector = 1. Only direction of the vector matters here. Size is irrelevant
 
     for(int i=0;i<lights;i++){
+        float distance = length(toLightVector[i]);
+        float attFactor = attenuation[i].x + (attenuation[i].y * distance) + (attenuation[i].z * distance * distance);
         vec3 unitLightVector = normalize(toLightVector[i]);
         float nDotl = dot(unitNormal, unitLightVector);// dot product calculation of 2 vectors. nDotl is how bright this pixel should be. difference of the position and normal vector to the light source
         float brightness = max(nDotl, 0.2);// clamp the brightness result value to between 0 and 1. values less than 0 are clamped to 0.2. to leave a little more diffuse light
-        totalDiffuse = totalDiffuse + (brightness * lightColor[i]);// calculate final color of this pixel by how much light it has
+        totalDiffuse = totalDiffuse + (brightness * lightColor[i])/attFactor;// calculate final color of this pixel by how much light it has
         vec3 lightDirection = -unitLightVector;// light direction vector is the opposite of the toLightVector
         vec3 reflectedLightDirection = reflect(lightDirection, unitNormal);// specular reflected light vector
         float specularFactor = dot(reflectedLightDirection, unitVectorToCamera);// determines how bright the specular light should be relative to the "camera" by taking the dot product of the two vectors
         specularFactor = max(specularFactor, 0.0);
         float dampedFactor = pow(specularFactor, shineDamper);// raise specularFactor to the power of the shineDamper value. makes the low specular values even lower but doesnt effect the high specular values too much
-        totalSpecular = totalSpecular + (dampedFactor * reflectivity * lightColor[i]);
+        totalSpecular = totalSpecular + (dampedFactor * reflectivity * lightColor[i])/attFactor;
     }
     out_Color = vec4(totalDiffuse, 1.0) *  totalColor + vec4(totalSpecular, 1.0);        // returns color of the pixel from the texture at specified texture coordinates
     out_Color = mix(vec4(skyColor, 1.0), out_Color, visibility);

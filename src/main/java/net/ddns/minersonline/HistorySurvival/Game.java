@@ -97,10 +97,34 @@ public class Game {
         }
 
         List<Light> lights = new ArrayList<>();
-        Light light = new Light(new Vector3f(3000, 2000, 2000), new Vector3f(1, 1,1));
+        Light light = new Light(new Vector3f(3000, 2000, 2000), new Vector3f(0.4f, 0.4f,0.4f));
         lights.add(light);
-        Light light2 = new Light(new Vector3f(2000, 2000, 2000), new Vector3f(0, .5f,0));
-        lights.add(light2);
+
+        TexturedModel lamp = new TexturedModel(ObjLoader.loadObjModel("lamp.obj", modelLoader), new ModelTexture(modelLoader.loadTexture("lamp.png")));
+
+        lights.add(new Light(
+                new Vector3f(185, 10, -293),
+                new Vector3f(2, 0,0),
+                new Vector3f(1, 0.01f,0.002f)));
+        entityList.add(new Entity(lamp,
+                new Vector3f(185, -4.7f, -293),
+                0,
+                0,
+                0,
+                1));
+
+
+        lights.add(new Light(
+                new Vector3f(370, 17, -293),
+                new Vector3f(0, 2,0),
+                new Vector3f(1, 0.01f,0.002f)));
+        entityList.add(new Entity(lamp,
+                new Vector3f(370, 4.2f, -293),
+                0,
+                0,
+                0,
+                1));
+
         MasterRenderer masterRenderer = new MasterRenderer();
 
         TexturedModel playerOBJ = new TexturedModel(ObjLoader.loadObjModel("person.obj", modelLoader), new ModelTexture(modelLoader.loadTexture("playerTexture.png")));
@@ -108,7 +132,7 @@ public class Game {
         Camera camera = new Camera(player);
 
         List<GuiTexture> guis = new ArrayList<>();
-        GuiTexture gui = new GuiTexture(modelLoader.loadTexture("playerTexture.png"), new Vector2f(0.5f, 0.5f), new Vector2f(0.25f, 0.25f));
+        GuiTexture gui = new GuiTexture(modelLoader.loadTexture("health.png"), new Vector2f(-0.75f, -0.85f), new Vector2f(0.25f, 0.15f));
         guis.add(gui);
 
         GuiRenderer guiRenderer = new GuiRenderer(modelLoader);
