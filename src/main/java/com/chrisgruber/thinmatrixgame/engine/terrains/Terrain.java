@@ -1,6 +1,7 @@
 package com.chrisgruber.thinmatrixgame.engine.terrains;
 
 import com.chrisgruber.thinmatrixgame.engine.ModelLoader;
+import com.chrisgruber.thinmatrixgame.engine.ObjLoader;
 import com.chrisgruber.thinmatrixgame.engine.models.RawModel;
 import com.chrisgruber.thinmatrixgame.engine.textures.TerrainTexture;
 import com.chrisgruber.thinmatrixgame.engine.textures.TerrainTexturePack;
@@ -12,6 +13,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class Terrain {
     private static final float SIZE = 800;
@@ -93,9 +95,12 @@ public class Terrain {
 
     private RawModel generateTerrain(ModelLoader modelLoader, String heightMapFilename) {
         BufferedImage bufferedImage = null;
+        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+        InputStream stream = classloader.getResourceAsStream(heightMapFilename);
 
         try {
-            bufferedImage = ImageIO.read(new File(heightMapFilename));
+            assert stream != null;
+            bufferedImage = ImageIO.read(stream);
         } catch (IOException e) {
             e.printStackTrace();
         }

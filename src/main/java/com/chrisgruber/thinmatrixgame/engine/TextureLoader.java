@@ -3,6 +3,7 @@ package com.chrisgruber.thinmatrixgame.engine;
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import com.chrisgruber.thinmatrixgame.engine.utils.BufferUtils;
 import javax.imageio.ImageIO;
@@ -19,9 +20,12 @@ public class TextureLoader {
 
     private int load(String path) {
         int[] pixels = null;
+        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+        InputStream stream = classloader.getResourceAsStream(path);
 
         try {
-            BufferedImage image = ImageIO.read(new FileInputStream(path));
+            assert stream != null;
+            BufferedImage image = ImageIO.read(stream);
             width = image.getWidth();
             height = image.getHeight();
             pixels = new int[width * height];
@@ -33,6 +37,7 @@ public class TextureLoader {
         int[] data = new int[width * height];
 
         for (int i = 0; i < width * height; i++) {
+            assert pixels != null;
             int a = (pixels[i] & 0xff000000) >> 24;
             int r = (pixels[i] & 0xff0000) >> 16;
             int g = (pixels[i] & 0xff00) >> 8;

@@ -12,14 +12,9 @@ public class ObjLoader {
     private ObjLoader() {}
 
     public static RawModel loadObjModel(String filename, ModelLoader modelLoader) {
-        FileReader fileReader = null;
-
-        try {
-            fileReader = new FileReader(new File(filename));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Unable to load file: " + filename);
-        }
+        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+        InputStream stream = classloader.getResourceAsStream(filename);
+        InputStreamReader fileReader = new InputStreamReader(stream);
 
         BufferedReader bufferedReader = new BufferedReader(fileReader);
         String line;
@@ -27,10 +22,10 @@ public class ObjLoader {
         List<Vector2f> textures = new ArrayList<>();
         List<Vector3f> normals = new ArrayList<>();
         List<Integer> indices = new ArrayList<>();
-        float[] verticesArray = null;
+        float[] verticesArray;
         float[] texturesArray = null;
         float[] normalsArray = null;
-        int[] indicesArray = null;
+        int[] indicesArray;
 
         try {
             while(true) {

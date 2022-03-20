@@ -16,7 +16,7 @@ public class Camera {
 
     public Camera(Player player) {
         this.player = player;
-        position = new Vector3f(0, 0,0);
+        position = new Vector3f(0, 0, 0);
         distanceFromPlayer = 50;
         pitch = 20;
     }

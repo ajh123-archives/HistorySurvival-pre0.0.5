@@ -3,13 +3,13 @@ package com.chrisgruber.thinmatrixgame.engine.shaders;
 import com.chrisgruber.thinmatrixgame.engine.entities.Camera;
 import com.chrisgruber.thinmatrixgame.engine.entities.Light;
 import com.chrisgruber.thinmatrixgame.engine.utils.Maths;
+
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-public class StaticShader extends ShaderProgramBase {
-    private static final String VERTEX_FILE = "resources/shaders/vertexShader.glsl";
-    private static final String FRAGMENT_FILE = "resources/shaders/fragmentShader.glsl";
+public class TerrainShader extends ShaderProgramBase {
+    private static final String VERTEX_FILE = "shaders/terrainVertexShader.glsl";
+    private static final String FRAGMENT_FILE = "shaders/terrainFragmentShader.glsl";
 
     private int location_transformationMatrix;
     private int location_projectionMatrix;
@@ -18,12 +18,14 @@ public class StaticShader extends ShaderProgramBase {
     private int location_lightColor;
     private int location_shineDamper;
     private int location_reflectivity;
-    private int location_useFakeLighting;
     private int location_skyColor;
-    private int location_numberOfRowsInTextureAtlas;
-    private int location_offset;
+    private int location_backgroundTexture;
+    private int location_rTexture;
+    private int location_gTexture;
+    private int location_bTexture;
+    private int location_blendMap;
 
-    public StaticShader() {
+    public TerrainShader() {
         super(VERTEX_FILE, FRAGMENT_FILE);
     }
 
@@ -43,10 +45,12 @@ public class StaticShader extends ShaderProgramBase {
         location_lightColor = super.getUniformLocation("lightColor");
         location_shineDamper = super.getUniformLocation("shineDamper");
         location_reflectivity = super.getUniformLocation("reflectivity");
-        location_useFakeLighting = super.getUniformLocation("useFakeLighting");
         location_skyColor = super.getUniformLocation("skyColor");
-        location_numberOfRowsInTextureAtlas = super.getUniformLocation("numberOfRowsInTextureAtlas");   // texture atlas support
-        location_offset = super.getUniformLocation("offset");   // texture atlas support
+        location_backgroundTexture = super.getUniformLocation("backgroundTexture");
+        location_rTexture = super.getUniformLocation("rTexture");
+        location_gTexture = super.getUniformLocation("gTexture");
+        location_bTexture = super.getUniformLocation("bTexture");
+        location_blendMap = super.getUniformLocation("blendMap");
     }
 
     public void loadTransformationMatrix(Matrix4f matrix) {
@@ -72,19 +76,15 @@ public class StaticShader extends ShaderProgramBase {
         super.loadFloat(location_reflectivity, reflectivity);
     }
 
-    public void loadFakeLighting(boolean useFakeLighting) {
-        super.loadBoolean(location_useFakeLighting, useFakeLighting);
-    }
-
     public void loadSkyColor(float r, float g, float b) {
         super.loadVector(location_skyColor, new Vector3f(r, g, b));
     }
 
-    public void loadNumberOfRowsInTextureAtlas(int numberOfRowsInTextureAtlas) {
-        super.loadFloat(location_numberOfRowsInTextureAtlas, numberOfRowsInTextureAtlas);
-    }
-
-    public void loadOffset(float x, float y) {
-        super.loadVector(location_offset, new Vector2f(x, y));
+    public void connectTextureUnits() {
+        super.loadInt(location_backgroundTexture, 0);
+        super.loadInt(location_rTexture, 1);
+        super.loadInt(location_gTexture, 2);
+        super.loadInt(location_bTexture, 3);
+        super.loadInt(location_blendMap, 4);
     }
 }

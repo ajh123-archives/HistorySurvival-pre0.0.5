@@ -1,8 +1,6 @@
 package com.chrisgruber.thinmatrixgame.engine.utils;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 
 public class FileUtils {
 
@@ -13,7 +11,10 @@ public class FileUtils {
         StringBuilder result = new StringBuilder();
 
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(file));
+            ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+            InputStream stream = classloader.getResourceAsStream(file);
+            InputStreamReader streamReader = new InputStreamReader(stream);
+            BufferedReader reader = new BufferedReader(streamReader);
             String buffer = "";
 
             while ((buffer = reader.readLine()) != null) {
