@@ -12,9 +12,10 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 public class Terrain {
-    private static final float SIZE = 800;
+    public static final float SIZE = 800;
     private static final float MAX_HEIGHT = 40;
     private static final float MAX_PIXEL_COLOR = 256 * 256 * 256;
 
@@ -176,5 +177,11 @@ public class Terrain {
         Vector3f normal= new Vector3f(heightL - heightR, 2.0f, heightD - heightU);
         normal.normalize();
         return normal;
+    }
+
+    public static Terrain getTerrain(Map<Integer, Map<Integer, Terrain>> world, float worldX, float worldY){
+        int x = (int) Math.floor((double) worldX / (double) Terrain.SIZE);
+        int y = (int) Math.floor((double) worldY / (double) Terrain.SIZE);
+        return world.get(x).get(y);
     }
 }

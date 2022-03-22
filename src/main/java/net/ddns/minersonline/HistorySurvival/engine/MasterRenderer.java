@@ -86,8 +86,10 @@ public class MasterRenderer {
         terrainList.clear();
     }
 
-    public void processTerrain(Terrain terrain) {
-        terrainList.add(terrain);
+    public void processWorld(Map<Integer, Map<Integer, Terrain>> world) {
+        for (Map<Integer, Terrain> terrains : world.values()) {
+            terrainList.addAll(terrains.values());
+        }
     }
 
     public void destory() {
@@ -114,5 +116,9 @@ public class MasterRenderer {
         projectionMatrix.m23(-1);
         projectionMatrix.m32(-((2 * NEAR_PLANE * FAR_PLANE) / frustum_length));
         projectionMatrix.m33(0);
+    }
+
+    public Matrix4f getProjectionMatrix() {
+        return projectionMatrix;
     }
 }

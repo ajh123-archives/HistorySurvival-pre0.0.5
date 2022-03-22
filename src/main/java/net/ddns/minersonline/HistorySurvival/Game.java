@@ -15,12 +15,12 @@ import net.ddns.minersonline.HistorySurvival.engine.textures.TerrainTexturePack;
 import net.ddns.minersonline.HistorySurvival.engine.DisplayManager;
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
 import net.ddns.minersonline.HistorySurvival.engine.ObjLoader;
+import net.ddns.minersonline.HistorySurvival.engine.utils.MousePicker;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.lwjgl.system.CallbackI;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Game {
     private void start() {
@@ -58,8 +58,17 @@ public class Game {
         TerrainTexturePack terrainTexturePack = new TerrainTexturePack(backgroundTexture, rTexture, gTexture, bTexture);
 
         // Terrain entityList
+        int size = 3;
+        Map<Integer, Map<Integer, Terrain>> world = new HashMap<>();
+
+        for(int i = -size; i < size; i++)  {
+            world.put(i, new HashMap<>());
+        }
+
         Terrain terrain = new Terrain(0, -1, modelLoader, terrainTexturePack, blendMap, "heightmap.png");
+        world.get(0).put(-1, terrain);
         Terrain terrain2 = new Terrain(-1, -1, modelLoader, terrainTexturePack, blendMap, "heightmap.png");
+        world.get(-1).put(-1, terrain2);
 
         List<Entity> entityList = new ArrayList<>();
 
@@ -102,16 +111,18 @@ public class Game {
 
         TexturedModel lamp = new TexturedModel(ObjLoader.loadObjModel("lamp.obj", modelLoader), new ModelTexture(modelLoader.loadTexture("lamp.png")));
 
-        lights.add(new Light(
+        Light moveLight = new Light(
                 new Vector3f(185, 10, -293),
                 new Vector3f(2, 0,0),
-                new Vector3f(1, 0.01f,0.002f)));
-        entityList.add(new Entity(lamp,
+                new Vector3f(1, 0.01f,0.002f));
+        lights.add(moveLight);
+        Entity moveEntity = new Entity(lamp,
                 new Vector3f(185, -4.7f, -293),
                 0,
                 0,
                 0,
-                1));
+                1);
+        entityList.add(moveEntity);
 
 
         lights.add(new Light(
@@ -128,7 +139,7 @@ public class Game {
         MasterRenderer masterRenderer = new MasterRenderer();
 
         TexturedModel playerOBJ = new TexturedModel(ObjLoader.loadObjModel("person.obj", modelLoader), new ModelTexture(modelLoader.loadTexture("playerTexture.png")));
-        Player player = new Player(playerOBJ, new Vector3f(100, 0, -100), 0,0,0,0.6f);
+        Player player = new Player(world, playerOBJ, new Vector3f(100, 0, -100), 0,0,0,0.6f);
         Camera camera = new Camera(player);
 
         List<GuiTexture> guis = new ArrayList<>();
@@ -137,13 +148,15 @@ public class Game {
 
         GuiRenderer guiRenderer = new GuiRenderer(modelLoader);
 
+        MousePicker picker = new MousePicker(world, masterRenderer.getProjectionMatrix(), camera);
+
         while (DisplayManager.shouldDisplayClose()) {
-            player.move(terrain);   // to do this with multiple Terrain, need to test first to know which Terrain the player's position is in
+            player.move();
             camera.move();
+            picker.update();
 
             masterRenderer.processEntity(player);
-            masterRenderer.processTerrain(terrain);
-            masterRenderer.processTerrain(terrain2);
+            masterRenderer.processWorld(world);
 
             for (Entity entity : entityList) {
                 masterRenderer.processEntity(entity);

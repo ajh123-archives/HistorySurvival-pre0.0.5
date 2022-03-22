@@ -3,16 +3,17 @@ package net.ddns.minersonline.HistorySurvival.engine;
 import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
 import net.ddns.minersonline.HistorySurvival.engine.io.Mouse;
 import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.glfw.GLFWWindowSizeCallback;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL.*;
 import static org.lwjgl.opengl.GL11.*;
 
 public class DisplayManager {
-    private final static int WINDOW_WIDTH = 1280;
-    private final static int WINDOW_HEIGHT = 760;
+    private static int WINDOW_WIDTH = 1280;
+    private static int WINDOW_HEIGHT = 760;
     private static long window;
-    private static String title = "ThinMatrix Game";
+    private static String title = "History Survival";
     private static int frames;
     private static long time;
     private static boolean showFPSTitle;
@@ -57,6 +58,15 @@ public class DisplayManager {
 
         // Setting the value to 1 should limit to 60 FPS
         glfwSwapInterval(1);
+
+        glfwSetWindowSizeCallback(window, new GLFWWindowSizeCallback(){
+            @Override
+            public void invoke(long window, int width, int height){
+                DisplayManager.setWindowWidth(width);
+                DisplayManager.setWindowHeight(height);
+                glViewport(0, 0, DisplayManager.getWindowWidth(), DisplayManager.getWindowHeight());
+            }
+        });
 
         lastFrameTime = getCurrentTime();
     }
@@ -103,6 +113,14 @@ public class DisplayManager {
             frames = 0;
             time = 0;
         }
+    }
+
+    public static void setWindowWidth(int windowWidth) {
+        WINDOW_WIDTH = windowWidth;
+    }
+
+    public static void setWindowHeight(int windowHeight) {
+        WINDOW_HEIGHT = windowHeight;
     }
 
     public static int getWindowWidth() {
