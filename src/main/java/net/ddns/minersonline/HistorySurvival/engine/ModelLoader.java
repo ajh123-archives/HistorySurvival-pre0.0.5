@@ -61,6 +61,13 @@ public class ModelLoader {
         return new RawModel(vaoId, indices.length);
     }
 
+    public RawModel loadToVao(float[] positions, int length) {
+        int vaoId = createVao();
+        storeDataInAttributeList(0, length, positions);
+        unbindVao();
+        return new RawModel(vaoId, positions.length/length);
+    }
+
     public RawModel loadToVao(float[] positions) {
         int vaoId = createVao();
         storeDataInAttributeList(0, 2, positions);

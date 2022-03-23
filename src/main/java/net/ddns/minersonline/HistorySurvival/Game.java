@@ -16,6 +16,9 @@ import net.ddns.minersonline.HistorySurvival.engine.DisplayManager;
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
 import net.ddns.minersonline.HistorySurvival.engine.ObjLoader;
 import net.ddns.minersonline.HistorySurvival.engine.utils.MousePicker;
+import net.ddns.minersonline.HistorySurvival.engine.water.WaterRenderer;
+import net.ddns.minersonline.HistorySurvival.engine.water.WaterShader;
+import net.ddns.minersonline.HistorySurvival.engine.water.WaterTile;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.system.CallbackI;
@@ -112,12 +115,12 @@ public class Game {
         TexturedModel lamp = new TexturedModel(ObjLoader.loadObjModel("lamp.obj", modelLoader), new ModelTexture(modelLoader.loadTexture("lamp.png")));
 
         Light moveLight = new Light(
-                new Vector3f(185, 10, -293),
+                new Vector3f(400, 22, -293),
                 new Vector3f(2, 0,0),
-                new Vector3f(1, 0.01f,0.002f));
+                new Vector3f(1, 5.01f,0.002f));
         lights.add(moveLight);
         Entity moveEntity = new Entity(lamp,
-                new Vector3f(185, -4.7f, -293),
+                new Vector3f(400, 9, -293),
                 0,
                 0,
                 0,
@@ -139,7 +142,7 @@ public class Game {
         MasterRenderer masterRenderer = new MasterRenderer();
 
         TexturedModel playerOBJ = new TexturedModel(ObjLoader.loadObjModel("person.obj", modelLoader), new ModelTexture(modelLoader.loadTexture("playerTexture.png")));
-        Player player = new Player(world, playerOBJ, new Vector3f(100, 0, -100), 0,0,0,0.6f);
+        Player player = new Player(world, playerOBJ, new Vector3f(380, 8, -290), 0,0,0,0.6f);
         Camera camera = new Camera(player);
 
         List<GuiTexture> guis = new ArrayList<>();
@@ -150,23 +153,27 @@ public class Game {
 
         MousePicker picker = new MousePicker(world, masterRenderer.getProjectionMatrix(), camera);
 
+        WaterShader waterShader = new WaterShader();
+        WaterRenderer waterRenderer = new WaterRenderer(modelLoader, waterShader, masterRenderer.getProjectionMatrix());
+
+        List<WaterTile> waterTiles = new ArrayList<>();
+        waterTiles.add(new WaterTile(370, -293, 4.2f));
+
+
         while (DisplayManager.shouldDisplayClose()) {
             player.move();
             camera.move();
             picker.update();
 
             masterRenderer.processEntity(player);
-            masterRenderer.processWorld(world);
+            masterRenderer.renderScene(entityList, world, lights, camera);
+            waterRenderer.render(waterTiles, camera);
 
-            for (Entity entity : entityList) {
-                masterRenderer.processEntity(entity);
-            }
-
-            masterRenderer.render(lights, camera);
             guiRenderer.render(guis);
             DisplayManager.updateDisplay();
         }
 
+        waterShader.destroy();
         guiRenderer.cleanUp();
         masterRenderer.destory();
         modelLoader.destroy();

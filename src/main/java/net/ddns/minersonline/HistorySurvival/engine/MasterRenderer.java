@@ -68,6 +68,15 @@ public class MasterRenderer {
         entityList.add(entity);
     }
 
+    public void renderScene(List<Entity> entities, Map<Integer, Map<Integer, Terrain>> world, List<Light> lights, Camera camera){
+        processWorld(world);
+        for (Entity entity : entities) {
+            processEntity(entity);
+        }
+        render(lights, camera);
+    }
+
+
     public void render(List<Light> lights, Camera camera) {
         prepare();
         staticShader.bind();
