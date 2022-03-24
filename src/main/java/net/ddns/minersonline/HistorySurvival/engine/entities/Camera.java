@@ -60,6 +60,10 @@ public class Camera {
         position.z = z;
     }
 
+    public void invertPitch() {
+        this.pitch = -pitch;
+    }
+
     public void setPitch(float pitch) {
         this.pitch = pitch;
     }

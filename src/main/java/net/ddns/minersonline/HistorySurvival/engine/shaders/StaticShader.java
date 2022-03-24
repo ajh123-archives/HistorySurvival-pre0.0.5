@@ -6,6 +6,7 @@ import net.ddns.minersonline.HistorySurvival.engine.utils.Maths;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.util.List;
 
@@ -27,6 +28,7 @@ public class StaticShader extends ShaderProgramBase {
     private int location_skyColor;
     private int location_numberOfRowsInTextureAtlas;
     private int location_offset;
+    private int location_plane;
 
     public StaticShader() {
         super(VERTEX_FILE, FRAGMENT_FILE);
@@ -50,6 +52,7 @@ public class StaticShader extends ShaderProgramBase {
         location_skyColor = super.getUniformLocation("skyColor");
         location_numberOfRowsInTextureAtlas = super.getUniformLocation("numberOfRowsInTextureAtlas");   // texture atlas support
         location_offset = super.getUniformLocation("offset");   // texture atlas support
+        location_plane = super.getUniformLocation("plane");
 
         location_lightPositions = new int[MAX_LIGHTS];
         location_lightColors = new int[MAX_LIGHTS];
@@ -59,6 +62,10 @@ public class StaticShader extends ShaderProgramBase {
             location_lightColors[i] = super.getUniformLocation("lightColor["+i+"]");
             location_attenuation[i] = super.getUniformLocation("attenuation["+i+"]");
         }
+    }
+
+    public void loadClipPlane(Vector4f plane){
+        super.loadVector(location_plane, plane);
     }
 
     public void loadTransformationMatrix(Matrix4f matrix) {

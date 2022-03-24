@@ -6,6 +6,7 @@ import net.ddns.minersonline.HistorySurvival.engine.utils.Maths;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.util.List;
 
@@ -29,6 +30,7 @@ public class TerrainShader extends ShaderProgramBase {
     private int location_gTexture;
     private int location_bTexture;
     private int location_blendMap;
+    private int location_plane;
 
     public TerrainShader() {
         super(VERTEX_FILE, FRAGMENT_FILE);
@@ -54,6 +56,7 @@ public class TerrainShader extends ShaderProgramBase {
         location_gTexture = super.getUniformLocation("gTexture");
         location_bTexture = super.getUniformLocation("bTexture");
         location_blendMap = super.getUniformLocation("blendMap");
+        location_plane = super.getUniformLocation("plane");
 
         location_lightPositions = new int[MAX_LIGHTS];
         location_lightColors = new int[MAX_LIGHTS];
@@ -63,6 +66,10 @@ public class TerrainShader extends ShaderProgramBase {
             location_lightColors[i] = super.getUniformLocation("lightColor["+i+"]");
             location_attenuation[i] = super.getUniformLocation("attenuation["+i+"]");
         }
+    }
+
+    public void loadClipPlane(Vector4f plane){
+        super.loadVector(location_plane, plane);
     }
 
     public void loadTransformationMatrix(Matrix4f matrix) {

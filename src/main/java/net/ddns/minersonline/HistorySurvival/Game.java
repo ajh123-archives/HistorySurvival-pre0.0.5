@@ -16,11 +16,15 @@ import net.ddns.minersonline.HistorySurvival.engine.DisplayManager;
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
 import net.ddns.minersonline.HistorySurvival.engine.ObjLoader;
 import net.ddns.minersonline.HistorySurvival.engine.utils.MousePicker;
+import net.ddns.minersonline.HistorySurvival.engine.water.WaterFrameBuffers;
 import net.ddns.minersonline.HistorySurvival.engine.water.WaterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.water.WaterShader;
 import net.ddns.minersonline.HistorySurvival.engine.water.WaterTile;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.CallbackI;
 
 import java.util.*;
@@ -157,22 +161,46 @@ public class Game {
         WaterRenderer waterRenderer = new WaterRenderer(modelLoader, waterShader, masterRenderer.getProjectionMatrix());
 
         List<WaterTile> waterTiles = new ArrayList<>();
-        waterTiles.add(new WaterTile(370, -293, 4.2f));
+        WaterTile water = new WaterTile(370, -293, 4.2f);
+        waterTiles.add(water);
 
+        WaterFrameBuffers wfbos = new WaterFrameBuffers();
+
+        GuiTexture gui2 = new GuiTexture(wfbos.getReflectionTexture(), new Vector2f(1f, 1), new Vector2f(0.5f, 0.5f));
+        GuiTexture gui3 = new GuiTexture(wfbos.getRefractionTexture(), new Vector2f(-1f, 1), new Vector2f(0.5f, 0.5f));
+        guis.add(gui2);
+        guis.add(gui3);
 
         while (DisplayManager.shouldDisplayClose()) {
             player.move();
             camera.move();
             picker.update();
 
+            GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
+            wfbos.bindReflectionFrameBuffer();
+            float distance = 2 * (camera.getPosition().y - water.getHeight());
+            camera.getPosition().y -= distance;
+            camera.invertPitch();
+            masterRenderer.renderScene(entityList, world, lights, camera, new Vector4f(0, 1, 0, -water.getHeight()));
+            wfbos.unbindCurrentFrameBuffer();
+            camera.getPosition().y += distance;
+            camera.invertPitch();
+
+            wfbos.bindRefractionFrameBuffer();
+            masterRenderer.renderScene(entityList, world, lights, camera, new Vector4f(0, -1, 0, water.getHeight()));
+            wfbos.unbindCurrentFrameBuffer();
+
+            GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
+
             masterRenderer.processEntity(player);
-            masterRenderer.renderScene(entityList, world, lights, camera);
+            masterRenderer.renderScene(entityList, world, lights, camera, new Vector4f(0, -1, 0, 999999999));
             waterRenderer.render(waterTiles, camera);
 
             guiRenderer.render(guis);
             DisplayManager.updateDisplay();
         }
 
+        wfbos.cleanUp();
         waterShader.destroy();
         guiRenderer.cleanUp();
         masterRenderer.destory();

@@ -19,11 +19,15 @@ uniform vec3 lightPosition[4];
 const float fogDensity = 0.007;
 const float fogGradient = 1.5;
 
+uniform vec4 plane;
+
 void main(void) {
     vec4 worldPosition = transformationMatrix * vec4(position, 1.0);
     vec4 positionRelativeToCamera = viewMatrix * worldPosition;
     gl_Position = projectionMatrix * positionRelativeToCamera;
     pass_textureCoords = textureCoords;
+
+    gl_ClipDistance[0] = dot(worldPosition, plane);
 
     surfaceNormal = (transformationMatrix * vec4(normal, 0.0)).xyz; // swizzle it! get the xyz components from the resulting 4d vector
     for(int i=0;i<lights;i++){

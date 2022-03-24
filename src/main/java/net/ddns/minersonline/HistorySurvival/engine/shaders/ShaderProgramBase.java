@@ -4,6 +4,7 @@ import net.ddns.minersonline.HistorySurvival.engine.utils.FileUtils;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
@@ -46,6 +47,10 @@ public abstract class ShaderProgramBase {
 
     protected void loadVector(int location, Vector3f vector) {
         glUniform3f(location, vector.x, vector.y, vector.z);
+    }
+
+    protected void loadVector(int location, Vector4f vector) {
+        glUniform4f(location, vector.x, vector.y, vector.z, vector.w);
     }
 
     protected void loadVector(int location, Vector2f vector) {

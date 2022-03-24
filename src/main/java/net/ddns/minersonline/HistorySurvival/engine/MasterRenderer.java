@@ -8,6 +8,7 @@ import net.ddns.minersonline.HistorySurvival.engine.shaders.StaticShader;
 import net.ddns.minersonline.HistorySurvival.engine.shaders.TerrainShader;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.Terrain;
 import org.joml.Matrix4f;
+import org.joml.Vector4f;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -68,25 +69,27 @@ public class MasterRenderer {
         entityList.add(entity);
     }
 
-    public void renderScene(List<Entity> entities, Map<Integer, Map<Integer, Terrain>> world, List<Light> lights, Camera camera){
+    public void renderScene(List<Entity> entities, Map<Integer, Map<Integer, Terrain>> world, List<Light> lights, Camera camera, Vector4f clipping_plane){
         processWorld(world);
         for (Entity entity : entities) {
             processEntity(entity);
         }
-        render(lights, camera);
+        render(lights, camera, clipping_plane);
     }
 
 
-    public void render(List<Light> lights, Camera camera) {
+    public void render(List<Light> lights, Camera camera, Vector4f clipping_plane) {
         prepare();
         staticShader.bind();
         staticShader.loadSkyColor(SKY_RED, SKY_GREEN, SKY_BLUE);
+        staticShader.loadClipPlane(clipping_plane);
         staticShader.loadDiffuseLights(lights);
         staticShader.loadViewMatrix(camera);
         entityRenderer.render(entities);
         staticShader.unbind();
         terrainShader.bind();
         terrainShader.loadSkyColor(SKY_RED, SKY_GREEN, SKY_BLUE);
+        terrainShader.loadClipPlane(clipping_plane);
         terrainShader.loadDiffuseLights(lights);
         terrainShader.loadViewMatrix(camera);
         terrainRenderer.render(terrainList);
