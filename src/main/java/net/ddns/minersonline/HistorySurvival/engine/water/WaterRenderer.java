@@ -9,6 +9,7 @@ import net.ddns.minersonline.HistorySurvival.engine.utils.Maths;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
@@ -17,10 +18,13 @@ public class WaterRenderer {
 
 	private RawModel quad;
 	private WaterShader shader;
+	private WaterFrameBuffers wfbos;
 
-	public WaterRenderer(ModelLoader loader, WaterShader shader, Matrix4f projectionMatrix) {
+	public WaterRenderer(ModelLoader loader, WaterShader shader, Matrix4f projectionMatrix, WaterFrameBuffers wfbos) {
 		this.shader = shader;
+		this.wfbos = wfbos;
 		shader.bind();
+		shader.connectTextureUnits();
 		shader.loadProjectionMatrix(projectionMatrix);
 		shader.unbind();
 		setUpVAO(loader);
@@ -43,6 +47,10 @@ public class WaterRenderer {
 		shader.loadViewMatrix(camera);
 		GL30.glBindVertexArray(quad.getVaoId());
 		GL20.glEnableVertexAttribArray(0);
+		GL13.glActiveTexture(GL13.GL_TEXTURE0);
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, wfbos.getReflectionTexture());
+		GL13.glActiveTexture(GL13.GL_TEXTURE1);
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, wfbos.getRefractionTexture());
 	}
 	
 	private void unbind(){

@@ -25,7 +25,6 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
-import org.lwjgl.system.CallbackI;
 
 import java.util.*;
 
@@ -121,7 +120,7 @@ public class Game {
         Light moveLight = new Light(
                 new Vector3f(400, 22, -293),
                 new Vector3f(2, 0,0),
-                new Vector3f(1, 5.01f,0.002f));
+                new Vector3f(1, 0.01f,0.002f));
         lights.add(moveLight);
         Entity moveEntity = new Entity(lamp,
                 new Vector3f(400, 9, -293),
@@ -147,6 +146,7 @@ public class Game {
 
         TexturedModel playerOBJ = new TexturedModel(ObjLoader.loadObjModel("person.obj", modelLoader), new ModelTexture(modelLoader.loadTexture("playerTexture.png")));
         Player player = new Player(world, playerOBJ, new Vector3f(380, 8, -290), 0,0,0,0.6f);
+        entityList.add(player);
         Camera camera = new Camera(player);
 
         List<GuiTexture> guis = new ArrayList<>();
@@ -158,18 +158,12 @@ public class Game {
         MousePicker picker = new MousePicker(world, masterRenderer.getProjectionMatrix(), camera);
 
         WaterShader waterShader = new WaterShader();
-        WaterRenderer waterRenderer = new WaterRenderer(modelLoader, waterShader, masterRenderer.getProjectionMatrix());
+        WaterFrameBuffers wfbos = new WaterFrameBuffers();
+        WaterRenderer waterRenderer = new WaterRenderer(modelLoader, waterShader, masterRenderer.getProjectionMatrix(), wfbos);
 
         List<WaterTile> waterTiles = new ArrayList<>();
         WaterTile water = new WaterTile(370, -293, 4.2f);
         waterTiles.add(water);
-
-        WaterFrameBuffers wfbos = new WaterFrameBuffers();
-
-        GuiTexture gui2 = new GuiTexture(wfbos.getReflectionTexture(), new Vector2f(1f, 1), new Vector2f(0.5f, 0.5f));
-        GuiTexture gui3 = new GuiTexture(wfbos.getRefractionTexture(), new Vector2f(-1f, 1), new Vector2f(0.5f, 0.5f));
-        guis.add(gui2);
-        guis.add(gui3);
 
         while (DisplayManager.shouldDisplayClose()) {
             player.move();
@@ -182,7 +176,6 @@ public class Game {
             camera.getPosition().y -= distance;
             camera.invertPitch();
             masterRenderer.renderScene(entityList, world, lights, camera, new Vector4f(0, 1, 0, -water.getHeight()));
-            wfbos.unbindCurrentFrameBuffer();
             camera.getPosition().y += distance;
             camera.invertPitch();
 
@@ -192,7 +185,6 @@ public class Game {
 
             GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
 
-            masterRenderer.processEntity(player);
             masterRenderer.renderScene(entityList, world, lights, camera, new Vector4f(0, -1, 0, 999999999));
             waterRenderer.render(waterTiles, camera);
 

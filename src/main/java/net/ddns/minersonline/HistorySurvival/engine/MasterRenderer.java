@@ -22,9 +22,9 @@ public class MasterRenderer {
     private static final float FOV = 70;
     private static final float NEAR_PLANE = 0.1f;
     private static final float FAR_PLANE = 1000;
-    private static final float SKY_RED = 0.95f;
+    private static final float SKY_RED = 0.65f;
     private static final float SKY_GREEN = 0.9f;
-    private static final float SKY_BLUE = 0.67f;
+    private static final float SKY_BLUE = 0.97f;
 
     private StaticShader staticShader;
     private EntityRenderer entityRenderer;
@@ -81,15 +81,15 @@ public class MasterRenderer {
     public void render(List<Light> lights, Camera camera, Vector4f clipping_plane) {
         prepare();
         staticShader.bind();
-        staticShader.loadSkyColor(SKY_RED, SKY_GREEN, SKY_BLUE);
         staticShader.loadClipPlane(clipping_plane);
+        staticShader.loadSkyColor(SKY_RED, SKY_GREEN, SKY_BLUE);
         staticShader.loadDiffuseLights(lights);
         staticShader.loadViewMatrix(camera);
         entityRenderer.render(entities);
         staticShader.unbind();
         terrainShader.bind();
-        terrainShader.loadSkyColor(SKY_RED, SKY_GREEN, SKY_BLUE);
         terrainShader.loadClipPlane(clipping_plane);
+        terrainShader.loadSkyColor(SKY_RED, SKY_GREEN, SKY_BLUE);
         terrainShader.loadDiffuseLights(lights);
         terrainShader.loadViewMatrix(camera);
         terrainRenderer.render(terrainList);
