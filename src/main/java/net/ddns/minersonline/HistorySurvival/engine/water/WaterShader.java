@@ -5,6 +5,7 @@ import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.shaders.ShaderProgramBase;
 import net.ddns.minersonline.HistorySurvival.engine.utils.Maths;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 public class WaterShader extends ShaderProgramBase {
 
@@ -17,7 +18,8 @@ public class WaterShader extends ShaderProgramBase {
 	private int location_reflection;
 	private int location_refraction;
 	private int location_dudv;
-	private int location_ripple_factor;
+	private int location_rippleFactor;
+	private int location_camPos;
 
 	public WaterShader() {
 		super(VERTEX_FILE, FRAGMENT_FILE);
@@ -36,7 +38,8 @@ public class WaterShader extends ShaderProgramBase {
 		location_reflection = getUniformLocation("reflectionTexture");
 		location_refraction = getUniformLocation("refractionTexture");
 		location_dudv = getUniformLocation("dudvMap");
-		location_ripple_factor = getUniformLocation("ripple_factor");
+		location_rippleFactor = getUniformLocation("rippleFactor");
+		location_camPos = getUniformLocation("camPos");
 	}
 
 	public void connectTextureUnits(){
@@ -46,7 +49,7 @@ public class WaterShader extends ShaderProgramBase {
 	}
 
 	public void loadRippleFactor(float rippleFactor){
-		super.loadFloat(location_ripple_factor, rippleFactor);
+		super.loadFloat(location_rippleFactor, rippleFactor);
 	}
 
 	public void loadProjectionMatrix(Matrix4f projection) {
@@ -56,10 +59,10 @@ public class WaterShader extends ShaderProgramBase {
 	public void loadViewMatrix(Camera camera){
 		Matrix4f viewMatrix = Maths.createViewMatrix(camera);
 		loadMatrix(location_viewMatrix, viewMatrix);
+		super.loadVector(location_camPos, camera.getPosition());
 	}
 
 	public void loadModelMatrix(Matrix4f modelMatrix){
 		loadMatrix(location_modelMatrix, modelMatrix);
 	}
-
 }
