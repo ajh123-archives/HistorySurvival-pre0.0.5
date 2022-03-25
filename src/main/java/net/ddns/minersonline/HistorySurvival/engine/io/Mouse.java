@@ -8,7 +8,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class Mouse {
     private static boolean[] buttons;
-    private static double mouseX, mouseY, lastMouseX, lastMouseY;
+    private static double mouseX, mouseY, lastMouseX, lastMouseY, lastScrollMouseX, lastScrollMouseY, deltaX, deltaY, deltaScrollY, deltaScrollX;
     private static double mouseScrollX, mouseScrollY;
     private GLFWCursorPosCallback mouseMove;
     private GLFWMouseButtonCallback mouseButtons;
@@ -39,6 +39,22 @@ public class Mouse {
                 mouseScrollY += offsetY;
             }
         };
+    }
+
+    public static float getDX() {
+        return (float) deltaX;
+    }
+
+    public static float getDY() {
+        return (float) deltaY;
+    }
+
+    public static float getDMouseScrollY() {
+        return (float) deltaScrollY  * 10;
+    }
+
+    public static float getDMouseScrollX() {
+        return (float) deltaScrollX * 10;
     }
 
     public GLFWCursorPosCallback getMouseMoveCallback() {
@@ -101,5 +117,16 @@ public class Mouse {
     public static double getMouseScrollY() {
         double cache = mouseScrollY * 10;
         mouseScrollY = 0; return cache;
+    }
+
+    public static void update(){
+        deltaX = mouseX - lastMouseX;
+        deltaY = mouseY - lastMouseY;
+        deltaScrollX = mouseScrollX - lastScrollMouseX;
+        deltaScrollY = mouseScrollY - lastScrollMouseY;
+        lastMouseX = mouseX;
+        lastMouseY = mouseY;
+        lastScrollMouseY = mouseScrollY;
+        lastScrollMouseX = mouseScrollX;
     }
 }

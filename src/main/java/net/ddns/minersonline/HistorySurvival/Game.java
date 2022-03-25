@@ -7,6 +7,7 @@ import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Player;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
+import net.ddns.minersonline.HistorySurvival.engine.io.Mouse;
 import net.ddns.minersonline.HistorySurvival.engine.models.TexturedModel;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.Terrain;
 import net.ddns.minersonline.HistorySurvival.engine.textures.ModelTexture;
@@ -166,6 +167,7 @@ public class Game {
         waterTiles.add(water);
 
         while (DisplayManager.shouldDisplayClose()) {
+            Mouse.update();
             player.move();
             camera.move();
             picker.update();

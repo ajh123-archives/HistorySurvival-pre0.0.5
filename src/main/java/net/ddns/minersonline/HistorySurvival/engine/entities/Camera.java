@@ -14,6 +14,13 @@ public class Camera {
     private float distanceFromPlayer;
     private float angleAroundPLayer;
 
+    private final float CAMERA_Y_OFFSET = 7;
+    private final float ZOOM_LEVEL_FACTOR = 0.1f;
+    private final float PITCH_CHANGE_FACTOR = 0.2f;
+    private final float ANGLE_AROUND_PLAYER_CHANGE_FACTOR = 0.3f;
+    private final float MIN_PITCH = -90;
+    private final float MAX_PITCH = 90;
+
     public Camera(Player player) {
         this.player = player;
         position = new Vector3f(0, 0, 0);
@@ -77,31 +84,26 @@ public class Camera {
     }
 
     private void calculateZoom() {
-        float zoomLevel = (float) Mouse.getMouseScrollY() * 0.1f;
+        float zoomLevel = Mouse.getDMouseScrollY() * ZOOM_LEVEL_FACTOR;;
         distanceFromPlayer -= zoomLevel;
     }
 
     private void calculatePitch() {
-        // TODO: pitching adjustments don't stop until the mouse button is released!
         if (Mouse.isButtonDown(GLFW_MOUSE_BUTTON_RIGHT)) {
-            float lastMouseY = (float) Mouse.getLastMouseY();
-            float mouseY = (float) Mouse.getMouseY();
-            float pitchChange = mouseY - lastMouseY;
-            if(lastMouseY == mouseY) pitchChange = 0;
-            Mouse.setLastMouseY(lastMouseY);
-            pitch = pitch + pitchChange;
+            float pitchChange = Mouse.getDY() * PITCH_CHANGE_FACTOR;
+            pitch -= pitchChange;
+            if (pitch < MIN_PITCH) {
+                pitch = MIN_PITCH;
+            } else if (pitch > MAX_PITCH) {
+                pitch = MAX_PITCH;
+            }
         }
     }
 
     private void calculateAngleAroundPlayer() {
-        // TODO: angleAroundPLayer adjustments don't stop until the mouse button is released!
         if (Mouse.isButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
-            float lastMouseX = (float) Mouse.getLastMouseX();
-            float mouseX = (float) Mouse.getMouseX();
-            float angleChange = mouseX - lastMouseX;
-            if(lastMouseX == mouseX) angleChange = 0;
-            Mouse.setLastMouseX(lastMouseX);
-            angleAroundPLayer = angleAroundPLayer + angleChange;
+            float angleChange = Mouse.getDX() * ANGLE_AROUND_PLAYER_CHANGE_FACTOR;
+            angleAroundPLayer -= angleChange;
         }
     }
 
@@ -119,6 +121,6 @@ public class Camera {
         float offsetZOfCameraFromPlayer = (float) (horizontalDistanceFromPlayer * Math.cos(Math.toRadians(theta)));
         position.x = player.getPosition().x - offsetXOfCameraFromPlayer;
         position.z = player.getPosition().z - offsetZOfCameraFromPlayer;
-        position.y = player.getPosition().y + verticalDistanceFromPlayer;
+        position.y = player.getPosition().y + verticalDistanceFromPlayer + CAMERA_Y_OFFSET;
     }
 }
