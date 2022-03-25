@@ -5,6 +5,7 @@ import java.util.List;
 import net.ddns.minersonline.HistorySurvival.engine.DisplayManager;
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
+import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.models.RawModel;
 import net.ddns.minersonline.HistorySurvival.engine.utils.Maths;
 import org.joml.Matrix4f;
@@ -17,6 +18,7 @@ import org.lwjgl.opengl.GL30;
 
 public class WaterRenderer {
 	private final static String DUDV_MAP = "waterDUDV.png";
+	private final static String NORMAL_MAP = "waterNormal.png";
 	private final static float WAVE_SPEED = 0.03f;
 
 	private RawModel quad;
@@ -24,12 +26,14 @@ public class WaterRenderer {
 	private WaterFrameBuffers wfbos;
 
 	private int dudv_texture;
+	private int normal_texture;
 	private float ripple_factor = 0;
 
 	public WaterRenderer(ModelLoader loader, WaterShader shader, Matrix4f projectionMatrix, WaterFrameBuffers wfbos) {
 		this.shader = shader;
 		this.wfbos = wfbos;
 		dudv_texture = loader.loadTexture(DUDV_MAP);
+		normal_texture = loader.loadTexture(NORMAL_MAP);
 		shader.bind();
 		shader.connectTextureUnits();
 		shader.loadProjectionMatrix(projectionMatrix);
@@ -37,8 +41,8 @@ public class WaterRenderer {
 		setUpVAO(loader);
 	}
 
-	public void render(List<WaterTile> water, Camera camera) {
-		prepareRender(camera);	
+	public void render(List<WaterTile> water, Camera camera, Light sun) {
+		prepareRender(camera, sun);
 		for (WaterTile tile : water) {
 			Matrix4f modelMatrix = Maths.createTransformationMatrix(
 					new Vector3f(tile.getX(), tile.getHeight(), tile.getZ()), 0, 0, 0,
@@ -49,12 +53,13 @@ public class WaterRenderer {
 		unbind();
 	}
 	
-	private void prepareRender(Camera camera){
+	private void prepareRender(Camera camera, Light sun){
 		shader.bind();
 		shader.loadViewMatrix(camera);
 		ripple_factor += WAVE_SPEED * DisplayManager.getDeltaInSeconds();
 		ripple_factor %=1;
 		shader.loadRippleFactor(ripple_factor);
+		shader.loadLight(sun);
 		GL30.glBindVertexArray(quad.getVaoId());
 		GL20.glEnableVertexAttribArray(0);
 		GL13.glActiveTexture(GL13.GL_TEXTURE0);
@@ -63,6 +68,8 @@ public class WaterRenderer {
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, wfbos.getRefractionTexture());
 		GL13.glActiveTexture(GL13.GL_TEXTURE2);
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, dudv_texture);
+		GL13.glActiveTexture(GL13.GL_TEXTURE3);
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, normal_texture);
 	}
 	
 	private void unbind(){

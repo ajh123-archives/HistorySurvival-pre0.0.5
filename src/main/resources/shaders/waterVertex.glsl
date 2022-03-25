@@ -5,11 +5,13 @@ in vec2 position;
 out vec4 clipSpace;
 out vec2 textCoOrds;
 out vec3 toCamVec;
+out vec3 fromSunVec;
 
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 modelMatrix;
 uniform vec3 camPos;
+uniform vec3 lightPos;
 
 const float tiling = 6.0;
 
@@ -21,4 +23,5 @@ void main(void) {
 	textCoOrds = vec2(position.x/2.0 + 0.5, position.y/2.0 + 0.5) * tiling;
 
 	toCamVec = camPos - worldPos.xyz;
+	fromSunVec = worldPos.xyz - lightPos;
 }

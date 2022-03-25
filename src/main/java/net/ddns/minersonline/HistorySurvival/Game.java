@@ -113,8 +113,8 @@ public class Game {
         }
 
         List<Light> lights = new ArrayList<>();
-        Light light = new Light(new Vector3f(3000, 2000, 2000), new Vector3f(0.4f, 0.4f,0.4f));
-        lights.add(light);
+        Light sun = new Light(new Vector3f(3000, 2000, 2000), new Vector3f(0.6f, 0.6f,0.6f));
+        lights.add(sun);
 
         TexturedModel lamp = new TexturedModel(ObjLoader.loadObjModel("lamp.obj", modelLoader), new ModelTexture(modelLoader.loadTexture("lamp.png")));
 
@@ -188,7 +188,7 @@ public class Game {
             GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
 
             masterRenderer.renderScene(entityList, world, lights, camera, new Vector4f(0, -1, 0, 999999999));
-            waterRenderer.render(waterTiles, camera);
+            waterRenderer.render(waterTiles, camera, sun);
 
             guiRenderer.render(guis);
             DisplayManager.updateDisplay();

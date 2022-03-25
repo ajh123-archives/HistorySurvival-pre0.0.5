@@ -2,6 +2,7 @@ package net.ddns.minersonline.HistorySurvival.engine.water;
 
 
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
+import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.shaders.ShaderProgramBase;
 import net.ddns.minersonline.HistorySurvival.engine.utils.Maths;
 import org.joml.Matrix4f;
@@ -18,8 +19,11 @@ public class WaterShader extends ShaderProgramBase {
 	private int location_reflection;
 	private int location_refraction;
 	private int location_dudv;
+	private int location_normal;
 	private int location_rippleFactor;
 	private int location_camPos;
+	private int location_lightColour;
+	private int location_lightPos;
 
 	public WaterShader() {
 		super(VERTEX_FILE, FRAGMENT_FILE);
@@ -38,14 +42,23 @@ public class WaterShader extends ShaderProgramBase {
 		location_reflection = getUniformLocation("reflectionTexture");
 		location_refraction = getUniformLocation("refractionTexture");
 		location_dudv = getUniformLocation("dudvMap");
+		location_normal = getUniformLocation("normalMap");
 		location_rippleFactor = getUniformLocation("rippleFactor");
 		location_camPos = getUniformLocation("camPos");
+		location_lightColour = getUniformLocation("lightColour");
+		location_lightPos = getUniformLocation("lightPos");
 	}
 
 	public void connectTextureUnits(){
 		super.loadInt(location_reflection, 0);
 		super.loadInt(location_refraction, 1);
 		super.loadInt(location_dudv, 2);
+		super.loadInt(location_normal, 3);
+	}
+
+	public void loadLight(Light light){
+		super.loadVector(location_lightColour, light.getColor());
+		super.loadVector(location_lightPos, light.getPosition());
 	}
 
 	public void loadRippleFactor(float rippleFactor){
