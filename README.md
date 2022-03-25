@@ -15,5 +15,8 @@ This code was meant to be a migration of his tutorial game from LWJGL 2 to moder
 Keyboard arrow keys also work for movement. Mouse input is buggy. Good luck!
 
 ## Dependencies
+All their licenses can be found [here](3rd_party)
+ * Brigadier
  * LWJGL 3
+ * JOML
  

@@ -4,12 +4,24 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.codechapin</groupId>
-    <artifactId>lwjgl-thinmatrix</artifactId>
+    <groupId>net.ddns.minersonline</groupId>
+    <artifactId>HistorySurvival</artifactId>
     <version>0.1</version>
 
-    <name>lwjgl-thinmatrix</name>
-    <url>http://www.codechapin.com</url>
+    <name>HistorySurvival</name>
+    <url>https://minersonline.ddns.net/games.php?id=HistorySurvival</url>
+
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+        <repository>
+            <id>minecraft-libraries</id>
+            <name>Minecraft Libraries</name>
+            <url>https://libraries.minecraft.net</url>
+        </repository>
+    </repositories>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -18,6 +30,7 @@
 
         <lwjgl.version>3.2.1</lwjgl.version>
         <joml.version>1.9.12</joml.version>
+        <brigadier.version>1.0.18</brigadier.version>
     </properties>
 
     <profiles>
@@ -127,6 +140,11 @@
             <groupId>org.joml</groupId>
             <artifactId>joml</artifactId>
             <version>${joml.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.mojang</groupId>
+            <artifactId>brigadier</artifactId>
+            <version>${brigadier.version}</version>
         </dependency>
     </dependencies>
 
