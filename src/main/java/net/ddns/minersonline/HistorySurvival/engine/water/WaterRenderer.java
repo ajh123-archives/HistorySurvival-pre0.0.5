@@ -2,6 +2,7 @@ package net.ddns.minersonline.HistorySurvival.engine.water;
 
 import java.util.List;
 
+import net.ddns.minersonline.HistorySurvival.engine.DisplayManager;
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.models.RawModel;
@@ -15,14 +16,20 @@ import org.lwjgl.opengl.GL30;
 
 
 public class WaterRenderer {
+	private final static String DUDV_MAP = "waterDUDV.png";
+	private final static float WAVE_SPEED = 0.03f;
 
 	private RawModel quad;
 	private WaterShader shader;
 	private WaterFrameBuffers wfbos;
 
+	private int dudv_texture;
+	private float ripple_factor = 0;
+
 	public WaterRenderer(ModelLoader loader, WaterShader shader, Matrix4f projectionMatrix, WaterFrameBuffers wfbos) {
 		this.shader = shader;
 		this.wfbos = wfbos;
+		dudv_texture = loader.loadTexture(DUDV_MAP);
 		shader.bind();
 		shader.connectTextureUnits();
 		shader.loadProjectionMatrix(projectionMatrix);
@@ -45,12 +52,17 @@ public class WaterRenderer {
 	private void prepareRender(Camera camera){
 		shader.bind();
 		shader.loadViewMatrix(camera);
+		ripple_factor += WAVE_SPEED * DisplayManager.getDeltaInSeconds();
+		ripple_factor %=1;
+		shader.loadRippleFactor(ripple_factor);
 		GL30.glBindVertexArray(quad.getVaoId());
 		GL20.glEnableVertexAttribArray(0);
 		GL13.glActiveTexture(GL13.GL_TEXTURE0);
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, wfbos.getReflectionTexture());
 		GL13.glActiveTexture(GL13.GL_TEXTURE1);
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, wfbos.getRefractionTexture());
+		GL13.glActiveTexture(GL13.GL_TEXTURE2);
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, dudv_texture);
 	}
 	
 	private void unbind(){
