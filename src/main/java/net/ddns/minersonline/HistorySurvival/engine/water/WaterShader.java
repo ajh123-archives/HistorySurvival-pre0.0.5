@@ -20,6 +20,7 @@ public class WaterShader extends ShaderProgramBase {
 	private int location_refraction;
 	private int location_dudv;
 	private int location_normal;
+	private int location_depth;
 	private int location_rippleFactor;
 	private int location_camPos;
 	private int location_lightColour;
@@ -43,6 +44,7 @@ public class WaterShader extends ShaderProgramBase {
 		location_refraction = getUniformLocation("refractionTexture");
 		location_dudv = getUniformLocation("dudvMap");
 		location_normal = getUniformLocation("normalMap");
+		location_depth = getUniformLocation("depthMap");
 		location_rippleFactor = getUniformLocation("rippleFactor");
 		location_camPos = getUniformLocation("camPos");
 		location_lightColour = getUniformLocation("lightColour");
@@ -54,6 +56,7 @@ public class WaterShader extends ShaderProgramBase {
 		super.loadInt(location_refraction, 1);
 		super.loadInt(location_dudv, 2);
 		super.loadInt(location_normal, 3);
+		super.loadInt(location_depth, 4);
 	}
 
 	public void loadLight(Light light){

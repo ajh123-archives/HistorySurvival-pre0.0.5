@@ -177,12 +177,12 @@ public class Game {
             float distance = 2 * (camera.getPosition().y - water.getHeight());
             camera.getPosition().y -= distance;
             camera.invertPitch();
-            masterRenderer.renderScene(entityList, world, lights, camera, new Vector4f(0, 1, 0, -water.getHeight()));
+            masterRenderer.renderScene(entityList, world, lights, camera, new Vector4f(0, 1, 0, -water.getHeight()+1f));
             camera.getPosition().y += distance;
             camera.invertPitch();
 
             wfbos.bindRefractionFrameBuffer();
-            masterRenderer.renderScene(entityList, world, lights, camera, new Vector4f(0, -1, 0, water.getHeight()));
+            masterRenderer.renderScene(entityList, world, lights, camera, new Vector4f(0, -1, 0, water.getHeight()+1f));
             wfbos.unbindCurrentFrameBuffer();
 
             GL11.glDisable(GL30.GL_CLIP_DISTANCE0);

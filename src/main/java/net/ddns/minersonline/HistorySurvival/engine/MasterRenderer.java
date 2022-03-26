@@ -20,8 +20,8 @@ import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 
 public class MasterRenderer {
     private static final float FOV = 70;
-    private static final float NEAR_PLANE = 0.1f;
-    private static final float FAR_PLANE = 1000;
+    public static final float NEAR_PLANE = 0.1f;
+    public static final float FAR_PLANE = 1000;
     private static final float SKY_RED = 0.65f;
     private static final float SKY_GREEN = 0.9f;
     private static final float SKY_BLUE = 0.97f;
