@@ -5,73 +5,98 @@ import net.ddns.minersonline.HistorySurvival.engine.utils.BufferUtils;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL30.*;
 
 public class ModelLoader {
-    private List<Integer> vaoList;
-    private List<Integer> vboList;
+    private ConcurrentHashMap<Integer, List<Integer>> vao_vbos;
     private List<Integer> textureList;
 
     public ModelLoader() {
-        vaoList = new ArrayList<>();
-        vboList = new ArrayList<>();
         textureList = new ArrayList<>();
+        vao_vbos = new ConcurrentHashMap<>();
     }
 
     private int createVao() {
         int vaoId = glGenVertexArrays();            // initialize an empty VAO
-        vaoList.add(vaoId);
         glBindVertexArray(vaoId);                   // select this vao
         return vaoId;
     }
 
-    private void storeDataInAttributeList(int attributeNumber, int vertexLength, float[] data) {
+    private int storeDataInAttributeList(int attributeNumber, int vertexLength, float[] data) {
         int vboId = glGenBuffers();                                 // initialize an empty VBO
-        vboList.add(vboId);
         glBindBuffer(GL_ARRAY_BUFFER, vboId);                       // select this VBO into the VAO Id specified
         FloatBuffer buffer = BufferUtils.createFloatBuffer(data);   // make VBO from data
         glBufferData(GL_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);      // store data into VBO & Not going to edit this data
         glVertexAttribPointer(attributeNumber, vertexLength, GL_FLOAT, false, 0, 0);    // place VBO into VAO
         glBindBuffer(GL_ARRAY_BUFFER, 0);                   // unbind the VBO
+        return vboId;
     }
 
     private void unbindVao() {
         glBindVertexArray(0);
     }
 
-    private void bindIndicesBuffer(int[] indices) {
+    private int bindIndicesBuffer(int[] indices) {
         int vboId = glGenBuffers();
-        vboList.add(vboId);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboId);
         IntBuffer buffer = BufferUtils.createIntBuffer(indices);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);
+        return vboId;
+    }
+
+    public int loadToVao(float[] positions, float[] textureCoords) {
+        int vaoId = createVao();
+        int vbo1 = storeDataInAttributeList(0, 2, positions);     // using VAO attribute 0. Could be any 0 thru 15
+        int vbo2 = storeDataInAttributeList(1, 2, textureCoords);
+        unbindVao();
+
+        List<Integer> VBOs = new ArrayList<>();
+        VBOs.add(vbo1);
+        VBOs.add(vbo2);
+        vao_vbos.put(vaoId, VBOs);
+        return vaoId;
     }
 
     public RawModel loadToVao(float[] positions, float[] textureCoords, float[] normals, int[] indices) {
         int vaoId = createVao();
-        bindIndicesBuffer(indices);
-        storeDataInAttributeList(0, 3, positions);     // using VAO attribute 0. Could be any 0 thru 15
-        storeDataInAttributeList(1, 2, textureCoords);
-        storeDataInAttributeList(2, 3, normals);
+        int vbo1 = bindIndicesBuffer(indices);
+        int vbo2 = storeDataInAttributeList(0, 3, positions);     // using VAO attribute 0. Could be any 0 thru 15
+        int vbo3 = storeDataInAttributeList(1, 2, textureCoords);
+        int vbo4 = storeDataInAttributeList(2, 3, normals);
         unbindVao();
+
+        List<Integer> VBOs = new ArrayList<>();
+        VBOs.add(vbo1);
+        VBOs.add(vbo2);
+        VBOs.add(vbo3);
+        VBOs.add(vbo4);
+        vao_vbos.put(vaoId, VBOs);
         return new RawModel(vaoId, indices.length);
     }
 
     public RawModel loadToVao(float[] positions, int length) {
         int vaoId = createVao();
-        storeDataInAttributeList(0, length, positions);
+        int vbo1 = storeDataInAttributeList(0, length, positions);
         unbindVao();
+
+        List<Integer> VBOs = new ArrayList<>();
+        VBOs.add(vbo1);
+        vao_vbos.put(vaoId, VBOs);
         return new RawModel(vaoId, positions.length/length);
     }
 
     public RawModel loadToVao(float[] positions) {
         int vaoId = createVao();
-        storeDataInAttributeList(0, 2, positions);
+        int vbo1 = storeDataInAttributeList(0, 2, positions);
         unbindVao();
+
+        List<Integer> VBOs = new ArrayList<>();
+        VBOs.add(vbo1);
+        vao_vbos.put(vaoId, VBOs);
         return new RawModel(vaoId, positions.length/2);
     }
 
@@ -85,13 +110,21 @@ public class ModelLoader {
         return textureId;
     }
 
-    public void destroy() {
-        for (int vaoId : vaoList) {
-            glDeleteVertexArrays(vaoId);
-        }
-
-        for (int vboId : vboList) {
+    public void destroy(int vao) {
+        for (int vboId: vao_vbos.get(vao)) {
             glDeleteBuffers(vboId);
+        }
+        glDeleteVertexArrays(vao);
+        vao_vbos.remove(vao);
+    }
+
+    public void destroy() {
+        for (int vao : vao_vbos.keySet()) {
+            for (int vboId: vao_vbos.get(vao)) {
+                glDeleteBuffers(vboId);
+            }
+            glDeleteVertexArrays(vao);
+            vao_vbos.remove(vao);
         }
 
         for (int textureId : textureList) {

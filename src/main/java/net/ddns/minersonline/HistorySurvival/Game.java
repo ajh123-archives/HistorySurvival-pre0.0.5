@@ -5,6 +5,9 @@ import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Entity;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Player;
+import net.ddns.minersonline.HistorySurvival.engine.fontMeshCreator.FontType;
+import net.ddns.minersonline.HistorySurvival.engine.fontMeshCreator.GUIText;
+import net.ddns.minersonline.HistorySurvival.engine.fontRendering.TextMaster;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
 import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
@@ -33,6 +36,8 @@ import org.lwjgl.opengl.GL30;
 import java.util.*;
 
 public class Game {
+    public static String VERSION = "History Survival 0.0.1";
+
     private void start() {
         DisplayManager.createDisplay();
         DisplayManager.setShowFPSTitle(false);
@@ -41,6 +46,8 @@ public class Game {
         System.out.println("LWJGL: " + Version.getVersion());
 
         ModelLoader modelLoader = new ModelLoader();
+        TextMaster.init(modelLoader);
+        FontType font = new FontType(modelLoader.loadTexture("font/consolas.png"), "font/consolas.fnt");
 
         // Tree entity
         TexturedModel treeModel = new TexturedModel(ObjLoader.loadObjModel("tree.obj", modelLoader), new ModelTexture(modelLoader.loadTexture("tree.png")));
@@ -170,6 +177,9 @@ public class Game {
         WaterTile water = new WaterTile(370, -293, 4.2f);
         waterTiles.add(water);
 
+        GUIText debugText = new GUIText(VERSION+"\n \tDebug Screen", 1.3f, font, new Vector2f(0, 0), 10, false);
+        debugText.setVisible(false);
+
         while (DisplayManager.shouldDisplayClose()) {
             Mouse.update();
             player.move();
@@ -198,11 +208,15 @@ public class Game {
             if(Keyboard.isKeyPressed(GLFW.GLFW_KEY_F3)) {
                 boolean debug = DisplayManager.getShowFPSTitle();
                 DisplayManager.setShowFPSTitle(!debug);
+                debugText.setVisible(!debug);
             }
+
+            TextMaster.render();
 
             DisplayManager.updateDisplay();
         }
 
+        TextMaster.cleanUp();
         wfbos.cleanUp();
         waterShader.destroy();
         guiRenderer.cleanUp();

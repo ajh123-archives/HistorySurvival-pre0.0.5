@@ -2,10 +2,10 @@
 const float lights = 4;
 
 in vec3 position;
-in vec2 textureCoords;
+in vec2 textureCoOrds;
 in vec3 normal;
 
-out vec2 pass_textureCoords;
+out vec2 pass_textureCoOrds;
 out vec3 surfaceNormal;
 out vec3 toLightVector[4];
 out vec3 toCameraVector;
@@ -28,7 +28,7 @@ void main(void) {
     vec4 worldPosition = transformationMatrix * vec4(position, 1.0);
     vec4 positionRelativeToCamera = viewMatrix * worldPosition;
     gl_Position = projectionMatrix * positionRelativeToCamera;
-    pass_textureCoords = (textureCoords / numberOfRowsInTextureAtlas) + offset;
+    pass_textureCoOrds = (textureCoOrds / numberOfRowsInTextureAtlas) + offset;
 
     gl_ClipDistance[0] = dot(worldPosition, plane);
 

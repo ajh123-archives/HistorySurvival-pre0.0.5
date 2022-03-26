@@ -1,7 +1,7 @@
 #version 410 core
 const float lights = 4;
 
-in vec2 pass_textureCoords;
+in vec2 pass_textureCoOrds;
 in vec3 surfaceNormal;
 in vec3 toLightVector[4];
 in vec3 toCameraVector;
@@ -38,7 +38,7 @@ void main(void) {
     }
     totalDiffuse = max(totalDiffuse, 0.2);
 
-    vec4 textureColor = texture(modelTexture, pass_textureCoords);
+    vec4 textureColor = texture(modelTexture, pass_textureCoOrds);
 
     if (textureColor.a <0.5) {
         discard;
