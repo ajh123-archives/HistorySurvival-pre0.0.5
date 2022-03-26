@@ -12,7 +12,9 @@ This code was meant to be a migration of his tutorial game from LWJGL 2 to moder
 * D is turn right
 * SPACE BAR is jump
 
-Keyboard arrow keys also work for movement. ~~Mouse input is buggy. Good luck!~~ Mouse input now fixed!
+Keyboard arrow keys also work for movement. 
+~~Mouse input is buggy. Good luck!~~ 
+Mouse input now fixed! Used left control + hold left/right click to rotate the camera
 
 ## Dependencies
 All their licenses can be found [here](3rd_party)

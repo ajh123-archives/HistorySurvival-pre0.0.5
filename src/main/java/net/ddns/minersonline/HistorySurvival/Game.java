@@ -7,6 +7,7 @@ import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Player;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
+import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
 import net.ddns.minersonline.HistorySurvival.engine.io.Mouse;
 import net.ddns.minersonline.HistorySurvival.engine.models.TexturedModel;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.Terrain;
@@ -24,6 +25,8 @@ import net.ddns.minersonline.HistorySurvival.engine.water.WaterTile;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
+import org.lwjgl.Version;
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
@@ -32,9 +35,10 @@ import java.util.*;
 public class Game {
     private void start() {
         DisplayManager.createDisplay();
-        DisplayManager.setShowFPSTitle(true);   // TODO: Debug only
+        DisplayManager.setShowFPSTitle(false);
 
         System.out.println("OpenGL: " + DisplayManager.getOpenGlVersionMessage());
+        System.out.println("LWJGL: " + Version.getVersion());
 
         ModelLoader modelLoader = new ModelLoader();
 
@@ -191,6 +195,11 @@ public class Game {
             waterRenderer.render(waterTiles, camera, sun);
 
             guiRenderer.render(guis);
+            if(Keyboard.isKeyPressed(GLFW.GLFW_KEY_F3)) {
+                boolean debug = DisplayManager.getShowFPSTitle();
+                DisplayManager.setShowFPSTitle(!debug);
+            }
+
             DisplayManager.updateDisplay();
         }
 

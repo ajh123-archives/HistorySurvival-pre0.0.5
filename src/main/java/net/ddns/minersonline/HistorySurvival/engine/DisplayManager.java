@@ -33,14 +33,17 @@ public class DisplayManager {
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
+        GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        assert vidMode != null;
+        WINDOW_WIDTH = (vidMode.width()/2 + (vidMode.width()/8)*2);
+        WINDOW_HEIGHT = (vidMode.height()/2 + (vidMode.height()/8)*2);
+
         window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, title, 0, 0);
 
         if (window == 0) {
             throw new RuntimeException("Failed to create window");
         }
 
-        GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-        assert vidMode != null;
         glfwSetWindowPos(window, (vidMode.width() - WINDOW_WIDTH) / 2, (vidMode.height() - WINDOW_HEIGHT) / 2);
 
         keyboard = new Keyboard();
@@ -78,11 +81,13 @@ public class DisplayManager {
         if (showFPSTitle) {
             frames++;
 
-            if (System.currentTimeMillis() > time + 1000) {
+            if (System.currentTimeMillis() > time + 1000 && showFPSTitle) {
                 glfwSetWindowTitle(window, title + " | FPS: " + frames);
                 time = System.currentTimeMillis();
                 frames = 0;
             }
+        } else {
+            glfwSetWindowTitle(window, title);
         }
 
         double currentFrameTime = getCurrentTime();
@@ -115,6 +120,10 @@ public class DisplayManager {
         }
     }
 
+    public static boolean getShowFPSTitle() {
+        return showFPSTitle;
+    }
+
     public static void setWindowWidth(int windowWidth) {
         WINDOW_WIDTH = windowWidth;
     }
@@ -129,6 +138,10 @@ public class DisplayManager {
 
     public static int getWindowHeight() {
         return WINDOW_HEIGHT;
+    }
+
+    public static long getWindow(){
+        return window;
     }
 
     public static double getDeltaInSeconds() {

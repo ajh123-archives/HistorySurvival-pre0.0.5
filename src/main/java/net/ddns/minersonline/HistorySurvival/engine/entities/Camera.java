@@ -1,5 +1,6 @@
 package net.ddns.minersonline.HistorySurvival.engine.entities;
 
+import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
 import net.ddns.minersonline.HistorySurvival.engine.io.Mouse;
 import org.joml.Vector3f;
 
@@ -89,7 +90,7 @@ public class Camera {
     }
 
     private void calculatePitch() {
-        if (Mouse.isButtonDown(GLFW_MOUSE_BUTTON_RIGHT)) {
+        if (Keyboard.isKeyDown(GLFW_KEY_LEFT_CONTROL) && Mouse.isButtonDown(GLFW_MOUSE_BUTTON_RIGHT)) {
             float pitchChange = Mouse.getDY() * PITCH_CHANGE_FACTOR;
             pitch -= pitchChange;
             if (pitch < MIN_PITCH) {
@@ -101,7 +102,7 @@ public class Camera {
     }
 
     private void calculateAngleAroundPlayer() {
-        if (Mouse.isButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
+        if (Keyboard.isKeyDown(GLFW_KEY_LEFT_CONTROL) && Mouse.isButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
             float angleChange = Mouse.getDX() * ANGLE_AROUND_PLAYER_CHANGE_FACTOR;
             angleAroundPLayer -= angleChange;
         }
