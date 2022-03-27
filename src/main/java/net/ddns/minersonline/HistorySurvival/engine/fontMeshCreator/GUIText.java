@@ -14,20 +14,27 @@ import org.joml.Vector3f;
 public class GUIText {
 
 	private String textString;
-	private float fontSize;
+	private final float fontSize;
 
 	private int textMeshVao;
 	private int vertexCount;
-	private Vector3f colour = new Vector3f(0f, 0f, 0f);
+	private final Vector3f colour = new Vector3f(0f, 0f, 0f);
 
-	private Vector2f position;
-	private float lineMaxSize;
+	private final Vector2f position;
+	private float width = 0.5f;
+	private float edge = 0.1f;
+	private float borderWidth = 0.7f;
+	private float borderEdge = 0.1f;
+	private Vector2f offset = new Vector2f(0.0f, 0.0f);
+	private final Vector3f outlineColor = new Vector3f(1f, 1f, 1f);
+
+	private final float lineMaxSize;
 	private int numberOfLines;
 
-	private FontType font;
+	private final FontType font;
 	private boolean visible = true;
 
-	private boolean centerText = false;
+	private boolean centerText;
 
 	/**
 	 * Creates a new text, loads the text's quads into a VAO, and adds the text
@@ -198,4 +205,52 @@ public class GUIText {
 		TextMaster.removeText(this);
 		TextMaster.loadText(this);
     }
+
+	public float getWidth() {
+		return width;
+	}
+
+	public void setWidth(float width) {
+		this.width = width;
+	}
+
+	public float getEdge() {
+		return edge;
+	}
+
+	public void setEdge(float edge) {
+		this.edge = edge;
+	}
+
+	public float getBorderWidth() {
+		return borderWidth;
+	}
+
+	public void setBorderWidth(float borderWidth) {
+		this.borderWidth = borderWidth;
+	}
+
+	public float getBorderEdge() {
+		return borderEdge;
+	}
+
+	public void setBorderEdge(float borderEdge) {
+		this.borderEdge = borderEdge;
+	}
+
+	public Vector2f getOffset() {
+		return offset;
+	}
+
+	public void setOffset(Vector2f offset) {
+		this.offset = offset;
+	}
+
+	public Vector3f getOutlineColor() {
+		return outlineColor;
+	}
+
+	public void setOutlineColor(float r, float g, float b) {
+		outlineColor.set(r, g, b);
+	}
 }
