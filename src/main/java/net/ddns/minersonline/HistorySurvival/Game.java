@@ -177,7 +177,7 @@ public class Game {
         WaterTile water = new WaterTile(370, -293, 4.2f);
         waterTiles.add(water);
 
-        GUIText debugText = new GUIText(VERSION+"\n \tDebug Screen", 1.3f, font, new Vector2f(0, 0), 10, false);
+        GUIText debugText = new GUIText(VERSION+"\nDebug\t Screen", 1.3f, font, new Vector2f(0, 0), 10, false);
         debugText.setVisible(false);
 
         while (DisplayManager.shouldDisplayClose()) {

@@ -1,6 +1,5 @@
 package net.ddns.minersonline.HistorySurvival.engine.fontMeshCreator;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,19 +16,17 @@ public class TextMeshCreator {
 
 	protected TextMeshData createTextMesh(GUIText text) {
 		List<Line> lines = createStructure(text);
-		TextMeshData data = createQuadVertices(text, lines);
-		return data;
+		return createQuadVertices(text, lines);
 	}
 
 	private List<Line> createStructure(GUIText text) {
 		char[] chars = text.getTextString().toCharArray();
-		List<Line> lines = new ArrayList<Line>();
+		List<Line> lines = new ArrayList<>();
 		Line currentLine = new Line(metaData.getSpaceWidth(), text.getFontSize(), text.getMaxLineSize());
 		Word currentWord = new Word(text.getFontSize());
 		for (char c : chars) {
 			if(c != '\t') {
-				int ascii = (int) c;
-				if (ascii == SPACE_ASCII) {
+				if ((int) c == SPACE_ASCII) {
 					boolean added = currentLine.attemptToAddWord(currentWord);
 					if (!added) {
 						lines.add(currentLine);
@@ -40,15 +37,8 @@ public class TextMeshCreator {
 					continue;
 				}
 
-				Character character = metaData.getCharacter(ascii);
+				Character character = metaData.getCharacter(c);
 				currentWord.addCharacter(character);
-			} else {
-				//currentLine.addWord(currentWord);
-				//Word tab = new Word(text.getFontSize());
-				//for (int i = 0; i < 4; i++) {
-					//tab.addCharacter(metaData.getCharacter(SPACE_ASCII));
-				//}
-				//currentLine.attemptToAddWord(tab);
 			}
 		}
 		completeStructure(lines, currentLine, currentWord, text);
@@ -70,20 +60,20 @@ public class TextMeshCreator {
 		double curserX = 0f;
 		double curserY = 0f;
 		int _char = 0;
-		List<Float> vertices = new ArrayList<Float>();
-		List<Float> textureCoords = new ArrayList<Float>();
+		List<Float> vertices = new ArrayList<>();
+		List<Float> textureCoords = new ArrayList<>();
 		for (Line line : lines) {
 			if (text.isCentered()) {
 				curserX = (line.getMaxLength() - line.getLineLength()) / 2;
 			}
 			for (Word word : line.getWords()) {
 				for (Character letter : word.getCharacters()) {
-					if (text.getTextString().charAt(_char+1) == '\n'){
+					try{if (text.getTextString().charAt(_char+2) == '\n') {
 						curserX = 0;
 						curserY += LINE_HEIGHT * text.getFontSize();
-					} //else if (text.getTextString().charAt(_char+1) == '\t'){
-//						curserX = 4;
-//					}
+					} if (text.getTextString().charAt(_char+2) == '\t'){
+						curserX += LINE_HEIGHT * text.getFontSize();
+					} } catch (IndexOutOfBoundsException ignored){}
 
 					addVerticesForCharacter(curserX, curserY, letter, text.getFontSize(), vertices);
 					addTexCoords(textureCoords, letter.getxTextureCoord(), letter.getyTextureCoord(),

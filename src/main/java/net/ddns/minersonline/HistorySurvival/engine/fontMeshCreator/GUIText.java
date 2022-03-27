@@ -192,4 +192,8 @@ public class GUIText {
 	public void setVisible(boolean visible) {
 		this.visible = visible;
 	}
+
+    public void setTextString(String a) {
+		textString = a;
+    }
 }
