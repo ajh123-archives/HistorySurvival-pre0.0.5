@@ -1,4 +1,4 @@
-package net.ddns.minersonline.HistorySurvival.engine.fontMeshCreator;
+package net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator;
 
 /**
  * Stores the vertex data for all the quads on which a text will be rendered.

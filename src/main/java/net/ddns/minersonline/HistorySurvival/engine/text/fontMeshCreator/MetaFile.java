@@ -1,4 +1,4 @@
-package net.ddns.minersonline.HistorySurvival.engine.fontMeshCreator;
+package net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator;
 
 import java.io.*;
 import java.util.HashMap;

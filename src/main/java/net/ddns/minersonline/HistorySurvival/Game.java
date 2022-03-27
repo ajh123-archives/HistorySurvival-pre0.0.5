@@ -5,9 +5,10 @@ import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Entity;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Player;
-import net.ddns.minersonline.HistorySurvival.engine.fontMeshCreator.FontType;
-import net.ddns.minersonline.HistorySurvival.engine.fontMeshCreator.GUIText;
-import net.ddns.minersonline.HistorySurvival.engine.fontRendering.TextMaster;
+import net.ddns.minersonline.HistorySurvival.engine.text.ChatColor;
+import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontType;
+import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.GUIText;
+import net.ddns.minersonline.HistorySurvival.engine.text.fontRendering.TextMaster;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
 import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
@@ -208,17 +209,24 @@ public class Game {
             guiRenderer.render(guis);
             Terrain region = Terrain.getTerrain(world, player.getPosition().x, player.getPosition().z);
             String debugString = GAME+" "+VERSION+"\nFPS: "+DisplayManager.getFPS()+
-                    "\nPlayerPosition:"+
+                    "\n"+ChatColor.DARK_RED+"PlayerPosition:"+
                     " X:"+player.getPosition().x+
                     " Y:"+player.getPosition().y+
                     " Z:"+player.getPosition().z+
                     "\nCameraPosition:"+
                     " X:"+camera.getPosition().x+
                     " Y:"+camera.getPosition().y+
-                    " Z:"+camera.getPosition().z+
-                    "\nRegion:"+
-                    " X:"+region.getX()/Terrain.SIZE+
-                    " Z:"+region.getZ()/Terrain.SIZE;
+                    " Z:"+camera.getPosition().z;
+            if(region == null) {
+                debugString += "\nRegion:" +
+                        " X: null" +
+                        " Z: null";
+            }
+            if(region != null) {
+                debugString += "\nRegion:" +
+                        " X:" + region.getX() / Terrain.SIZE +
+                        " Z:" + region.getZ() / Terrain.SIZE;
+            }
 
             if(Keyboard.isKeyPressed(GLFW.GLFW_KEY_F3)) {
                 boolean debug = DisplayManager.getShowFPSTitle();
@@ -226,7 +234,6 @@ public class Game {
                 debugText.setVisible(!debug);
             }
             debugText.setTextString(debugString);
-
             TextMaster.render();
 
             DisplayManager.updateDisplay();

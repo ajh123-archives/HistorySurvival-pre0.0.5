@@ -1,6 +1,4 @@
-package net.ddns.minersonline.HistorySurvival.engine.fontMeshCreator;
-
-import java.io.File;
+package net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator;
 
 /**
  * Represents a font. It holds the font's texture atlas as well as having the

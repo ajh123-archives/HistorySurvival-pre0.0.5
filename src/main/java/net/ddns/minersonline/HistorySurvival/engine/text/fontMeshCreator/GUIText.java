@@ -1,9 +1,12 @@
-package net.ddns.minersonline.HistorySurvival.engine.fontMeshCreator;
+package net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator;
 
 
-import net.ddns.minersonline.HistorySurvival.engine.fontRendering.TextMaster;
+import net.ddns.minersonline.HistorySurvival.engine.text.fontRendering.TextMaster;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a piece of text in the game.
@@ -14,7 +17,14 @@ import org.joml.Vector3f;
 public class GUIText {
 
 	private String textString;
+	private String ogTextString;
 	private final float fontSize;
+	private List<GUIText> childTexts;
+	private GUIText parent = null;
+	private boolean child = false;
+
+	private double endX = 0f;
+	private double endY = 0f;
 
 	private int textMeshVao;
 	private int vertexCount;
@@ -64,18 +74,29 @@ public class GUIText {
 	public GUIText(String text, float fontSize, FontType font, Vector2f position, float maxLineLength,
 			boolean centered) {
 		this.textString = text;
+		this.ogTextString = text;
 		this.fontSize = fontSize;
 		this.font = font;
 		this.position = position;
 		this.lineMaxSize = maxLineLength;
 		this.centerText = centered;
+		childTexts = new ArrayList<>();
 		TextMaster.loadText(this);
+	}
+
+	public GUIText(String text, float fontSize, FontType font, Vector2f position, float maxLineLength, boolean centered, GUIText parent) {
+		this(text, fontSize, font, position, maxLineLength, centered);
+		this.child = true;
+		this.parent = parent;
 	}
 
 	/**
 	 * Remove the text from the screen.
 	 */
 	public void remove() {
+		for(GUIText child : childTexts){
+			TextMaster.removeText(child);
+		}
 		TextMaster.removeText(this);
 	}
 
@@ -197,11 +218,29 @@ public class GUIText {
 	}
 
 	public void setVisible(boolean visible) {
+		for (GUIText child : childTexts){
+			child.setVisible(visible);
+		}
 		this.visible = visible;
+	}
+
+	public GUIText split(int pos) {
+		for (GUIText child : childTexts){
+			TextMaster.removeText(child);
+		}
+		childTexts.clear();
+		String sub = this.ogTextString.substring(0, pos+2);
+		String remainder = this.ogTextString.substring(pos+2);
+		textString = sub;
+		GUIText child = new GUIText(remainder, fontSize, font, position, lineMaxSize, centerText, this);
+		child.setVisible(visible);
+		childTexts.add(child);
+		return child;
 	}
 
     public void setTextString(String a) {
 		textString = a;
+		ogTextString = a;
 		TextMaster.removeText(this);
 		TextMaster.loadText(this);
     }
@@ -252,5 +291,29 @@ public class GUIText {
 
 	public void setOutlineColor(float r, float g, float b) {
 		outlineColor.set(r, g, b);
+	}
+
+	public boolean isChild() {
+		return child;
+	}
+
+	public GUIText getParent() {
+		return parent;
+	}
+
+	public double getEndX() {
+		return endX;
+	}
+
+	public void setEndX(double endX) {
+		this.endX = endX;
+	}
+
+	public double getEndY() {
+		return endY;
+	}
+
+	public void setEndY(double endY) {
+		this.endY = endY;
 	}
 }

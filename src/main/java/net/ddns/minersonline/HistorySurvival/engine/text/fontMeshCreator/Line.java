@@ -1,4 +1,4 @@
-package net.ddns.minersonline.HistorySurvival.engine.fontMeshCreator;
+package net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator;
 
 import java.util.ArrayList;
 import java.util.List;

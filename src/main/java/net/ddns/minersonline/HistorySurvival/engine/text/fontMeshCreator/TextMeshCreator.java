@@ -1,4 +1,7 @@
-package net.ddns.minersonline.HistorySurvival.engine.fontMeshCreator;
+package net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator;
+
+import net.ddns.minersonline.HistorySurvival.engine.text.ChatColor;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,13 +23,17 @@ public class TextMeshCreator {
 	}
 
 	private List<Line> createStructure(GUIText text) {
+		GUIText child = null;
 		String lineOfText = text.getTextString().replaceAll("\t", "    ");
 		char[] chars = lineOfText.toCharArray();
 		List<Line> lines = new ArrayList<>();
 		Line currentLine = new Line(metaData.getSpaceWidth(), text.getFontSize(), text.getMaxLineSize());
 		Word currentWord = new Word(text.getFontSize());
+		boolean isColour = false;
+		ChatColor currentColor;
 		for (char c : chars) {
-			if ((int) c == SPACE_ASCII || c == '\n') {
+			String c_str = String.valueOf(c);
+			if ((int) c == SPACE_ASCII || c == '\n' && !( c_str.contains("§") )) {
 				boolean added = currentLine.attemptToAddWord(currentWord);
 				if (!added) {
 					lines.add(currentLine);
@@ -40,9 +47,23 @@ public class TextMeshCreator {
 				}
 				continue;
 			}
-
-			Character character = metaData.getCharacter(c);
-			currentWord.addCharacter(character);
+			if(c_str.contains("§")){
+				isColour = true;
+				child = text.split(text.getTextString().indexOf("§"));
+			} else {
+				if(!isColour) {
+					Character character = metaData.getCharacter(c);
+					currentWord.addCharacter(character);
+				} else {
+					currentColor = ChatColor.getByChar(c);
+					Vector3f colour = ChatColor.toRGB(currentColor);
+					if(child != null) {
+						child.setColour(colour.x, colour.y, colour.z);
+						child = null;
+					}
+				}
+				isColour = false;
+			}
 		}
 		completeStructure(lines, currentLine, currentWord, text);
 		return lines;
@@ -62,6 +83,11 @@ public class TextMeshCreator {
 		text.setNumberOfLines(lines.size());
 		double curserX = 0f;
 		double curserY = 0f;
+		if(text.isChild()){
+			curserX = text.getParent().getEndX();
+			curserY = text.getParent().getEndY();
+		}
+
 		List<Float> vertices = new ArrayList<>();
 		List<Float> textureCoOrds = new ArrayList<>();
 		for (Line line : lines) {
@@ -79,7 +105,9 @@ public class TextMeshCreator {
 			}
 			curserX = 0;
 			curserY += LINE_HEIGHT * text.getFontSize();
-		}		
+		}
+		text.setEndX(curserX);
+		text.setEndY(curserY);
 		return new TextMeshData(listToArray(vertices), listToArray(textureCoOrds));
 	}
 

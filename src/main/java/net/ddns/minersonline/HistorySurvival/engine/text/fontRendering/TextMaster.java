@@ -1,9 +1,9 @@
-package net.ddns.minersonline.HistorySurvival.engine.fontRendering;
+package net.ddns.minersonline.HistorySurvival.engine.text.fontRendering;
 
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
-import net.ddns.minersonline.HistorySurvival.engine.fontMeshCreator.FontType;
-import net.ddns.minersonline.HistorySurvival.engine.fontMeshCreator.GUIText;
-import net.ddns.minersonline.HistorySurvival.engine.fontMeshCreator.TextMeshData;
+import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontType;
+import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.GUIText;
+import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.TextMeshData;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,10 +36,12 @@ public class TextMaster {
 
     public static void removeText(GUIText text){
         List<GUIText> textBatch = texts.get(text.getFont());
-        textBatch.remove(text);
-        if (textBatch.isEmpty()) {
-            loader.destroy(text.getMesh());
-            texts.remove(text.getFont());
+        if(textBatch != null) {
+            textBatch.remove(text);
+            if (textBatch.isEmpty()) {
+                loader.destroy(text.getMesh());
+                texts.remove(text.getFont());
+            }
         }
     }
 

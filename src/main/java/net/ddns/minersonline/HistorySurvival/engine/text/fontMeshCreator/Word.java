@@ -1,4 +1,6 @@
-package net.ddns.minersonline.HistorySurvival.engine.fontMeshCreator;
+package net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator;
+
+import net.ddns.minersonline.HistorySurvival.engine.text.ChatColor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +15,16 @@ public class Word {
 	private List<Character> characters = new ArrayList<>();
 	private double width = 0;
 	private double fontSize;
-	
+	private ChatColor color;
+
+	public ChatColor getColor() {
+		return color;
+	}
+
+	public void setColor(ChatColor color) {
+		this.color = color;
+	}
+
 	/**
 	 * Create a new empty word.
 	 * @param fontSize - the font size of the text which this word is in.

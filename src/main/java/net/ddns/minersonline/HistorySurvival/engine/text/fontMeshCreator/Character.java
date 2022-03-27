@@ -1,4 +1,4 @@
-package net.ddns.minersonline.HistorySurvival.engine.fontMeshCreator;
+package net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator;
 
 /**
  * Simple data structure class holding information about a certain glyph in the

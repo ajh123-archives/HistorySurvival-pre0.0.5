@@ -1,4 +1,4 @@
-package net.ddns.minersonline.HistorySurvival.engine.fontRendering;
+package net.ddns.minersonline.HistorySurvival.engine.text.fontRendering;
 
 import net.ddns.minersonline.HistorySurvival.engine.shaders.ShaderProgramBase;
 import org.joml.Vector2f;

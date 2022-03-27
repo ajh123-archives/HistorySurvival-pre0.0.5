@@ -44,10 +44,12 @@ public class Player extends Entity {
         super.increasePosition(0, (float) (upwardsSpeed * DisplayManager.getDeltaInSeconds()), 0);
 
         // Player terrain collision detection
-        float terrainHeight = terrain.getHeightOfTerrain(super.getPosition().x, super.getPosition().z);
-        if (super.getPosition().y < terrainHeight) {
-            upwardsSpeed = 0;
-            super.getPosition().y = terrainHeight;
+        if(terrain != null) {
+            float terrainHeight = terrain.getHeightOfTerrain(super.getPosition().x, super.getPosition().z);
+            if (super.getPosition().y < terrainHeight) {
+                upwardsSpeed = 0;
+                super.getPosition().y = terrainHeight;
+            }
         }
     }
 
