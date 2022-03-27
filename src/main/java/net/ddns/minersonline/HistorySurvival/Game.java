@@ -36,7 +36,8 @@ import org.lwjgl.opengl.GL30;
 import java.util.*;
 
 public class Game {
-    public static String VERSION = "History Survival 0.0.1";
+    public static String GAME = "History Survival";
+    public static String VERSION = "0.0.1";
 
     private void start() {
         DisplayManager.createDisplay();
@@ -177,7 +178,7 @@ public class Game {
         WaterTile water = new WaterTile(370, -293, 4.2f);
         waterTiles.add(water);
 
-        GUIText debugText = new GUIText(VERSION+"\nDebug\t Screen", 1.3f, font, new Vector2f(0, 0), 10, false);
+        GUIText debugText = new GUIText("", 1.3f, font, new Vector2f(0, 0), 10, false);
         debugText.setVisible(false);
 
         while (DisplayManager.shouldDisplayClose()) {
@@ -205,11 +206,26 @@ public class Game {
             waterRenderer.render(waterTiles, camera, sun);
 
             guiRenderer.render(guis);
+            Terrain region = Terrain.getTerrain(world, player.getPosition().x, player.getPosition().z);
+            String debugString = GAME+" "+VERSION+"\nFPS: "+DisplayManager.getFPS()+
+                    "\nPlayerPosition: "+
+                    "\n\tX:"+player.getPosition().x+
+                    "\n\tY:"+player.getPosition().y+
+                    "\n\tZ:"+player.getPosition().z+
+                    "\nCameraPosition: "+
+                    "\n\tX:"+camera.getPosition().x+
+                    "\n\tY:"+camera.getPosition().y+
+                    "\n\tZ:"+camera.getPosition().z+
+                    "\nRegion: "+
+                    "\n\tX:"+region.getX()/Terrain.SIZE+
+                    "\n\tZ:"+region.getZ()/Terrain.SIZE;
+
             if(Keyboard.isKeyPressed(GLFW.GLFW_KEY_F3)) {
                 boolean debug = DisplayManager.getShowFPSTitle();
                 DisplayManager.setShowFPSTitle(!debug);
                 debugText.setVisible(!debug);
             }
+            debugText.setTextString(debugString);
 
             TextMaster.render();
 

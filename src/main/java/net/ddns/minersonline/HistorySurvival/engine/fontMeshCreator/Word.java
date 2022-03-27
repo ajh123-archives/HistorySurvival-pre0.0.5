@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class Word {
 	
-	private List<Character> characters = new ArrayList<Character>();
+	private List<Character> characters = new ArrayList<>();
 	private double width = 0;
 	private double fontSize;
 	
@@ -43,6 +43,14 @@ public class Word {
 	 */
 	protected double getWordWidth(){
 		return width;
+	}
+
+	public String toString() {
+		StringBuilder me = new StringBuilder();
+		for(Character character	: characters){
+			me.append((char)character.getId());
+		}
+		return me.toString();
 	}
 
 }

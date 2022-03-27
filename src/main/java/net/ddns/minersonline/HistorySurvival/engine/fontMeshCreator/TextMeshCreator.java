@@ -8,7 +8,7 @@ public class TextMeshCreator {
 	protected static final double LINE_HEIGHT = 0.03f;
 	protected static final int SPACE_ASCII = 32;
 
-	private MetaFile metaData;
+	private final MetaFile metaData;
 
 	protected TextMeshCreator(String metaFile) {
 		metaData = new MetaFile(metaFile);
@@ -20,26 +20,29 @@ public class TextMeshCreator {
 	}
 
 	private List<Line> createStructure(GUIText text) {
-		char[] chars = text.getTextString().toCharArray();
+		String lineOfText = text.getTextString().replaceAll("\t", "    ");
+		char[] chars = lineOfText.toCharArray();
 		List<Line> lines = new ArrayList<>();
 		Line currentLine = new Line(metaData.getSpaceWidth(), text.getFontSize(), text.getMaxLineSize());
 		Word currentWord = new Word(text.getFontSize());
 		for (char c : chars) {
-			if(c != '\t') {
-				if ((int) c == SPACE_ASCII) {
-					boolean added = currentLine.attemptToAddWord(currentWord);
-					if (!added) {
-						lines.add(currentLine);
-						currentLine = new Line(metaData.getSpaceWidth(), text.getFontSize(), text.getMaxLineSize());
-						currentLine.attemptToAddWord(currentWord);
-					}
-					currentWord = new Word(text.getFontSize());
-					continue;
+			if ((int) c == SPACE_ASCII || c == '\n') {
+				boolean added = currentLine.attemptToAddWord(currentWord);
+				if (!added) {
+					lines.add(currentLine);
+					currentLine = new Line(metaData.getSpaceWidth(), text.getFontSize(), text.getMaxLineSize());
+					currentLine.attemptToAddWord(currentWord);
 				}
-
-				Character character = metaData.getCharacter(c);
-				currentWord.addCharacter(character);
+				currentWord = new Word(text.getFontSize());
+				if(c == '\n') {
+					lines.add(currentLine);
+					currentLine = new Line(metaData.getSpaceWidth(), text.getFontSize(), text.getMaxLineSize());
+				}
+				continue;
 			}
+
+			Character character = metaData.getCharacter(c);
+			currentWord.addCharacter(character);
 		}
 		completeStructure(lines, currentLine, currentWord, text);
 		return lines;
@@ -59,34 +62,25 @@ public class TextMeshCreator {
 		text.setNumberOfLines(lines.size());
 		double curserX = 0f;
 		double curserY = 0f;
-		int _char = 0;
 		List<Float> vertices = new ArrayList<>();
-		List<Float> textureCoords = new ArrayList<>();
+		List<Float> textureCoOrds = new ArrayList<>();
 		for (Line line : lines) {
 			if (text.isCentered()) {
 				curserX = (line.getMaxLength() - line.getLineLength()) / 2;
 			}
 			for (Word word : line.getWords()) {
 				for (Character letter : word.getCharacters()) {
-					try{if (text.getTextString().charAt(_char+2) == '\n') {
-						curserX = 0;
-						curserY += LINE_HEIGHT * text.getFontSize();
-					} if (text.getTextString().charAt(_char+2) == '\t'){
-						curserX += LINE_HEIGHT * text.getFontSize();
-					} } catch (IndexOutOfBoundsException ignored){}
-
 					addVerticesForCharacter(curserX, curserY, letter, text.getFontSize(), vertices);
-					addTexCoords(textureCoords, letter.getxTextureCoord(), letter.getyTextureCoord(),
+					addTexCoords(textureCoOrds, letter.getxTextureCoord(), letter.getyTextureCoord(),
 							letter.getXMaxTextureCoord(), letter.getYMaxTextureCoord());
 					curserX += letter.getxAdvance() * text.getFontSize();
-					_char += 1;
 				}
 				curserX += metaData.getSpaceWidth() * text.getFontSize();
 			}
 			curserX = 0;
 			curserY += LINE_HEIGHT * text.getFontSize();
 		}		
-		return new TextMeshData(listToArray(vertices), listToArray(textureCoords));
+		return new TextMeshData(listToArray(vertices), listToArray(textureCoOrds));
 	}
 
 	private void addVerticesForCharacter(double curserX, double curserY, Character character, double fontSize,

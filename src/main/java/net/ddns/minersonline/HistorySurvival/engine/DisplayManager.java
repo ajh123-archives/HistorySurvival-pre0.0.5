@@ -12,6 +12,7 @@ import static org.lwjgl.opengl.GL11.*;
 public class DisplayManager {
     private static int WINDOW_WIDTH = 1280;
     private static int WINDOW_HEIGHT = 760;
+    private static int FPS;
     private static long window;
     private static String title = "History Survival";
     private static int frames;
@@ -77,15 +78,10 @@ public class DisplayManager {
     public static void updateDisplay() {
         glfwPollEvents();
         glfwSwapBuffers(window);
+        getFrames();
 
         if (showFPSTitle) {
-            frames++;
-
-            if (System.currentTimeMillis() > time + 1000 && showFPSTitle) {
-                glfwSetWindowTitle(window, title + " | FPS: " + frames);
-                time = System.currentTimeMillis();
-                frames = 0;
-            }
+            glfwSetWindowTitle(window, title + " | FPS: " + FPS);
         } else {
             glfwSetWindowTitle(window, title);
         }
@@ -118,6 +114,19 @@ public class DisplayManager {
             frames = 0;
             time = 0;
         }
+    }
+
+    public static void getFrames() {
+        frames++;
+        if (System.currentTimeMillis() > time + 1000) {
+            time = System.currentTimeMillis();
+            FPS = frames;
+            frames = 0;
+        }
+    }
+
+    public static int getFPS() {
+        return FPS;
     }
 
     public static boolean getShowFPSTitle() {
