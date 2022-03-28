@@ -107,7 +107,7 @@ public class TextMeshCreator {
 			curserY += LINE_HEIGHT * text.getFontSize();
 		}
 		text.setEndX(curserX);
-		text.setEndY(curserY);
+		text.setEndY(curserY/LINE_HEIGHT*(LINE_HEIGHT * text.getFontSize()));
 		return new TextMeshData(listToArray(vertices), listToArray(textureCoOrds));
 	}
 

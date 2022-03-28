@@ -44,7 +44,7 @@ public class FontRenderer {
 	}
 	
 	private void renderText(GUIText text){
-		if(text.isVisible()) {
+		if(text.isVisible() && !text.hasForked()) {
 			GL30.glBindVertexArray(text.getMesh());
 			GL20.glEnableVertexAttribArray(0);
 			GL20.glEnableVertexAttribArray(1);

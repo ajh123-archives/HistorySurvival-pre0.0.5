@@ -21,7 +21,9 @@ public class GUIText {
 	private final float fontSize;
 	private List<GUIText> childTexts;
 	private GUIText parent = null;
+	private GUIText root = null;
 	private boolean child = false;
+	private boolean hasForked = false;
 
 	private double endX = 0f;
 	private double endY = 0f;
@@ -218,23 +220,29 @@ public class GUIText {
 	}
 
 	public void setVisible(boolean visible) {
-		for (GUIText child : childTexts){
-			child.setVisible(visible);
+		if(hasForked) {
+			for (GUIText child : childTexts) {
+				child.setVisible(visible);
+			}
 		}
 		this.visible = visible;
 	}
 
 	public GUIText split(int pos) {
+		hasForked = true;
+		TextMaster.removeText(this);
 		for (GUIText child : childTexts){
 			TextMaster.removeText(child);
 		}
 		childTexts.clear();
-		String sub = this.ogTextString.substring(0, pos+2);
+		String sub = this.ogTextString.substring(0, pos);
 		String remainder = this.ogTextString.substring(pos+2);
 		textString = sub;
 		GUIText child = new GUIText(remainder, fontSize, font, position, lineMaxSize, centerText, this);
 		child.setVisible(visible);
 		childTexts.add(child);
+		root = new GUIText(textString, fontSize, font, position, lineMaxSize, centerText);
+		root.setVisible(visible);
 		return child;
 	}
 
@@ -244,6 +252,14 @@ public class GUIText {
 		TextMaster.removeText(this);
 		TextMaster.loadText(this);
     }
+
+	public boolean hasForked() {
+		return hasForked;
+	}
+
+	public List<GUIText> getChildTexts() {
+		return childTexts;
+	}
 
 	public float getWidth() {
 		return width;
@@ -299,6 +315,10 @@ public class GUIText {
 
 	public GUIText getParent() {
 		return parent;
+	}
+
+	public GUIText getRoot() {
+		return root;
 	}
 
 	public double getEndX() {
