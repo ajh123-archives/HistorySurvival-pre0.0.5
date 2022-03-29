@@ -44,23 +44,21 @@ public class FontRenderer {
 	}
 	
 	private void renderText(GUIText text){
-		if(text.isVisible() && !text.hasForked()) {
-			GL30.glBindVertexArray(text.getMesh());
-			GL20.glEnableVertexAttribArray(0);
-			GL20.glEnableVertexAttribArray(1);
-			shader.loadColour(text.getColour());
-			shader.loadTranslation(text.getPosition());
-			shader.loadWidth(text.getWidth()); // 0.5f
-			shader.loadEdge(text.getEdge()); // 0.1f
-			shader.loadBorderWidth(text.getBorderWidth()); // 0.7f
-			shader.loadBorderEdge(text.getBorderEdge()); // 0.1f
-			shader.loadOffset(text.getOffset()); //new Vector2f(0.0f, 0.0f));
-			shader.loadOutlineColor(text.getOutlineColor()); //new Vector3f(1.0f, 1.0f, 1.0f));
-			GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, text.getVertexCount());
-			GL20.glDisableVertexAttribArray(1);
-			GL20.glDisableVertexAttribArray(0);
-			GL30.glBindVertexArray(0);
-		}
+		GL30.glBindVertexArray(text.getMesh());
+		GL20.glEnableVertexAttribArray(0);
+		GL20.glEnableVertexAttribArray(1);
+		shader.loadColour(text.getColour());
+		shader.loadTranslation(text.getPosition());
+		shader.loadWidth(text.getWidth()); // 0.5f
+		shader.loadEdge(text.getEdge()); // 0.1f
+		shader.loadBorderWidth(text.getBorderWidth()); // 0.7f
+		shader.loadBorderEdge(text.getBorderEdge()); // 0.1f
+		shader.loadOffset(text.getOffset()); //new Vector2f(0.0f, 0.0f));
+		shader.loadOutlineColor(text.getOutlineColor()); //new Vector3f(1.0f, 1.0f, 1.0f));
+		GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, text.getVertexCount());
+		GL20.glDisableVertexAttribArray(1);
+		GL20.glDisableVertexAttribArray(0);
+		GL30.glBindVertexArray(0);
 	}
 	
 	private void endRendering(){

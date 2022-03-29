@@ -1,6 +1,5 @@
 package net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator;
 
-
 import net.ddns.minersonline.HistorySurvival.engine.text.fontRendering.TextMaster;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -10,23 +9,21 @@ import java.util.List;
 
 /**
  * Represents a piece of text in the game.
- * 
+ *
  * @author Karl
  *
  */
 public class GUIText {
 
-	private String textString;
-	private String ogTextString;
-	private final float fontSize;
-	private List<GUIText> childTexts;
-	private GUIText parent = null;
-	private GUIText root = null;
-	private boolean child = false;
-	private boolean hasForked = false;
 
+	private String textString;
+	private final float fontSize;
 	private double endX = 0f;
 	private double endY = 0f;
+	private boolean ready = false;
+	private boolean isOnNewLine = false;
+	private List<GUIText> children;
+	private GUIText parent;
 
 	private int textMeshVao;
 	private int vertexCount;
@@ -51,7 +48,7 @@ public class GUIText {
 	/**
 	 * Creates a new text, loads the text's quads into a VAO, and adds the text
 	 * to the screen.
-	 * 
+	 *
 	 * @param text
 	 *            - the text.
 	 * @param fontSize
@@ -74,32 +71,31 @@ public class GUIText {
 	 *            - whether the text should be centered or not.
 	 */
 	public GUIText(String text, float fontSize, FontType font, Vector2f position, float maxLineLength,
-			boolean centered) {
+				   boolean centered) {
 		this.textString = text;
-		this.ogTextString = text;
 		this.fontSize = fontSize;
 		this.font = font;
 		this.position = position;
 		this.lineMaxSize = maxLineLength;
 		this.centerText = centered;
-		childTexts = new ArrayList<>();
-		TextMaster.loadText(this);
+		this.children = new ArrayList<>();
 	}
 
-	public GUIText(String text, float fontSize, FontType font, Vector2f position, float maxLineLength, boolean centered, GUIText parent) {
-		this(text, fontSize, font, position, maxLineLength, centered);
-		this.child = true;
-		this.parent = parent;
+	public void load(){
+		TextMaster.loadText(this);
+		for (GUIText child : children){
+			TextMaster.loadText(child);
+		}
 	}
 
 	/**
 	 * Remove the text from the screen.
 	 */
 	public void remove() {
-		for(GUIText child : childTexts){
+		TextMaster.removeText(this);
+		for (GUIText child : children){
 			TextMaster.removeText(child);
 		}
-		TextMaster.removeText(this);
 	}
 
 	/**
@@ -111,7 +107,7 @@ public class GUIText {
 
 	/**
 	 * Set the colour of the text.
-	 * 
+	 *
 	 * @param r
 	 *            - red value, between 0 and 1.
 	 * @param g
@@ -158,7 +154,7 @@ public class GUIText {
 
 	/**
 	 * Set the VAO and vertex count for this text.
-	 * 
+	 *
 	 * @param vao
 	 *            - the VAO containing all the vertex data for the quads on
 	 *            which the text will be rendered.
@@ -180,14 +176,14 @@ public class GUIText {
 	/**
 	 * @return the font size of the text (a font size of 1 is normal).
 	 */
-	protected float getFontSize() {
+	public float getFontSize() {
 		return fontSize;
 	}
 
 	/**
 	 * Sets the number of lines that this text covers (method used only in
 	 * loading).
-	 * 
+	 *
 	 * @param number
 	 */
 	protected void setNumberOfLines(int number) {
@@ -220,45 +216,16 @@ public class GUIText {
 	}
 
 	public void setVisible(boolean visible) {
-		if(hasForked) {
-			for (GUIText child : childTexts) {
-				child.setVisible(visible);
-			}
+		for(GUIText child : children){
+			child.setVisible(visible);
 		}
 		this.visible = visible;
 	}
 
-	public GUIText split(int pos) {
-		hasForked = true;
-		TextMaster.removeText(this);
-		for (GUIText child : childTexts){
-			TextMaster.removeText(child);
-		}
-		childTexts.clear();
-		String sub = this.ogTextString.substring(0, pos);
-		String remainder = this.ogTextString.substring(pos+2);
-		textString = sub;
-		GUIText child = new GUIText(remainder, fontSize, font, position, lineMaxSize, centerText, this);
-		child.setVisible(visible);
-		childTexts.add(child);
-		root = new GUIText(textString, fontSize, font, position, lineMaxSize, centerText);
-		root.setVisible(visible);
-		return child;
-	}
-
-    public void setTextString(String a) {
+	public void setTextString(String a) {
 		textString = a;
-		ogTextString = a;
 		TextMaster.removeText(this);
 		TextMaster.loadText(this);
-    }
-
-	public boolean hasForked() {
-		return hasForked;
-	}
-
-	public List<GUIText> getChildTexts() {
-		return childTexts;
 	}
 
 	public float getWidth() {
@@ -309,18 +276,6 @@ public class GUIText {
 		outlineColor.set(r, g, b);
 	}
 
-	public boolean isChild() {
-		return child;
-	}
-
-	public GUIText getParent() {
-		return parent;
-	}
-
-	public GUIText getRoot() {
-		return root;
-	}
-
 	public double getEndX() {
 		return endX;
 	}
@@ -335,5 +290,33 @@ public class GUIText {
 
 	public void setEndY(double endY) {
 		this.endY = endY;
+	}
+
+	public boolean isReady() {
+		return ready;
+	}
+
+	public void setReady(boolean ready) {
+		this.ready = ready;
+	}
+
+	public List<GUIText> getChildren() {
+		return children;
+	}
+
+	public GUIText getParent() {
+		return parent;
+	}
+
+	public void setParent(GUIText parent) {
+		this.parent = parent;
+	}
+
+	public boolean isOnNewLine() {
+		return isOnNewLine;
+	}
+
+	public void setOnNewLine(boolean onNewLine) {
+		isOnNewLine = onNewLine;
 	}
 }

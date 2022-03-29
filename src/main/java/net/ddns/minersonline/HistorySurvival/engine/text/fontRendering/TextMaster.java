@@ -32,24 +32,6 @@ public class TextMaster {
         text.setMeshInfo(vao, data.getVertexCount());
         List<GUIText> textBatch = texts.computeIfAbsent(font, k -> new ArrayList<>());
         textBatch.add(text);
-        if(text.hasForked()){
-            GUIText rootText = text.getRoot();
-            FontType root_font = rootText.getFont();
-            TextMeshData root_data = root_font.loadText(rootText);
-            int root_vao = loader.loadToVao(root_data.getVertexPositions(), root_data.getTextureCoords());
-            text.setMeshInfo(root_vao, data.getVertexCount());
-            List<GUIText> root_textBatch = texts.computeIfAbsent(font, k -> new ArrayList<>());
-            root_textBatch.add(rootText);
-
-            for(GUIText text2: text.getChildTexts()){
-                FontType font2 = text.getFont();
-                TextMeshData data2 = font.loadText(text2);
-                int vao2 = loader.loadToVao(data2.getVertexPositions(), data2.getTextureCoords());
-                text2.setMeshInfo(vao2, data2.getVertexCount());
-                List<GUIText> textBatch2 = texts.computeIfAbsent(font2, k -> new ArrayList<>());
-                textBatch2.add(text2);
-            }
-        }
     }
 
     public static void removeText(GUIText text){
@@ -59,15 +41,6 @@ public class TextMaster {
             if (textBatch.isEmpty()) {
                 loader.destroy(text.getMesh());
                 texts.remove(text.getFont());
-            }
-        }
-        if(text.hasForked()){
-            GUIText root = text.getRoot();
-            if(root != null) {
-                removeText(root);
-            }
-            for(GUIText text2: text.getChildTexts()){
-                removeText(text2);
             }
         }
     }

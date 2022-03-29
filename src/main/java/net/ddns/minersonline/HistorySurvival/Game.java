@@ -6,6 +6,8 @@ import net.ddns.minersonline.HistorySurvival.engine.entities.Entity;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Player;
 import net.ddns.minersonline.HistorySurvival.engine.text.ChatColor;
+import net.ddns.minersonline.HistorySurvival.engine.text.JSONTextBuilder;
+import net.ddns.minersonline.HistorySurvival.engine.text.JSONTextComponent;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontType;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.GUIText;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontRendering.TextMaster;
@@ -179,8 +181,9 @@ public class Game {
         WaterTile water = new WaterTile(370, -293, 4.2f);
         waterTiles.add(water);
 
-        GUIText debugText = new GUIText("", 1.5f, font, new Vector2f(0, 0), 10, false);
-        debugText.setVisible(false);
+        String my_text = "[{\"text\":\"Should not be shown!\"}]";
+        GUIText debugText = JSONTextBuilder.build_string(font, my_text);
+        debugText.setVisible(DisplayManager.getShowFPSTitle());
 
         while (DisplayManager.shouldDisplayClose()) {
             Mouse.update();
@@ -208,32 +211,37 @@ public class Game {
 
             guiRenderer.render(guis);
             Terrain region = Terrain.getTerrain(world, player.getPosition().x, player.getPosition().z);
-            String debugString = GAME+" "+VERSION+"\nFPS: "+DisplayManager.getFPS()+
-                    "\n"+ChatColor.DARK_RED+"PlayerPosition:"+
-                    " X:"+player.getPosition().x+
-                    " Y:"+player.getPosition().y+
-                    " Z:"+player.getPosition().z+
-                    "\nCameraPosition:"+
-                    " X:"+camera.getPosition().x+
-                    " Y:"+camera.getPosition().y+
-                    " Z:"+camera.getPosition().z;
+            String debugString = "[{\"text\":\""+GAME+" \"},{\"text\":\""+VERSION+"\"},";
+            debugString+="{\"text\":\"\nFPS: "+DisplayManager.getFPS()+"\"},";
+            debugString+="{\"text\":\"\nPlayerPosition:\"},";
+            debugString+="{\"text\":\" X:"+player.getPosition().x+"\"},";
+            debugString+="{\"text\":\" Y:"+player.getPosition().y+"\"},";
+            debugString+="{\"text\":\" Z:"+player.getPosition().z+"\"},";
+            debugString+="{\"text\":\"\nCameraPosition:\"},";
+            debugString+="{\"text\":\" X:"+camera.getPosition().x+"\"},";
+            debugString+="{\"text\":\" Y:"+camera.getPosition().y+"\"},";
+            debugString+="{\"text\":\" Z:"+camera.getPosition().z+"\"}";
             if(region == null) {
-                debugString += "\nRegion:" +
-                        " X: null" +
-                        " Z: null";
+                debugString+=",{\"text\":\"\nRegion:\"},";
+                debugString+="{\"text\":\" X:null\", \"color\":\""+ChatColor.RED+"\"},";
+                debugString+="{\"text\":\" Z:null\", \"color\":\""+ChatColor.RED+"\"}";
             }
             if(region != null) {
-                debugString += "\nRegion:" +
-                        " X:" + region.getX() / Terrain.SIZE +
-                        " Z:" + region.getZ() / Terrain.SIZE;
+                debugString+=",{\"text\":\"\nRegion:\"},";
+                debugString+="{\"text\":\" X:"+region.getX() / Terrain.SIZE+"\", \"color\":\""+ChatColor.GREEN+"\"},";
+                debugString+="{\"text\":\" Z:"+region.getZ() / Terrain.SIZE+"\", \"color\":\""+ChatColor.GREEN+"\"}";
             }
+            debugString += "]";
+
+            debugText.remove();
+            debugText = JSONTextBuilder.build_string(font, debugString);
+            debugText.setVisible(DisplayManager.getShowFPSTitle());
 
             if(Keyboard.isKeyPressed(GLFW.GLFW_KEY_F3)) {
                 boolean debug = DisplayManager.getShowFPSTitle();
                 DisplayManager.setShowFPSTitle(!debug);
                 debugText.setVisible(!debug);
             }
-            debugText.setTextString(debugString);
             TextMaster.render();
 
             DisplayManager.updateDisplay();
