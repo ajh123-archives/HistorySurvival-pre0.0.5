@@ -1,5 +1,5 @@
 # VS Code Editor
-.vscode
+/.vscode
 
 # Gradle
 /target/
@@ -7,8 +7,9 @@
 /build/
 
 # Intellij
-.idea
+/.idea
 *.iml
 
-out
-target
+/out
+/target
+/logs

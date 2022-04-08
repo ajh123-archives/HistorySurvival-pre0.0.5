@@ -16,10 +16,12 @@ public class ParticleSystem {
 	private boolean randomRotation = false;
 	private Vector3f direction;
 	private float directionDeviation = 0;
+	private ParticleTexture texture;
 
 	private Random random = new Random();
 
-	public ParticleSystem(float pps, float speed, float gravityComplient, float lifeLength, float scale) {
+	public ParticleSystem(ParticleTexture texture, float pps, float speed, float gravityComplient, float lifeLength, float scale) {
+		this.texture = texture;
 		this.pps = pps;
 		this.averageSpeed = speed;
 		this.gravityComplient = gravityComplient;
@@ -88,7 +90,7 @@ public class ParticleSystem {
 		velocity.normalize();
 		velocity.mul(scale);
 		float lifeLength = generateValue(averageLifeLength, lifeError);
-		new Particle(new Vector3f(center), velocity, gravityComplient, lifeLength, generateRotation(), scale);
+		new Particle(texture, new Vector3f(center), velocity, gravityComplient, lifeLength, generateRotation(), scale);
 	}
 
 	private float generateValue(float average, float errorMargin) {

@@ -17,6 +17,13 @@ plugins {
 group 'net.ddns.minersonline'
 version '0.0.1'
 
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        if (details.requested.name == 'slf4j-log4j12') {
+            details.useTarget "org.apache.logging.log4j:log4j-slf4j-impl:2.17.2"
+        }
+    }
+}
 
 import org.gradle.internal.os.OperatingSystem
 
@@ -58,12 +65,20 @@ repositories {
         name = "minecraft-libraries"
         url = "https://libraries.minecraft.net"
     }
+    maven{
+        name = "forge"
+        url = "https://maven.minecraftforge.net/"
+    }
     flatDir {
         dirs "E:\\web\\maven\\repositories\\releases"
     }
 }
 
 dependencies {
+    implementation "org.apache.logging.log4j:log4j-slf4j-impl:2.17.2"
+    implementation "cpw.mods:modlauncher:9.1.4"
+    implementation group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.25'
+
     implementation "org.lwjgl:lwjgl:$lwjgl_version"
     implementation "org.lwjgl:lwjgl-assimp:$lwjgl_version"
     implementation "org.lwjgl:lwjgl-glfw:$lwjgl_version"

@@ -1,6 +1,8 @@
 package net.ddns.minersonline.HistorySurvival.engine.particles;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
@@ -10,6 +12,7 @@ import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
@@ -29,13 +32,20 @@ public class ParticleRenderer {
 		shader.unbind();
 	}
 	
-	protected void render(List<Particle> particles, Camera camera){
+	protected void render(Map<ParticleTexture, List<Particle>> particles, Camera camera){
 		Matrix4f viewMatrix = Maths.createViewMatrix(camera);
 		prepare();
-		for(Particle particle : particles){
-			updateModelViewMatrix(particle.getPosition(), particle.getRotation(), particle.getScale(), viewMatrix);
-			GL11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 0, quad.getVertexCount());
+
+		for (ParticleTexture texture : particles.keySet()) {
+			GL13.glActiveTexture(GL13.GL_TEXTURE0);
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getTextureID());
+
+			for (Particle particle : particles.get(texture)) {
+				updateModelViewMatrix(particle.getPosition(), particle.getRotation(), particle.getScale(), viewMatrix);
+				GL11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 0, quad.getVertexCount());
+			}
 		}
+
 		finishRendering();
 	}
 

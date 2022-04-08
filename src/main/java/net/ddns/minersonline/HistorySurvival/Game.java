@@ -8,6 +8,7 @@ import net.ddns.minersonline.HistorySurvival.engine.entities.Player;
 import net.ddns.minersonline.HistorySurvival.engine.particles.Particle;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleMaster;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleSystem;
+import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleTexture;
 import net.ddns.minersonline.HistorySurvival.engine.text.ChatColor;
 import net.ddns.minersonline.HistorySurvival.engine.text.JSONTextBuilder;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontType;
@@ -37,6 +38,8 @@ import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.launch.MixinBootstrap;
 import org.spongepowered.asm.mixin.Mixins;
 
@@ -44,6 +47,8 @@ import java.io.IOException;
 import java.util.*;
 
 public class Game {
+    private static final Logger logger = LoggerFactory.getLogger(Game.class);
+
     public static String GAME = "History Survival";
     public static String VERSION = "0.0.1";
 
@@ -57,8 +62,8 @@ public class Game {
         DisplayManager.createDisplay();
         DisplayManager.setShowFPSTitle(false);
 
-        System.out.println("OpenGL: " + DisplayManager.getOpenGlVersionMessage());
-        System.out.println("LWJGL: " + Version.getVersion());
+        logger.info("OpenGL: " + DisplayManager.getOpenGlVersionMessage());
+        logger.info("LWJGL: " + Version.getVersion());
 
         ModelLoader modelLoader = new ModelLoader();
         TextMaster.init(modelLoader);
@@ -198,7 +203,8 @@ public class Game {
         GUIText debugText = JSONTextBuilder.build_string(font, my_text);
         debugText.setVisible(DisplayManager.getShowFPSTitle());
 
-        ParticleSystem particleSystem = new ParticleSystem(50, 0, 0.3f, 4, 2);
+        ParticleTexture particleTexture = new ParticleTexture(modelLoader.loadTexture("grass.png"),  1, false);
+        ParticleSystem particleSystem = new ParticleSystem(particleTexture, 50, 0, 0.3f, 4, 2);
         particleSystem.randomizeRotation();
         particleSystem.setDirection(new Vector3f(0, 1, 0), 0.1f);
         particleSystem.setLifeError(0.1f);
