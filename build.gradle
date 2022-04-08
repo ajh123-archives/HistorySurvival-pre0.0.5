@@ -57,17 +57,9 @@ repositories {
         name = "jitpack"
         url = "https://jitpack.io"
     }
-    maven {
-        name = 'sponge'
-        url = 'https://repo.spongepowered.org/maven'
-    }
     maven{
         name = "minecraft-libraries"
         url = "https://libraries.minecraft.net"
-    }
-    maven{
-        name = "forge"
-        url = "https://maven.minecraftforge.net/"
     }
     flatDir {
         dirs "E:\\web\\maven\\repositories\\releases"
@@ -76,7 +68,6 @@ repositories {
 
 dependencies {
     implementation "org.apache.logging.log4j:log4j-slf4j-impl:2.17.2"
-    implementation "cpw.mods:modlauncher:9.1.0"
     implementation group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.25'
 
     implementation "org.lwjgl:lwjgl:$lwjgl_version"
@@ -97,12 +88,8 @@ dependencies {
     implementation "com.google.code.gson:gson:${gson_version}"
     implementation "com.google.guava:guava:${guava_version}"
 
-
-    implementation "org.spongepowered:mixin:${mixin_version}"
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
-
-    annotationProcessor"org.spongepowered:mixin:${mixin_annotation_version}:processor"
 
     implementation "com.mojang:brigadier:${brigadier_version}"
     implementation "com.google.guava:guava:${guava_version}"
@@ -112,13 +99,6 @@ dependencies {
 
 test {
     useJUnitPlatform()
-}
-
-java {
-    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-    // if it is present.
-    // If you remove this line, sources will not be generated.
-    withSourcesJar()
 }
 
 apply plugin: "maven-publish"
@@ -156,9 +136,9 @@ publishing {
 //            from components.java
 //        }
         maven(MavenPublication) {
-            groupId 'net.ddns.minersonline.mc'
-            artifactId 'moded_client'
-            version '1.18.2'
+            groupId 'net.ddns.minersonline'
+            artifactId 'HistorySurvival'
+            version '0.0.1'
             artifact fatJar
         }
     }
