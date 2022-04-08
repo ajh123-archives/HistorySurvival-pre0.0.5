@@ -116,11 +116,13 @@ task fatJar(type: Jar) {
     }
     baseName = project.name+"-all"
     from {
-        //configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         configurations.runtimeClasspath.collect {
             if(it.name == "mixin-${mixin_version}.jar") {
                 //include 'META-INF/services', 'META-INF/services/**'
                 exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
+                it.isDirectory() ? it : zipTree(it)
+            } else {
                 it.isDirectory() ? it : zipTree(it)
             }
         }

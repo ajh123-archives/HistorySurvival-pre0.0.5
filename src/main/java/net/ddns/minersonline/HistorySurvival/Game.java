@@ -37,6 +37,8 @@ import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
+import org.spongepowered.asm.launch.MixinBootstrap;
+import org.spongepowered.asm.mixin.Mixins;
 
 import java.io.IOException;
 import java.util.*;
@@ -49,6 +51,9 @@ public class Game {
     public static HashMap<Integer, Player> playerList = new HashMap<Integer, Player>();
 
     private void start() throws IOException, ClassNotFoundException {
+        //MixinBootstrap.init(); //mixins do not work for now
+        //Mixins.addConfiguration("mixins.json");
+
         DisplayManager.createDisplay();
         DisplayManager.setShowFPSTitle(false);
 
