@@ -9,6 +9,7 @@ import java.util.*;
 public class ParticleMaster {
     private static Map<ParticleTexture, List<Particle>> particles = new HashMap<>();
     private static ParticleRenderer renderer;
+    private static int count;
 
     public static void init(ModelLoader loader, Matrix4f projectionMatrix){
         renderer = new ParticleRenderer(loader, projectionMatrix);
@@ -20,12 +21,14 @@ public class ParticleMaster {
             List<Particle> inside_parts = parts.next().getValue();
             Iterator<Particle> iterator = inside_parts.iterator();
             while (iterator.hasNext()){
+                count += 1;
                 Particle p = iterator.next();
                 boolean alive = p.update();
                 if(!alive){
                     iterator.remove();
                     if(inside_parts.isEmpty()){
                         parts.remove();
+                        count -= 1;
                     }
                 }
             }
@@ -46,6 +49,6 @@ public class ParticleMaster {
     }
 
     public static int getCount(){
-        return particles.size();
+        return count;
     }
 }

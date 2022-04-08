@@ -48,8 +48,8 @@ switch (OperatingSystem.current()) {
 }
 
 
-targetCompatibility = 11
-sourceCompatibility = 11
+targetCompatibility = 16
+sourceCompatibility = 16
 
 repositories {
     mavenCentral()
@@ -76,7 +76,7 @@ repositories {
 
 dependencies {
     implementation "org.apache.logging.log4j:log4j-slf4j-impl:2.17.2"
-    implementation "cpw.mods:modlauncher:9.1.4"
+    implementation "cpw.mods:modlauncher:9.1.0"
     implementation group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.25'
 
     implementation "org.lwjgl:lwjgl:$lwjgl_version"

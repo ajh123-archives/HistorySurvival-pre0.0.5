@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.launch.MixinBootstrap;
 import org.spongepowered.asm.mixin.Mixins;
+import cpw.mods.modlauncher.Launcher;
 
 import java.io.IOException;
 import java.util.*;
@@ -55,7 +56,8 @@ public class Game {
 
     public static HashMap<Integer, Player> playerList = new HashMap<Integer, Player>();
 
-    private void start() throws IOException, ClassNotFoundException {
+    private void start(String[] args) throws IOException, ClassNotFoundException {
+        //Launcher.main(args);
         //MixinBootstrap.init(); //mixins do not work for now
         //Mixins.addConfiguration("mixins.json");
 
@@ -296,15 +298,24 @@ public class Game {
 
             DisplayManager.updateDisplay();
         }
+        logger.info("Stopping!");
 
         ParticleMaster.cleanUp();
+        logger.info("Cleaned particles");
         TextMaster.cleanUp();
+        logger.info("Cleaned text");
         wfbos.cleanUp();
+        logger.info("Cleaned water buffers");
         waterShader.destroy();
+        logger.info("Cleaned water shaders");
         guiRenderer.cleanUp();
+        logger.info("Cleaned gui");
         masterRenderer.destory();
+        logger.info("Cleaned main renderer");
         modelLoader.destroy();
+        logger.info("Cleaned model loader");
         DisplayManager.closeDisplay();
+        logger.info("Closed display");
     }
 
 //    private HashMap<Integer, Integer[]> processPlayers(Player myPlayer) throws ClassNotFoundException, IOException {
@@ -314,6 +325,6 @@ public class Game {
 //    }
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
-        new Game().start();
+        new Game().start(args);
     }
 }

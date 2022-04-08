@@ -21,4 +21,5 @@ All their licenses can be found [here](3rd_party)
  * Brigadier
  * LWJGL 3
  * JOML
+ * Mod Loader
  
