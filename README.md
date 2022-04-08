@@ -21,5 +21,5 @@ All their licenses can be found [here](3rd_party)
  * Brigadier
  * LWJGL 3
  * JOML
- * Mod Loader
+~~ * Mod Loader~~ Can't get working because they [refused to help](https://github.com/McModLauncher/modlauncher/issues/109)
  
