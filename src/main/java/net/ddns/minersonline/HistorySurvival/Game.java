@@ -5,9 +5,11 @@ import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Entity;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Player;
+import net.ddns.minersonline.HistorySurvival.engine.particles.Particle;
+import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleMaster;
+import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleSystem;
 import net.ddns.minersonline.HistorySurvival.engine.text.ChatColor;
 import net.ddns.minersonline.HistorySurvival.engine.text.JSONTextBuilder;
-import net.ddns.minersonline.HistorySurvival.engine.text.JSONTextComponent;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontType;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.GUIText;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontRendering.TextMaster;
@@ -36,13 +38,17 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
+import java.io.IOException;
 import java.util.*;
 
 public class Game {
     public static String GAME = "History Survival";
     public static String VERSION = "0.0.1";
 
-    private void start() {
+
+    public static HashMap<Integer, Player> playerList = new HashMap<Integer, Player>();
+
+    private void start() throws IOException, ClassNotFoundException {
         DisplayManager.createDisplay();
         DisplayManager.setShowFPSTitle(false);
 
@@ -51,6 +57,9 @@ public class Game {
 
         ModelLoader modelLoader = new ModelLoader();
         TextMaster.init(modelLoader);
+        MasterRenderer masterRenderer = new MasterRenderer();
+        ParticleMaster.init(modelLoader, masterRenderer.getProjectionMatrix());
+
         FontType font = new FontType(modelLoader.loadTexture("font/consolas.png"), "font/consolas.fnt");
 
         // Tree entity
@@ -158,7 +167,6 @@ public class Game {
                 0,
                 1));
 
-        MasterRenderer masterRenderer = new MasterRenderer();
 
         TexturedModel playerOBJ = new TexturedModel(ObjLoader.loadObjModel("person.obj", modelLoader), new ModelTexture(modelLoader.loadTexture("playerTexture.png")));
         Player player = new Player(world, playerOBJ, new Vector3f(380, 8, -290), 0,0,0,0.6f);
@@ -185,11 +193,42 @@ public class Game {
         GUIText debugText = JSONTextBuilder.build_string(font, my_text);
         debugText.setVisible(DisplayManager.getShowFPSTitle());
 
+        ParticleSystem particleSystem = new ParticleSystem(50, 0, 0.3f, 4, 2);
+        particleSystem.randomizeRotation();
+        particleSystem.setDirection(new Vector3f(0, 1, 0), 0.1f);
+        particleSystem.setLifeError(0.1f);
+        particleSystem.setSpeedError(0.4f);
+        particleSystem.setScaleError(0.8f);
+
         while (DisplayManager.shouldDisplayClose()) {
             Mouse.update();
             player.move();
             camera.move();
             picker.update();
+
+            Vector3f pos = new Vector3f(player.getPosition());
+            pos.y += 2;
+            particleSystem.generateParticles(pos);
+            ParticleMaster.update();
+
+//            HashMap<Integer, Integer[]> player_pos_hmap = processPlayers(player);
+//            Integer[] player_pos = player_pos_hmap.get(clientId);
+//
+//            for (Integer key : player_pos_hmap.keySet()) {
+//                if (!key.equals(clientId)) {
+//                    if (!playerList.containsKey(key)) {
+//                        Player player2 = new Player(world, playerOBJ, new Vector3f(400,0,-400), 0, 180, 0, 1);
+//                        playerList.put(key, player2);
+//                        entityList.add(player2);
+//                    } else {
+//                        Player player2 = playerList.get(key);
+//                        Integer[] player2_pos = player_pos_hmap.get(key);
+//                        player2.setCurrentSpeed(player2_pos[0]);
+//                        player2.setCurrentTurnSpeed(player2_pos[1]);
+//                        player2.setJump(player2_pos[2]);
+//                    }
+//                }
+//            }
 
             GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
             wfbos.bindReflectionFrameBuffer();
@@ -204,15 +243,15 @@ public class Game {
             masterRenderer.renderScene(entityList, world, lights, camera, new Vector4f(0, -1, 0, water.getHeight()+1f));
             wfbos.unbindCurrentFrameBuffer();
 
-            GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
-
             masterRenderer.renderScene(entityList, world, lights, camera, new Vector4f(0, -1, 0, 999999999));
             waterRenderer.render(waterTiles, camera, sun);
+            ParticleMaster.renderParticles(camera);
 
             guiRenderer.render(guis);
             Terrain region = Terrain.getTerrain(world, player.getPosition().x, player.getPosition().z);
             String debugString = "[{\"text\":\""+GAME+" \"},{\"text\":\""+VERSION+"\"},";
             debugString+="{\"text\":\"\nFPS: "+DisplayManager.getFPS()+"\"},";
+            debugString+="{\"text\":\"\nP: "+ParticleMaster.getCount()+"\"},";
             debugString+="{\"text\":\"\nPlayerPosition:\"},";
             debugString+="{\"text\":\" X:"+player.getPosition().x+"\"},";
             debugString+="{\"text\":\" Y:"+player.getPosition().y+"\"},";
@@ -247,6 +286,7 @@ public class Game {
             DisplayManager.updateDisplay();
         }
 
+        ParticleMaster.cleanUp();
         TextMaster.cleanUp();
         wfbos.cleanUp();
         waterShader.destroy();
@@ -256,7 +296,13 @@ public class Game {
         DisplayManager.closeDisplay();
     }
 
-    public static void main(String[] args) {
+//    private HashMap<Integer, Integer[]> processPlayers(Player myPlayer) throws ClassNotFoundException, IOException {
+//        int jumping = myPlayer.isJump() ? 1 : 0;
+//        Integer[] controlsUpdate = {Math.round(myPlayer.getCurrentSpeed()), Math.round(myPlayer.getCurrentTurnSpeed()), jumping};
+//        return client.sendMessage(clientId, controlsUpdate);
+//    }
+
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
         new Game().start();
     }
 }

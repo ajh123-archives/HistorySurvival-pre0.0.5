@@ -6,7 +6,6 @@ import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.shaders.ShaderProgramBase;
 import net.ddns.minersonline.HistorySurvival.engine.utils.Maths;
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
 
 public class WaterShader extends ShaderProgramBase {
 

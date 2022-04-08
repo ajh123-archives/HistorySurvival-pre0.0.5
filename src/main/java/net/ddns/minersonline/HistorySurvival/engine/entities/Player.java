@@ -12,19 +12,41 @@ import java.util.Map;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Player extends Entity {
-    private static final float RUN_SPEED = 20;  // units per second
+    private static final float RUN_SPEED = 24;  // units per second
     private static final float TURN_SPEED = 160;    // degrees per second
-    private static final float GRAVITY = -50;
-    private static final float JUMP_POWER = 30;
+    public static final float GRAVITY = -50;
+    private static final float JUMP_POWER = 18;
 
     private float currentSpeed;
     private float currentTurnSpeed;
     private float upwardsSpeed;
+    private boolean isJump;
     private Map<Integer, Map<Integer, Terrain>> world;
 
     public Player(Map<Integer, Map<Integer, Terrain>> world, TexturedModel texturedModel, Vector3f position, float rotationX, float rotationY, float rotationZ, float scale) {
         super(texturedModel, position, rotationX, rotationY, rotationZ, scale);
         this.world = world;
+        this.isJump = false;
+    }
+
+    public boolean isJump() {
+        return isJump;
+    }
+
+    public float getCurrentSpeed() {
+        return currentSpeed;
+    }
+
+    public float getCurrentTurnSpeed() {
+        return currentTurnSpeed;
+    }
+
+    public float getUpwardsSpeed() {
+        return upwardsSpeed;
+    }
+
+    public Map<Integer, Map<Integer, Terrain>> getWorld() {
+        return world;
     }
 
     public void move() {
@@ -48,6 +70,7 @@ public class Player extends Entity {
             float terrainHeight = terrain.getHeightOfTerrain(super.getPosition().x, super.getPosition().z);
             if (super.getPosition().y < terrainHeight) {
                 upwardsSpeed = 0;
+                isJump = false;
                 super.getPosition().y = terrainHeight;
             }
         }
@@ -56,6 +79,7 @@ public class Player extends Entity {
     private void jump() {
         if (upwardsSpeed == 0) {
             upwardsSpeed = JUMP_POWER;
+            isJump = true;
         }
     }
 
@@ -77,6 +101,32 @@ public class Player extends Entity {
         }
 
         if (Keyboard.isKeyDown(GLFW_KEY_SPACE)) {
+            jump();
+        }
+    }
+
+    public void setCurrentSpeed(Integer i) {
+        if (i > 0) {
+            this.currentSpeed = RUN_SPEED;
+        } else if (i < 0) {
+            this.currentSpeed = -RUN_SPEED;
+        } else {
+            this.currentSpeed = 0;
+        }
+    }
+
+    public void setCurrentTurnSpeed(Integer i) {
+        if (i > 0) {
+            this.currentTurnSpeed = TURN_SPEED;
+        } else if (i < 0) {
+            this.currentTurnSpeed = -TURN_SPEED;
+        } else {
+            this.currentTurnSpeed = 0;
+        }
+    }
+
+    public void setJump(Integer i) {
+        if (i > 0) {
             jump();
         }
     }

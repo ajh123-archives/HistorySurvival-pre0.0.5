@@ -1,0 +1,148 @@
+buildscript {
+    repositories {
+        maven {
+            name = 'sponge'
+            url = 'https://repo.spongepowered.org/maven'
+        }
+    }
+    dependencies {
+        classpath 'org.spongepowered:mixingradle:0.7.+'
+    }
+}
+
+plugins {
+    id 'java'
+}
+
+group 'net.ddns.minersonline'
+version '0.0.1'
+
+
+import org.gradle.internal.os.OperatingSystem
+
+project.ext.lwjgl_version = "3.2.1"
+project.ext.joml_version = "1.10.4"
+project.ext.brigadier_version = "1.0.18"
+project.ext.guava_version = "31.1-jre"
+project.ext.gson_version = "2.9.0"
+project.ext.mixin_version = "0.8.4"
+project.ext.mixin_annotation_version = "0.8.5"
+
+switch (OperatingSystem.current()) {
+    case OperatingSystem.LINUX:
+        project.ext.lwjglNatives = "natives-linux"
+        break
+    case OperatingSystem.MAC_OS:
+        project.ext.lwjglNatives = "natives-macos"
+        break
+    case OperatingSystem.WINDOWS:
+        project.ext.lwjglNatives = "natives-windows"
+        break
+}
+
+
+targetCompatibility = 11
+sourceCompatibility = 11
+
+repositories {
+    mavenCentral()
+    maven{
+        name = "jitpack"
+        url = "https://jitpack.io"
+    }
+    maven {
+        name = 'sponge'
+        url = 'https://repo.spongepowered.org/maven'
+    }
+    maven{
+        name = "minecraft-libraries"
+        url = "https://libraries.minecraft.net"
+    }
+    flatDir {
+        dirs "E:\\web\\maven\\repositories\\releases"
+    }
+}
+
+dependencies {
+    implementation "org.lwjgl:lwjgl:$lwjgl_version"
+    implementation "org.lwjgl:lwjgl-assimp:$lwjgl_version"
+    implementation "org.lwjgl:lwjgl-glfw:$lwjgl_version"
+    implementation "org.lwjgl:lwjgl-openal:$lwjgl_version"
+    implementation "org.lwjgl:lwjgl-opengl:$lwjgl_version"
+    implementation "org.lwjgl:lwjgl-stb:$lwjgl_version"
+    runtimeOnly "org.lwjgl:lwjgl:$lwjgl_version:$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-assimp:$lwjgl_version:$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-glfw:$lwjgl_version:$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-openal:$lwjgl_version:$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-opengl:$lwjgl_version:$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-stb:$lwjgl_version:$lwjglNatives"
+    implementation "org.joml:joml:${joml_version}"
+
+
+    implementation "com.google.code.gson:gson:${gson_version}"
+    implementation "com.google.guava:guava:${guava_version}"
+
+
+    implementation "org.spongepowered:mixin:${mixin_version}"
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+
+    annotationProcessor"org.spongepowered:mixin:${mixin_annotation_version}:processor"
+
+    implementation "com.mojang:brigadier:${brigadier_version}"
+    implementation "com.google.guava:guava:${guava_version}"
+    implementation "com.google.code.gson:gson:${gson_version}"
+}
+
+
+test {
+    useJUnitPlatform()
+}
+
+java {
+    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+    // if it is present.
+    // If you remove this line, sources will not be generated.
+    withSourcesJar()
+}
+
+apply plugin: "maven-publish"
+apply plugin: "java"
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Version': version,
+                'Main-Class': 'net.ddns.minersonline.HistorySurvival.Game'
+    }
+    baseName = project.name+"-all"
+    from {
+        //configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtimeClasspath.collect {
+            if(it.name == "mixin-${mixin_version}.jar") {
+                //include 'META-INF/services', 'META-INF/services/**'
+                exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
+                it.isDirectory() ? it : zipTree(it)
+            }
+        }
+    }
+    with jar
+}
+
+publishing {
+    repositories {
+        maven {
+            url = uri("E:\\web\\maven\\repositories\\releases")
+        }
+    }
+    publications {
+//        mavenJava(MavenPublication) {
+//            from components.java
+//        }
+        maven(MavenPublication) {
+            groupId 'net.ddns.minersonline.mc'
+            artifactId 'moded_client'
+            version '1.18.2'
+            artifact fatJar
+        }
+    }
+}

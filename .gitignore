@@ -1,6 +1,11 @@
 # VS Code Editor
 .vscode
 
+# Gradle
+/target/
+/.gradle/
+/build/
+
 # Intellij
 .idea
 *.iml
