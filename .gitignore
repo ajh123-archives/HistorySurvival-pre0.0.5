@@ -2,14 +2,14 @@
 /.vscode
 
 # Gradle
-/target/
-/.gradle/
-/build/
+target/
+.gradle/
+build/
 
 # Intellij
 /.idea
 *.iml
 
-/out
-/target
-/logs
+out
+target
+logs

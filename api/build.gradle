@@ -1,0 +1,38 @@
+apply plugin: 'java'
+apply plugin: 'java-library'
+
+group 'net.ddns.minersonline.HistorySurvival'
+version '0.0.1'
+
+targetCompatibility = 8
+sourceCompatibility = 8
+
+repositories {
+    mavenCentral()
+    maven{
+        name = "jitpack"
+        url = "https://jitpack.io"
+    }
+    maven{
+        name = "minecraft-libraries"
+        url = "https://libraries.minecraft.net"
+    }
+//    flatDir {
+//        dirs "E:\\web\\maven\\repositories\\releases"
+//    }
+}
+
+ext.pluginsDir = rootProject.buildDir.path + '/plugins'
+
+dependencies {
+    implementation group: 'org.pf4j', name: 'pf4j', version: "${pf4j_version}"
+}
+
+sourceSets {
+    main {
+        java.srcDir file('src/main/java')
+        resources.srcDir file('src/main/resources')
+        //compileClasspath = sourceSets.main.output + configurations.compileClasspath + configurations.runtimeClasspath
+        runtimeClasspath = output + compileClasspath
+    }
+}

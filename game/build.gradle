@@ -1,0 +1,160 @@
+apply plugin: 'application'
+apply plugin: 'java'
+
+group 'net.ddns.minersonline'
+version '0.0.1'
+
+targetCompatibility = 8
+sourceCompatibility = 8
+
+repositories {
+    mavenCentral()
+    maven {
+        name = "jitpack"
+        url = "https://jitpack.io"
+    }
+    maven {
+        name = "minecraft-libraries"
+        url = "https://libraries.minecraft.net"
+    }
+    maven {
+        name = "sonatype-nexus-snapshots"
+        url = "https://oss.sonatype.org/content/repositories/snapshots"
+    }
+//    flatDir {
+//        dirs "E:\\web\\maven\\repositories\\releases"
+//    }
+}
+
+
+import org.gradle.internal.os.OperatingSystem
+
+ext.pluginsDir = rootProject.buildDir.path + '/plugins'
+project.ext.lwjgl_version = "3.2.1"
+project.ext.joml_version = "1.10.4"
+project.ext.brigadier_version = "1.0.18"
+project.ext.guava_version = "31.1-jre"
+project.ext.gson_version = "2.9.0"
+project.ext.mixin_version = "0.8.4"
+project.ext.mixin_annotation_version = "0.8.5"
+
+switch (OperatingSystem.current()) {
+    case OperatingSystem.LINUX:
+        project.ext.lwjglNatives = "natives-linux"
+        break
+    case OperatingSystem.MAC_OS:
+        project.ext.lwjglNatives = "natives-macos"
+        break
+    case OperatingSystem.WINDOWS:
+        project.ext.lwjglNatives = "natives-windows"
+        break
+}
+
+test {
+    useJUnitPlatform()
+}
+
+run {
+    systemProperty 'pf4j.pluginsDir', rootProject.buildDir.path + '/plugins'
+    mainClassName = "net.ddns.minersonline.HistorySurvival.Game"
+}
+run.dependsOn(':gameplay:build')
+run.dependsOn(':gameplay:assemblePlugin')
+
+
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        if (details.requested.name == 'slf4j-log4j12') {
+            details.useTarget "org.apache.logging.log4j:log4j-slf4j-impl:2.17.2"
+        }
+    }
+}
+
+sourceSets {
+    main {
+        java.srcDir file('src/main/java')
+        resources.srcDir file('src/main/resources')
+        compileClasspath = compileClasspath + configurations.runtimeClasspath
+        runtimeClasspath = output + compileClasspath
+    }
+}
+
+dependencies {
+    implementation project(path: ':api')
+
+    implementation group: 'org.pf4j', name: 'pf4j', version: "${pf4j_version}"
+    annotationProcessor(group: 'org.pf4j', name: 'pf4j', version: "${pf4j_version}")
+    implementation "org.apache.logging.log4j:log4j-slf4j-impl:2.17.2"
+    implementation group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.25'
+
+    implementation "org.lwjgl:lwjgl:$lwjgl_version"
+    implementation "org.lwjgl:lwjgl-assimp:$lwjgl_version"
+    implementation "org.lwjgl:lwjgl-glfw:$lwjgl_version"
+    implementation "org.lwjgl:lwjgl-openal:$lwjgl_version"
+    implementation "org.lwjgl:lwjgl-opengl:$lwjgl_version"
+    implementation "org.lwjgl:lwjgl-stb:$lwjgl_version"
+    runtimeOnly "org.lwjgl:lwjgl:$lwjgl_version:$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-assimp:$lwjgl_version:$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-glfw:$lwjgl_version:$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-openal:$lwjgl_version:$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-opengl:$lwjgl_version:$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-stb:$lwjgl_version:$lwjglNatives"
+    implementation "org.joml:joml:${joml_version}"
+
+
+    implementation "com.google.code.gson:gson:${gson_version}"
+    implementation "com.google.guava:guava:${guava_version}"
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+
+    implementation "com.mojang:brigadier:${brigadier_version}"
+    implementation "com.google.guava:guava:${guava_version}"
+    implementation "com.google.code.gson:gson:${gson_version}"
+}
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Version': version,
+                'Main-Class': 'net.ddns.minersonline.HistorySurvival.Game'
+    }
+    baseName = project.name+"-all"
+    from {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        configurations.runtimeClasspath.collect {
+            if(it.name == "mixin-${mixin_version}.jar") {
+                //include 'META-INF/services', 'META-INF/services/**'
+                exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
+                it.isDirectory() ? it : zipTree(it)
+            } else {
+                it.isDirectory() ? it : zipTree(it)
+            }
+        }
+    }
+    with jar
+}
+
+apply plugin: "maven-publish"
+
+publishing {
+    repositories {
+        maven {
+            url = uri("E:\\web\\maven\\repositories\\releases")
+        }
+    }
+    publications {
+//        mavenJava(MavenPublication) {
+//            from components.java
+//        }
+        maven(MavenPublication) {
+            groupId 'net.ddns.minersonline'
+            artifactId 'HistorySurvival'
+            version '0.0.1'
+            artifact fatJar
+        }
+    }
+}
+
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

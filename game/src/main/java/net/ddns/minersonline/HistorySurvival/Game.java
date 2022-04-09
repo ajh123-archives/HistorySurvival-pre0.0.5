@@ -1,11 +1,11 @@
 package net.ddns.minersonline.HistorySurvival;
 
+import net.ddns.minersonline.HistorySurvival.api.EventHandler;
 import net.ddns.minersonline.HistorySurvival.engine.MasterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Entity;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Player;
-import net.ddns.minersonline.HistorySurvival.engine.particles.Particle;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleMaster;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleSystem;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleTexture;
@@ -38,6 +38,7 @@ import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
+import org.pf4j.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,8 +55,25 @@ public class Game {
     public static HashMap<Integer, Player> playerList = new HashMap<Integer, Player>();
 
     private void start(String[] args) throws IOException, ClassNotFoundException {
+        logger.info("Plugins dir: " + System.getProperty("pf4j.pluginsDir"));
+
+        // create the plugin manager
+        final PluginManager pluginManager = new DefaultPluginManager() {
+            @Override
+            protected CompoundPluginDescriptorFinder createPluginDescriptorFinder() {
+                return new CompoundPluginDescriptorFinder()
+                        .add(new PropertiesPluginDescriptorFinder())
+                        .add(new ManifestPluginDescriptorFinder());
+            }
+        };
+
+        pluginManager.loadPlugins();
+        pluginManager.startPlugins();
+
         DisplayManager.createDisplay();
         DisplayManager.setShowFPSTitle(false);
+
+        List<EventHandler> eventHandlers = pluginManager.getExtensions(EventHandler.class);
 
         logger.info("OpenGL: " + DisplayManager.getOpenGlVersionMessage());
         logger.info("LWJGL: " + Version.getVersion());
@@ -206,6 +224,10 @@ public class Game {
         particleSystem.setSpeedError(0.4f);
         particleSystem.setScaleError(0.8f);
 
+        for (EventHandler handler : eventHandlers) {
+            handler.hello();
+        }
+
         while (DisplayManager.shouldDisplayClose()) {
             Mouse.update();
             player.move();
@@ -292,7 +314,8 @@ public class Game {
             DisplayManager.updateDisplay();
         }
         logger.info("Stopping!");
-
+        pluginManager.stopPlugins();
+        logger.info("Plugins stopped");
         ParticleMaster.cleanUp();
         logger.info("Cleaned particles");
         TextMaster.cleanUp();

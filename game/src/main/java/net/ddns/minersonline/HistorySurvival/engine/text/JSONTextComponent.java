@@ -2,7 +2,6 @@ package net.ddns.minersonline.HistorySurvival.engine.text;
 
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontType;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.GUIText;
-import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.TextMeshCreator;
 import org.joml.Vector2f;
 
 import java.util.List;

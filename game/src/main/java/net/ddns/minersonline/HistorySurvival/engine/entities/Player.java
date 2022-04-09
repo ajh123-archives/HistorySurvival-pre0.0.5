@@ -4,7 +4,6 @@ import net.ddns.minersonline.HistorySurvival.engine.DisplayManager;
 import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
 import net.ddns.minersonline.HistorySurvival.engine.models.TexturedModel;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.Terrain;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.util.Map;

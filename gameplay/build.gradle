@@ -1,0 +1,75 @@
+apply plugin: 'java'
+
+group 'net.ddns.minersonline.HistorySurvival'
+version '0.0.1'
+
+targetCompatibility = 8
+sourceCompatibility = 8
+
+repositories {
+    mavenCentral()
+    maven {
+        name = "jitpack"
+        url = "https://jitpack.io"
+    }
+    maven {
+        name = "minecraft-libraries"
+        url = "https://libraries.minecraft.net"
+    }
+//    flatDir {
+//        dirs "E:\\web\\maven\\repositories\\releases"
+//    }
+}
+
+ext.pluginsDir = rootProject.buildDir.path + '/plugins'
+
+
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        if (details.requested.name == 'slf4j-log4j12') {
+            details.useTarget "org.apache.logging.log4j:log4j-slf4j-impl:2.17.2"
+        }
+    }
+}
+
+sourceSets {
+    main {
+        java.srcDir file('src/main/java')
+        resources.srcDir file('src/main/resources')
+        runtimeClasspath = output + compileClasspath
+    }
+}
+
+dependencies {
+    compileOnly project(path: ':api')
+    compileOnly group: 'org.pf4j', name: 'pf4j', version: "${pf4j_version}"
+    annotationProcessor(group: 'org.pf4j', name: 'pf4j', version: "${pf4j_version}")
+}
+
+
+jar {
+    manifest {
+        attributes 'Plugin-Class': "${pluginClass}",
+                'Plugin-Id': "${pluginId}",
+                'Plugin-Version': "${archiveVersion}",
+                'Plugin-Provider': "${pluginProvider}"
+    }
+}
+
+task plugin(type: Jar) {
+    archiveBaseName = "plugin-${pluginId}"
+    into('classes') {
+        with jar
+    }
+    into('lib') {
+        from configurations.runtimeClasspath
+    }
+    archiveExtension ='zip'
+}
+
+task assemblePlugin(type: Copy) {
+    from plugin
+    into pluginsDir
+}
+
+build.dependsOn assemblePlugin
