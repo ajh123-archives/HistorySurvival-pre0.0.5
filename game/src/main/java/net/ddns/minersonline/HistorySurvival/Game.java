@@ -42,6 +42,8 @@ import org.pf4j.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.commons.cli.*;
+
 import java.io.IOException;
 import java.util.*;
 
@@ -340,7 +342,53 @@ public class Game {
 //        return client.sendMessage(clientId, controlsUpdate);
 //    }
 
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
+    public static void main(String[] args) throws Exception {
+        Options options = new Options();
+
+        Option un = new Option(null, "username", true, "Username");
+        options.addOption(un);
+        Option ve = new Option(null, "version", true, "Game Version");
+        options.addOption(ve);
+        Option gd = new Option(null, "gameDir", true, "Game Directory");
+        options.addOption(gd);
+        Option id = new Option(null, "uuid", true, "User ID");
+        options.addOption(id);
+        Option at = new Option(null, "accessToken", true, "Auth access token");
+        options.addOption(at);
+        Option cid = new Option(null, "clientId", true, "Auth client ID");
+        options.addOption(cid);
+        Option de = new Option(null, "demo", false, "Demo Mode");
+        options.addOption(de);
+
+        CommandLineParser parser = new DefaultParser();
+        HelpFormatter formatter = new HelpFormatter();
+        CommandLine cmd = null;//not a good practice, it serves it purpose
+
+        try {
+            cmd = parser.parse(options, args);
+        } catch (ParseException e) {
+            System.out.println(e.getMessage());
+            formatter.printHelp("game", options);
+
+            System.exit(1);
+        }
+
+        String username = cmd.getOptionValue("username");
+        String version = cmd.getOptionValue("version");
+        String gameDir = cmd.getOptionValue("gameDir");
+        String uuid = cmd.getOptionValue("uuid");
+        String accessToken = cmd.getOptionValue("accessToken");
+        String clientId = cmd.getOptionValue("clientId");
+        String demo = cmd.getOptionValue("demo");
+
+        System.out.println("Username: "+ username);
+        System.out.println("Version: "+ version);
+        System.out.println("GameDir: "+ gameDir);
+        System.out.println("UUID: "+ uuid);
+        System.out.println("AccessToken: "+ accessToken);
+        System.out.println("ClientID: "+ clientId);
+        System.out.println("IsDemo: "+ demo);
+
         new Game().start(args);
     }
 }

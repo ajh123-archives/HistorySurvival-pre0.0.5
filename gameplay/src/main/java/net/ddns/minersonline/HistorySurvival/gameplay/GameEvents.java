@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 @Extension
 public class GameEvents implements EventHandler {
-    private static final Logger logger = LoggerFactory.getLogger(GamePlugin.class);
+    private static final Logger logger = LoggerFactory.getLogger(GameEvents.class);
 
     @Override
     public void hello() {

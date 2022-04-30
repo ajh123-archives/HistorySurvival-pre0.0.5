@@ -29,14 +29,12 @@ repositories {
 
 import org.gradle.internal.os.OperatingSystem
 
-ext.pluginsDir = rootProject.buildDir.path + '/plugins'
+//ext.pluginsDir = rootProject.buildDir.path + '/plugins'
 project.ext.lwjgl_version = "3.2.1"
 project.ext.joml_version = "1.10.4"
 project.ext.brigadier_version = "1.0.18"
 project.ext.guava_version = "31.1-jre"
 project.ext.gson_version = "2.9.0"
-project.ext.mixin_version = "0.8.4"
-project.ext.mixin_annotation_version = "0.8.5"
 
 switch (OperatingSystem.current()) {
     case OperatingSystem.LINUX:
@@ -49,6 +47,9 @@ switch (OperatingSystem.current()) {
         project.ext.lwjglNatives = "natives-windows"
         break
 }
+
+//cross compile
+//project.ext.lwjglNatives = "natives-linux"
 
 test {
     useJUnitPlatform()
@@ -82,6 +83,8 @@ sourceSets {
 dependencies {
     implementation project(path: ':api')
 
+    implementation 'commons-cli:commons-cli:1.5.0'
+
     implementation group: 'org.pf4j', name: 'pf4j', version: "${pf4j_version}"
     annotationProcessor(group: 'org.pf4j', name: 'pf4j', version: "${pf4j_version}")
     implementation "org.apache.logging.log4j:log4j-slf4j-impl:2.17.2"
@@ -114,24 +117,15 @@ dependencies {
 }
 
 task fatJar(type: Jar) {
-    manifest {
-        attributes 'Implementation-Version': version,
-                'Main-Class': 'net.ddns.minersonline.HistorySurvival.Game'
-    }
-    baseName = project.name+"-all"
+    baseName = project.ext.lwjglNatives
     from {
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         configurations.runtimeClasspath.collect {
-            if(it.name == "mixin-${mixin_version}.jar") {
-                //include 'META-INF/services', 'META-INF/services/**'
-                exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
-                it.isDirectory() ? it : zipTree(it)
-            } else {
-                it.isDirectory() ? it : zipTree(it)
-            }
+            exclude 'net/ddns/mineronline/HistorySurvival/**'
+            it.isDirectory() ? it : zipTree(it)
         }
     }
-    with jar
+    //with jar
 }
 
 apply plugin: "maven-publish"
