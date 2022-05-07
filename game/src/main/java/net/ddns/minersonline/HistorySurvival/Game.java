@@ -7,6 +7,7 @@ import net.ddns.minersonline.HistorySurvival.engine.entities.Entity;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Player;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleMaster;
+import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleSystem;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleTexture;
 import net.ddns.minersonline.HistorySurvival.engine.text.ChatColor;
@@ -44,7 +45,8 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.commons.cli.*;
 
-import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class Game {
@@ -54,13 +56,17 @@ public class Game {
     public static String VERSION = "0.0.1";
 
 
-    public static HashMap<Integer, Player> playerList = new HashMap<Integer, Player>();
+    private void start() {
+        List<Path> pluginDirs = new ArrayList<>();
+        if(GameSettings.assetsDir!=null)
+            pluginDirs.add(Paths.get(GameSettings.assetsDir));
+        if(GameSettings.gameDir!=null)
+            pluginDirs.add(Paths.get(GameSettings.gameDir+"/plugins"));
 
-    private void start(String[] args) throws IOException, ClassNotFoundException {
-        logger.info("Plugins dir: " + System.getProperty("pf4j.pluginsDir"));
+        logger.info("Plugins dir: " + pluginDirs);
 
         // create the plugin manager
-        final PluginManager pluginManager = new DefaultPluginManager() {
+        final PluginManager pluginManager = new DefaultPluginManager(pluginDirs) {
             @Override
             protected CompoundPluginDescriptorFinder createPluginDescriptorFinder() {
                 return new CompoundPluginDescriptorFinder()
@@ -237,28 +243,10 @@ public class Game {
             picker.update();
 
             Vector3f pos = new Vector3f(player.getPosition());
-            pos.y += 2;
+            pos.y += 10;
             particleSystem.generateParticles(pos);
-            ParticleMaster.update();
+            ParticleMaster.update(camera);
 
-//            HashMap<Integer, Integer[]> player_pos_hmap = processPlayers(player);
-//            Integer[] player_pos = player_pos_hmap.get(clientId);
-//
-//            for (Integer key : player_pos_hmap.keySet()) {
-//                if (!key.equals(clientId)) {
-//                    if (!playerList.containsKey(key)) {
-//                        Player player2 = new Player(world, playerOBJ, new Vector3f(400,0,-400), 0, 180, 0, 1);
-//                        playerList.put(key, player2);
-//                        entityList.add(player2);
-//                    } else {
-//                        Player player2 = playerList.get(key);
-//                        Integer[] player2_pos = player_pos_hmap.get(key);
-//                        player2.setCurrentSpeed(player2_pos[0]);
-//                        player2.setCurrentTurnSpeed(player2_pos[1]);
-//                        player2.setJump(player2_pos[2]);
-//                    }
-//                }
-//            }
 
             GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
             wfbos.bindReflectionFrameBuffer();
@@ -336,11 +324,6 @@ public class Game {
         logger.info("Closed display");
     }
 
-//    private HashMap<Integer, Integer[]> processPlayers(Player myPlayer) throws ClassNotFoundException, IOException {
-//        int jumping = myPlayer.isJump() ? 1 : 0;
-//        Integer[] controlsUpdate = {Math.round(myPlayer.getCurrentSpeed()), Math.round(myPlayer.getCurrentTurnSpeed()), jumping};
-//        return client.sendMessage(clientId, controlsUpdate);
-//    }
 
     public static void main(String[] args) throws Exception {
         Options options = new Options();
@@ -355,8 +338,8 @@ public class Game {
         options.addOption(id);
         Option at = new Option(null, "accessToken", true, "Auth access token");
         options.addOption(at);
-        Option cid = new Option(null, "clientId", true, "Auth client ID");
-        options.addOption(cid);
+        Option ad = new Option(null, "assetsDir", true, "Assets directory");
+        options.addOption(ad);
         Option de = new Option(null, "demo", false, "Demo Mode");
         options.addOption(de);
 
@@ -378,17 +361,17 @@ public class Game {
         String gameDir = cmd.getOptionValue("gameDir");
         String uuid = cmd.getOptionValue("uuid");
         String accessToken = cmd.getOptionValue("accessToken");
-        String clientId = cmd.getOptionValue("clientId");
+        String assetsDir = cmd.getOptionValue("assetsDir");
         String demo = cmd.getOptionValue("demo");
 
-        System.out.println("Username: "+ username);
-        System.out.println("Version: "+ version);
-        System.out.println("GameDir: "+ gameDir);
-        System.out.println("UUID: "+ uuid);
-        System.out.println("AccessToken: "+ accessToken);
-        System.out.println("ClientID: "+ clientId);
-        System.out.println("IsDemo: "+ demo);
+        GameSettings.username = username;
+        GameSettings.version = version;
+        GameSettings.gameDir = gameDir;
+        GameSettings.uuid = uuid;
+        GameSettings.accessToken = accessToken;
+        GameSettings.assetsDir = assetsDir;
+        GameSettings.demo = demo;
 
-        new Game().start(args);
+        new Game().start();
     }
 }

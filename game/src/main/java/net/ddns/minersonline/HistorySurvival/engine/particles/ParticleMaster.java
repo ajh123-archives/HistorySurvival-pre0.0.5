@@ -15,23 +15,23 @@ public class ParticleMaster {
         renderer = new ParticleRenderer(loader, projectionMatrix);
     }
 
-    public static void update(){
-        Iterator<Map.Entry<ParticleTexture, List<Particle>>> parts  = particles.entrySet().iterator();
-        while (parts.hasNext()){
-            List<Particle> inside_parts = parts.next().getValue();
-            Iterator<Particle> iterator = inside_parts.iterator();
-            while (iterator.hasNext()){
-                count += 1;
+    public static void update(Camera camera) {
+        Iterator<Map.Entry<ParticleTexture, List<Particle>>> mapIterator = particles.entrySet().iterator();
+        while (mapIterator.hasNext()) {
+            List<Particle> list = mapIterator.next().getValue();
+            Iterator<Particle> iterator = list.iterator();
+            while (iterator.hasNext()) {
                 Particle p = iterator.next();
-                boolean alive = p.update();
-                if(!alive){
+                boolean stillActive = p.update(camera);
+                if (!stillActive) {
+                    count--;
                     iterator.remove();
-                    if(inside_parts.isEmpty()){
-                        parts.remove();
-                        count -= 1;
+                    if (list.isEmpty()) {
+                        mapIterator.remove();
                     }
                 }
             }
+            InsertionSort.sortHighToLow(list);
         }
     }
 
@@ -46,6 +46,7 @@ public class ParticleMaster {
     public static void addParticle(Particle particle){
         List<Particle> particles_list = particles.computeIfAbsent(particle.getTexture(), k -> new ArrayList<>());
         particles_list.add(particle);
+        count++;
     }
 
     public static int getCount(){

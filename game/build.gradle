@@ -35,6 +35,7 @@ project.ext.joml_version = "1.10.4"
 project.ext.brigadier_version = "1.0.18"
 project.ext.guava_version = "31.1-jre"
 project.ext.gson_version = "2.9.0"
+project.ext.commoms_cli_version = "1.5.0"
 
 switch (OperatingSystem.current()) {
     case OperatingSystem.LINUX:
@@ -83,7 +84,7 @@ sourceSets {
 dependencies {
     implementation project(path: ':api')
 
-    implementation 'commons-cli:commons-cli:1.5.0'
+    implementation "commons-cli:commons-cli:${commoms_cli_version}"
 
     implementation group: 'org.pf4j', name: 'pf4j', version: "${pf4j_version}"
     annotationProcessor(group: 'org.pf4j', name: 'pf4j', version: "${pf4j_version}")
@@ -116,37 +117,20 @@ dependencies {
     implementation "com.google.code.gson:gson:${gson_version}"
 }
 
-task fatJar(type: Jar) {
-    baseName = project.ext.lwjglNatives
-    from {
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        configurations.runtimeClasspath.collect {
-            exclude 'net/ddns/mineronline/HistorySurvival/**'
-            it.isDirectory() ? it : zipTree(it)
-        }
-    }
-    //with jar
+task copyToLib(type: Copy) {
+    into "$buildDir/out_libs"
+    from configurations.runtimeClasspath
 }
 
-apply plugin: "maven-publish"
-
-publishing {
-    repositories {
-        maven {
-            url = uri("E:\\web\\maven\\repositories\\releases")
-        }
-    }
-    publications {
-//        mavenJava(MavenPublication) {
-//            from components.java
-//        }
-        maven(MavenPublication) {
-            groupId 'net.ddns.minersonline'
-            artifactId 'HistorySurvival'
-            version '0.0.1'
-            artifact fatJar
-        }
-    }
+task buildJsonDefs(type:Exec){
+    dependsOn 'copyToLib'
+    commandLine "python",
+            "../build_json_defs.py",
+            "$buildDir/${version}.json",
+            "$buildDir/out_libs",
+            "$project.name-${version}.jar",
+            "$buildDir/libs",
+            "$version"
 }
 
 processResources {

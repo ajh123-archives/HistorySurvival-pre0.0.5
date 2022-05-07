@@ -7,6 +7,7 @@ import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.models.RawModel;
 import net.ddns.minersonline.HistorySurvival.engine.utils.Maths;
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
@@ -29,28 +30,32 @@ public class ParticleRenderer {
 		shader.loadProjectionMatrix(projectionMatrix);
 		shader.unbind();
 	}
-	
-	protected void render(Map<ParticleTexture, List<Particle>> particles, Camera camera){
+
+	protected void render(Map<ParticleTexture, List<Particle>> particles, Camera camera) {
 		Matrix4f viewMatrix = Maths.createViewMatrix(camera);
 		prepare();
-
 		for (ParticleTexture texture : particles.keySet()) {
+			if (texture.usesAdditiveBlending()) {
+				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+			} else {
+				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+			}
 			GL13.glActiveTexture(GL13.GL_TEXTURE0);
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getTextureID());
-
 			for (Particle particle : particles.get(texture)) {
-				updateModelViewMatrix(particle.getPosition(), particle.getRotation(), particle.getScale(), viewMatrix);
+				updateModelViewMatrix(particle.getPosition(), particle.getRotation(),
+						particle.getScale(), viewMatrix);
+				shader.loadTextureCoordInfo(particle.getTexOffset1(), particle.getTexOffset2(),
+						texture.getNumberOfRows(), particle.getBlend());
 				GL11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 0, quad.getVertexCount());
 			}
 		}
-
 		finishRendering();
 	}
 
 	private void updateModelViewMatrix(Vector3f pos,  float rotation, float scale, Matrix4f viewMatrix) {
 		Matrix4f modelMatrix = new Matrix4f();
 		modelMatrix.translate(pos);
-
 		modelMatrix.m00(viewMatrix.m00());
 		modelMatrix.m01(viewMatrix.m10());
 		modelMatrix.m02(viewMatrix.m20());
@@ -63,7 +68,8 @@ public class ParticleRenderer {
 
 		modelMatrix.rotate((float) Math.toRadians(rotation), new Vector3f(0, 0, 1));
 		modelMatrix.scale(new Vector3f(scale, scale, scale));
-		Matrix4f modelViewMatrix = viewMatrix.mul(modelMatrix);
+		Matrix4f modelViewMatrix = new Matrix4f();
+		viewMatrix.mul(modelMatrix, modelViewMatrix);
 		shader.loadModelViewMatrix(modelViewMatrix);
 	}
 

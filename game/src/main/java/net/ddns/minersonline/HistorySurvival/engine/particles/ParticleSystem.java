@@ -16,17 +16,18 @@ public class ParticleSystem {
 	private boolean randomRotation = false;
 	private Vector3f direction;
 	private float directionDeviation = 0;
+
 	private ParticleTexture texture;
 
 	private Random random = new Random();
 
 	public ParticleSystem(ParticleTexture texture, float pps, float speed, float gravityComplient, float lifeLength, float scale) {
-		this.texture = texture;
 		this.pps = pps;
 		this.averageSpeed = speed;
 		this.gravityComplient = gravityComplient;
 		this.averageLifeLength = lifeLength;
 		this.averageScale = scale;
+		this.texture = texture;
 	}
 
 	/**
@@ -86,9 +87,9 @@ public class ParticleSystem {
 		}else{
 			velocity = generateRandomUnitVector();
 		}
-		float scale = generateValue(averageScale, scaleError);
 		velocity.normalize();
-		velocity.mul(scale);
+		velocity.mul(generateValue(averageSpeed, speedError));
+		float scale = generateValue(averageScale, scaleError);
 		float lifeLength = generateValue(averageLifeLength, lifeError);
 		new Particle(texture, new Vector3f(center), velocity, gravityComplient, lifeLength, generateRotation(), scale);
 	}
@@ -117,8 +118,7 @@ public class ParticleSystem {
 
 		Vector4f direction = new Vector4f(x, y, z, 1);
 		if (coneDirection.x != 0 || coneDirection.y != 0 || (coneDirection.z != 1 && coneDirection.z != -1)) {
-			Vector3f rotateAxis = new Vector3f();
-			coneDirection.cross(new Vector3f(0, 0, 1), rotateAxis);
+			Vector3f rotateAxis = coneDirection.cross(new Vector3f(0, 0, 1));
 			rotateAxis.normalize();
 			float rotateAngle = (float) Math.acos(coneDirection.dot(new Vector3f(0, 0, 1)));
 			Matrix4f rotationMatrix = new Matrix4f();
@@ -129,7 +129,7 @@ public class ParticleSystem {
 		}
 		return new Vector3f(direction.x, direction.y, direction.z);
 	}
-	
+
 	private Vector3f generateRandomUnitVector() {
 		float theta = (float) (random.nextFloat() * 2f * Math.PI);
 		float z = (random.nextFloat() * 2) - 1;
@@ -138,5 +138,4 @@ public class ParticleSystem {
 		float y = (float) (rootOneMinusZSquared * Math.sin(theta));
 		return new Vector3f(x, y, z);
 	}
-
 }

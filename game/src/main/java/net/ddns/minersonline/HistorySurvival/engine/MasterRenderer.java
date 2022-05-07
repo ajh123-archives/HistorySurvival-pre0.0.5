@@ -4,6 +4,7 @@ import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Entity;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.models.TexturedModel;
+import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleMaster;
 import net.ddns.minersonline.HistorySurvival.engine.shaders.StaticShader;
 import net.ddns.minersonline.HistorySurvival.engine.shaders.TerrainShader;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.Terrain;
