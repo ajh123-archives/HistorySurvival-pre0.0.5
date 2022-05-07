@@ -2,6 +2,7 @@ package net.ddns.minersonline.HistorySurvival.engine;
 
 import net.ddns.minersonline.HistorySurvival.engine.models.RawModel;
 import net.ddns.minersonline.HistorySurvival.engine.utils.BufferUtils;
+import org.lwjgl.opengl.*;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -13,6 +14,7 @@ import static org.lwjgl.opengl.GL30.*;
 
 public class ModelLoader {
     private ConcurrentHashMap<Integer, List<Integer>> vao_vbos;
+    private List<Integer> instance_vbos = new ArrayList<>();
     private List<Integer> textureList;
 
     public ModelLoader() {
@@ -120,15 +122,50 @@ public class ModelLoader {
 
     public void destroy() {
         for (int vao : vao_vbos.keySet()) {
-            for (int vboId: vao_vbos.get(vao)) {
-                glDeleteBuffers(vboId);
-            }
-            glDeleteVertexArrays(vao);
-            vao_vbos.remove(vao);
+            destroy(vao);
         }
 
         for (int textureId : textureList) {
             glDeleteTextures(textureId);
         }
+
+        for (int vboIdx = 0; vboIdx<instance_vbos.size(); vboIdx++ ) {
+            int vboId = instance_vbos.get(vboIdx);
+            glDeleteBuffers(vboId);
+            instance_vbos.remove(vboIdx);
+            vboIdx++;
+        }
+    }
+
+    public int createEmptyVbo(int floatCount) {
+        int vbo = GL15.glGenBuffers();
+        instance_vbos.add(vbo);
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo);
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, floatCount * 4, GL15.GL_STREAM_DRAW);
+        // unbind
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+        return vbo;
+    }
+
+    public void addInstancedAttribute(int vao, int vbo, int attribute, int dataSize,
+                                      int instancedDataLength, int offset) {
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo);
+        GL30.glBindVertexArray(vao);
+        GL20.glVertexAttribPointer(attribute, dataSize, GL11.GL_FLOAT, false,
+                instancedDataLength * 4, offset * 4L);
+        GL33.glVertexAttribDivisor(attribute, 1);
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+        // unbind vao
+        GL30.glBindVertexArray(0);
+    }
+
+    public void updateVbo(int vbo, float[] data, FloatBuffer buffer) {
+        buffer.clear();
+        buffer.put(data);
+        buffer.flip();
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo);
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer.capacity() * 4L, GL15.GL_STREAM_DRAW);
+        GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 0, buffer);
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
     }
 }

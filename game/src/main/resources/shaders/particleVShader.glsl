@@ -1,26 +1,25 @@
 #version 140
 
 in vec2 position;
+in mat4 modelViewMatrix;
+in vec4 texOffsets;
+in float blendFactor;
 
 out vec2 textureCoOrds1;
 out vec2 textureCoOrds2;
 out float blend;
 
 uniform mat4 projectionMatrix;
-uniform mat4 modelViewMatrix;
-
-uniform vec2 texOffset1;
-uniform vec2 texOffset2;
-uniform vec2 texCoOrdInfo;
+uniform float numberOfRows;
 
 void main(void)
 {
-	vec2 textureCoords = position + vec2(0.5, 0.5);
-	textureCoords.y = 1.0 - textureCoords.y;
-	textureCoords /= texCoOrdInfo.x;
-	textureCoOrds1 = textureCoords + texOffset1;
-	textureCoOrds2 = textureCoords + texOffset2;
-	blend = texCoOrdInfo.y;
+	vec2 textureCoOrds = position + vec2(0.5, 0.5);
+	textureCoOrds.y = 1.0 - textureCoOrds.y;
+	textureCoOrds /= numberOfRows;
+	textureCoOrds1 = textureCoOrds + texOffsets.xy;
+	textureCoOrds2 = textureCoOrds + texOffsets.zw;
+	blend = blendFactor;
 
 	gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 0.0, 1.0);
 }
