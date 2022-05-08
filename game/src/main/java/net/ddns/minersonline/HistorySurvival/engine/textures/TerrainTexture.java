@@ -1,13 +1,13 @@
 package net.ddns.minersonline.HistorySurvival.engine.textures;
 
 public class TerrainTexture {
-    private int textureId;
+	private int textureId;
 
-    public TerrainTexture(int textureId) {
-        this.textureId = textureId;
-    }
+	public TerrainTexture(int textureId) {
+		this.textureId = textureId;
+	}
 
-    public int getTextureId() {
-        return textureId;
-    }
+	public int getTextureId() {
+		return textureId;
+	}
 }
