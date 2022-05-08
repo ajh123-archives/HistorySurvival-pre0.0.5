@@ -8,6 +8,7 @@ import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleMaster;
 import net.ddns.minersonline.HistorySurvival.engine.shaders.StaticShader;
 import net.ddns.minersonline.HistorySurvival.engine.shaders.TerrainShader;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.Terrain;
+import net.ddns.minersonline.HistorySurvival.engine.terrains.World;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 
@@ -70,7 +71,7 @@ public class MasterRenderer {
         entityList.add(entity);
     }
 
-    public void renderScene(List<Entity> entities, Map<Integer, Map<Integer, Terrain>> world, List<Light> lights, Camera camera, Vector4f clipping_plane){
+    public void renderScene(List<Entity> entities, World world, List<Light> lights, Camera camera, Vector4f clipping_plane){
         processWorld(world);
         for (Entity entity : entities) {
             processEntity(entity);
@@ -99,10 +100,8 @@ public class MasterRenderer {
         terrainList.clear();
     }
 
-    public void processWorld(Map<Integer, Map<Integer, Terrain>> world) {
-        for (Map<Integer, Terrain> terrains : world.values()) {
-            terrainList.addAll(terrains.values());
-        }
+    public void processWorld(World world) {
+        terrainList.addAll(world.getTerrains());
     }
 
     public void destory() {

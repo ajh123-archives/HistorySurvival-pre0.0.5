@@ -10,6 +10,8 @@ import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleMaster;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleSystem;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleTexture;
+import net.ddns.minersonline.HistorySurvival.engine.terrains.TestWorld;
+import net.ddns.minersonline.HistorySurvival.engine.terrains.World;
 import net.ddns.minersonline.HistorySurvival.engine.text.ChatColor;
 import net.ddns.minersonline.HistorySurvival.engine.text.JSONTextBuilder;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontType;
@@ -110,27 +112,7 @@ public class Game {
         TexturedModel fernModel = new TexturedModel(ObjLoader.loadObjModel("fern.obj", modelLoader), fernTextureAtlas);
         fernModel.getModelTexture().setHasTransparency(true);
 
-        // Multi-textured Terrain
-        TerrainTexture backgroundTexture = new TerrainTexture(modelLoader.loadTexture("grassy2.png"));
-        TerrainTexture rTexture = new TerrainTexture(modelLoader.loadTexture("mud.png"));
-        TerrainTexture gTexture = new TerrainTexture(modelLoader.loadTexture("grassFlowers.png"));
-        TerrainTexture bTexture = new TerrainTexture(modelLoader.loadTexture("path.png"));
-        TerrainTexture blendMap = new TerrainTexture(modelLoader.loadTexture("blendMap.png"));
-
-        TerrainTexturePack terrainTexturePack = new TerrainTexturePack(backgroundTexture, rTexture, gTexture, bTexture);
-
-        // Terrain entityList
-        int size = 3;
-        Map<Integer, Map<Integer, Terrain>> world = new HashMap<>();
-
-        for(int i = -size; i < size; i++)  {
-            world.put(i, new HashMap<>());
-        }
-
-        Terrain terrain = new Terrain(0, -1, modelLoader, terrainTexturePack, blendMap, "heightmap.png");
-        world.get(0).put(-1, terrain);
-        Terrain terrain2 = new Terrain(-1, -1, modelLoader, terrainTexturePack, blendMap, "heightmap.png");
-        world.get(-1).put(-1, terrain2);
+        World world = new TestWorld(modelLoader, 2, 3, 300, 15, 256, 300);
 
         List<Entity> entityList = new ArrayList<>();
 
@@ -139,7 +121,7 @@ public class Game {
         for (int i = 0; i < 400; i++) {
             float x = random.nextFloat() * 800 - 400;
             float z = random.nextFloat() * -600;
-            float y = terrain.getHeightOfTerrain(x, z);
+            float y = world.getHeightOfTerrain(x, z);
 
             if (i % 20 == 0) {
                 entityList.add(new Entity(lowPolyTreeModel, new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 1));
@@ -147,7 +129,7 @@ public class Game {
 
             x = random.nextFloat() * 800 - 400;
             z = random.nextFloat() * -600;
-            y = terrain.getHeightOfTerrain(x, z);
+            y = world.getHeightOfTerrain(x, z);
 
             if (i % 20 == 0) {
                 entityList.add(new Entity(treeModel, new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 5));
@@ -155,7 +137,7 @@ public class Game {
 
             x = random.nextFloat() * 800 - 400;
             z = random.nextFloat() * -600;
-            y = terrain.getHeightOfTerrain(x, z);
+            y = world.getHeightOfTerrain(x, z);
 
             if (i % 10 == 0) {
                 // assigns a random texture for each fern from its texture atlas
@@ -200,7 +182,12 @@ public class Game {
 
 
         TexturedModel playerOBJ = new TexturedModel(ObjLoader.loadObjModel("person.obj", modelLoader), new ModelTexture(modelLoader.loadTexture("playerTexture.png")));
-        Player player = new Player(world, playerOBJ, new Vector3f(380, 8, -290), 0,0,0,0.6f);
+
+        float centerX = world.getXSize()/2;
+        float centerZ = world.getZSize()/2;
+        Vector3f worldCenter = world.getTerrainPoint(centerX, centerZ, 10);
+
+        Player player = new Player(world, playerOBJ, new Vector3f(worldCenter), 0,0,0,0.6f);
         entityList.add(player);
         Camera camera = new Camera(player);
 
@@ -215,10 +202,6 @@ public class Game {
         WaterShader waterShader = new WaterShader();
         WaterFrameBuffers wfbos = new WaterFrameBuffers();
         WaterRenderer waterRenderer = new WaterRenderer(modelLoader, waterShader, masterRenderer.getProjectionMatrix(), wfbos);
-
-        List<WaterTile> waterTiles = new ArrayList<>();
-        WaterTile water = new WaterTile(370, -293, 4.2f);
-        waterTiles.add(water);
 
         String my_text = "[{\"text\":\"Should not be shown!\"}]";
         GUIText debugText = JSONTextBuilder.build_string(font, my_text);
@@ -239,34 +222,40 @@ public class Game {
         while (DisplayManager.shouldDisplayClose()) {
             Mouse.update();
             player.move();
+
+            if(Keyboard.isKeyDown(GLFW.GLFW_KEY_R)){
+                player.getPosition().set(new Vector3f(worldCenter));
+            }
+
             camera.move();
             picker.update();
 
-            Vector3f pos = new Vector3f(player.getPosition());
-            pos.y += 10;
+            Vector3f pos = new Vector3f(worldCenter);
+            pos.y += 20;
             particleSystem.generateParticles(pos);
             ParticleMaster.update(camera);
 
 
             GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
             wfbos.bindReflectionFrameBuffer();
-            float distance = 2 * (camera.getPosition().y - water.getHeight());
+            float waterHeight = world.getHeightOfWater(player.getPosition().x, player.getPosition().z);
+            float distance = 2 * (camera.getPosition().y - waterHeight);
             camera.getPosition().y -= distance;
             camera.invertPitch();
-            masterRenderer.renderScene(entityList, world, lights, camera, new Vector4f(0, 1, 0, -water.getHeight()+1f));
+            masterRenderer.renderScene(entityList, world, lights, camera, new Vector4f(0, 1, 0, -waterHeight+1f));
             camera.getPosition().y += distance;
             camera.invertPitch();
 
             wfbos.bindRefractionFrameBuffer();
-            masterRenderer.renderScene(entityList, world, lights, camera, new Vector4f(0, -1, 0, water.getHeight()+1f));
+            masterRenderer.renderScene(entityList, world, lights, camera, new Vector4f(0, -1, 0, waterHeight+1f));
             wfbos.unbindCurrentFrameBuffer();
 
             masterRenderer.renderScene(entityList, world, lights, camera, new Vector4f(0, -1, 0, 999999999));
-            waterRenderer.render(waterTiles, camera, sun);
+            waterRenderer.render(world.getWaterTiles(), camera, sun);
             ParticleMaster.renderParticles(camera);
 
             guiRenderer.render(guis);
-            Terrain region = Terrain.getTerrain(world, player.getPosition().x, player.getPosition().z);
+            Terrain region = world.getTerrain(player.getPosition().x, player.getPosition().z);
             String debugString = "[{\"text\":\""+GAME+" \"},{\"text\":\""+VERSION+"\"},";
             debugString+="{\"text\":\"\nFPS: "+DisplayManager.getFPS()+"\"},";
             debugString+="{\"text\":\"\nP: "+ParticleMaster.getCount()+"\"},";
@@ -285,8 +274,8 @@ public class Game {
             }
             if(region != null) {
                 debugString+=",{\"text\":\"\nRegion:\"},";
-                debugString+="{\"text\":\" X:"+region.getX() / Terrain.SIZE+"\", \"color\":\""+ChatColor.GREEN+"\"},";
-                debugString+="{\"text\":\" Z:"+region.getZ() / Terrain.SIZE+"\", \"color\":\""+ChatColor.GREEN+"\"}";
+                debugString+="{\"text\":\" X:"+region.getX() / region.getSize()+"\", \"color\":\""+ChatColor.GREEN+"\"},";
+                debugString+="{\"text\":\" Z:"+region.getZ() / region.getSize()+"\", \"color\":\""+ChatColor.GREEN+"\"}";
             }
             debugString += "]";
 

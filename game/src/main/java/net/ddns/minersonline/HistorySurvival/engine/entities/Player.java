@@ -4,6 +4,7 @@ import net.ddns.minersonline.HistorySurvival.engine.DisplayManager;
 import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
 import net.ddns.minersonline.HistorySurvival.engine.models.TexturedModel;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.Terrain;
+import net.ddns.minersonline.HistorySurvival.engine.terrains.World;
 import org.joml.Vector3f;
 
 import java.util.Map;
@@ -20,9 +21,9 @@ public class Player extends Entity {
     private float currentTurnSpeed;
     private float upwardsSpeed;
     private boolean isJump;
-    private Map<Integer, Map<Integer, Terrain>> world;
+    private World world;
 
-    public Player(Map<Integer, Map<Integer, Terrain>> world, TexturedModel texturedModel, Vector3f position, float rotationX, float rotationY, float rotationZ, float scale) {
+    public Player(World world, TexturedModel texturedModel, Vector3f position, float rotationX, float rotationY, float rotationZ, float scale) {
         super(texturedModel, position, rotationX, rotationY, rotationZ, scale);
         this.world = world;
         this.isJump = false;
@@ -44,14 +45,14 @@ public class Player extends Entity {
         return upwardsSpeed;
     }
 
-    public Map<Integer, Map<Integer, Terrain>> getWorld() {
+    public World getWorld() {
         return world;
     }
 
     public void move() {
         checkInputs();
         Vector3f pos = getPosition();
-        Terrain terrain = Terrain.getTerrain(world, pos.x, pos.z);
+        Terrain terrain = world.getTerrain(pos.x, pos.z);
 
         // Calculate movement
         super.increaseRotation(0, currentTurnSpeed * (float) DisplayManager.getDeltaInSeconds(), 0);

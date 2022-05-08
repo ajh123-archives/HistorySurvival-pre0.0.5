@@ -4,6 +4,7 @@ import net.ddns.minersonline.HistorySurvival.engine.DisplayManager;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.io.Mouse;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.Terrain;
+import net.ddns.minersonline.HistorySurvival.engine.terrains.World;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -23,9 +24,9 @@ public class MousePicker {
 
     private Vector3f currentTerrainPoint;
 
-    private Map<Integer, Map<Integer, Terrain>> world;
+    private World world;
 
-    public MousePicker(Map<Integer, Map<Integer, Terrain>> world, Matrix4f projectionMatrix, Camera camera) {
+    public MousePicker(World world, Matrix4f projectionMatrix, Camera camera) {
         this.projectionMatrix = projectionMatrix;
         this.camera = camera;
         this.viewMatrix = Maths.createViewMatrix(camera);
@@ -92,7 +93,7 @@ public class MousePicker {
         float half = start + ((finish - start) / 2f);
         if (count >= RECURSION_COUNT) {
             Vector3f endPoint = getPointOnRay(ray, half);
-            Terrain terrain = Terrain.getTerrain(world, endPoint.x, endPoint.z);
+            Terrain terrain = world.getTerrain(endPoint.x, endPoint.z);
             if (terrain != null) {
                 return endPoint;
             } else {
@@ -113,7 +114,7 @@ public class MousePicker {
     }
 
     private boolean isUnderGround(Vector3f testPoint) {
-        Terrain terrain = Terrain.getTerrain(world, testPoint.x, testPoint.z);
+        Terrain terrain = world.getTerrain(testPoint.x, testPoint.z);
         float height = 0;
         if (terrain != null) {
             height = terrain.getHeightOfTerrain(testPoint.x, testPoint.z);

@@ -39,13 +39,13 @@ public class TerrainRenderer {
         for (Terrain terrain : terrainList) {
             prepareTerrain(terrain);
             loadModelMatrix(terrain);
-            glDrawElements(GL_TRIANGLES, terrain.getRawModel().getVertexCount(), GL_UNSIGNED_INT, 0);    // Draw using index buffer and triangles
+            glDrawElements(GL_TRIANGLES, terrain.getModel().getVertexCount(), GL_UNSIGNED_INT, 0);    // Draw using index buffer and triangles
             unbindTexturedModel();
         }
     }
 
     private void bindTextures(Terrain terrain) {
-        TerrainTexturePack terrainTexturePack = terrain.getTerrainTexturePack();
+        TerrainTexturePack terrainTexturePack = terrain.getTexturePack();
 
         // Bind background texture to texture bank 0
         glActiveTexture(GL_TEXTURE0);
@@ -69,7 +69,7 @@ public class TerrainRenderer {
     }
 
     private void prepareTerrain(Terrain terrain) {
-        RawModel rawModel = terrain.getRawModel();
+        RawModel rawModel = terrain.getModel();
 
         glBindVertexArray(rawModel.getVaoId());
         glEnableVertexAttribArray(0);   // VAO 0 = vertex spacial coordinates

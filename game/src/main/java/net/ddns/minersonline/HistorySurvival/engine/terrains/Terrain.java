@@ -2,37 +2,61 @@ package net.ddns.minersonline.HistorySurvival.engine.terrains;
 
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
 import net.ddns.minersonline.HistorySurvival.engine.models.RawModel;
+import net.ddns.minersonline.HistorySurvival.engine.textures.ModelTexture;
 import net.ddns.minersonline.HistorySurvival.engine.textures.TerrainTexture;
 import net.ddns.minersonline.HistorySurvival.engine.textures.TerrainTexturePack;
 import net.ddns.minersonline.HistorySurvival.engine.utils.Maths;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
 public class Terrain {
-    public static final float SIZE = 800;
-    private static final float MAX_HEIGHT = 40;
-    private static final float MAX_PIXEL_COLOR = 256 * 256 * 256;
+    private static final Logger logger = LoggerFactory.getLogger(Terrain.class);
 
     private float x;
     private float z;
-    private RawModel rawModel;
-    private TerrainTexturePack terrainTexturePack;
+    private float size;
+    private float maxHeight;
+    private RawModel model;
+    private TerrainTexturePack texturePack;
     private TerrainTexture blendMap;
-    private float[][] heights;  // height of each vertex on the terrain
+    private int vertexCount;
+    private int gridX;
+    private int gridZ;
+    private float waterHeight;
 
+    // hard coded seed to get the same result every time
+    private static final int SEED = 431; //new Random().nextInt(1000000000);
 
-    public Terrain(int x, int z, ModelLoader modelLoader, TerrainTexturePack terrainTexturePack, TerrainTexture blendMap, String heightMapFilename) {
-        this.x = x * SIZE;
-        this.z = z * SIZE;
-        this.rawModel = generateTerrain(modelLoader, heightMapFilename);
-        this.terrainTexturePack = terrainTexturePack;
+    private float[][] heights;
+
+    public Terrain(int gridX, int gridZ, float size, float maxHeight, ModelLoader loader, TerrainTexturePack texturePack,
+                     TerrainTexture blendMap, String heightMap, int vertexCount) {
+        this.texturePack = texturePack;
         this.blendMap = blendMap;
+        this.size = size;
+        this.maxHeight = maxHeight;
+        this.x = gridX * size;
+        this.z = gridZ * size;
+        this.vertexCount = vertexCount;
+        this.gridX = gridX;
+        this.gridZ = gridZ;
+        this.waterHeight = 0;
+
+        long nanoTime1 = System.nanoTime();
+        this.model = generateTerrain(loader, heightMap, vertexCount, maxHeight);
+        long nanoTime2 = System.nanoTime();
+        float delta = (nanoTime2 - nanoTime1) / 1e3f;
+
+        logger.info("Terrain: generateTerrain took " + delta + " microseconds");
     }
 
     public float getX() {
@@ -43,90 +67,109 @@ public class Terrain {
         return z;
     }
 
-    public RawModel getRawModel() {
-        return rawModel;
+    public float getSize() {
+        return size;
     }
 
-    public TerrainTexturePack getTerrainTexturePack() {
-        return terrainTexturePack;
+    public Vector3f getPosition() {
+        return new Vector3f(x, 0, z);
+    }
+
+    public RawModel getModel() {
+        return model;
+    }
+
+    // uses texture pack, so can return null
+    public ModelTexture getTexture() {
+        return null;
+    }
+
+    public TerrainTexturePack getTexturePack() {
+        return texturePack;
     }
 
     public TerrainTexture getBlendMap() {
         return blendMap;
     }
 
+    public float getHeightOfWater() {
+        return waterHeight;
+    }
+
+    public boolean containsPosition(float worldX, float worldZ) {
+        if (worldX < x || worldX >= x + size)
+            return false;
+        if (worldZ < z || worldZ >= z + size)
+            return false;
+        return true;
+    }
+
     public float getHeightOfTerrain(float worldX, float worldZ) {
         float terrainX = worldX - this.x;
         float terrainZ = worldZ - this.z;
-        float gridSquareSize = SIZE / ((float) heights.length - 1);
+        float gridSquareSize = size / ((float)heights.length - 1);
         int gridX = (int) Math.floor(terrainX / gridSquareSize);
         int gridZ = (int) Math.floor(terrainZ / gridSquareSize);
-
-        // test if this position is on the terrain and tests if position is below or above the terrain
         if (gridX >= heights.length - 1 || gridZ >= heights.length - 1 || gridX < 0 || gridZ < 0) {
             return 0;
         }
+        float xCoord = (terrainX % gridSquareSize) / gridSquareSize;
+        float zCoord = (terrainZ % gridSquareSize) / gridSquareSize;
+        float answer;
 
-        float xCoordinate = (terrainX % gridSquareSize) / gridSquareSize;
-        float zCoordinate = (terrainZ % gridSquareSize) / gridSquareSize;
-        float triangleHeight;
-
-        // a grid square is made using two triangles. depending which triangle coordinates are in,
-        // we get the height at that position by one of the following
-        if (xCoordinate <= (1 - zCoordinate)) {
-            triangleHeight = Maths.calculateTriangleHeightByBarycentric(
+        if (xCoord <= (1 - zCoord)) {
+            answer = Maths.baryCentric(
                     new Vector3f(0, heights[gridX][gridZ], 0),
                     new Vector3f(1, heights[gridX + 1][gridZ], 0),
                     new Vector3f(0, heights[gridX][gridZ + 1], 1),
-                    new Vector2f(xCoordinate, zCoordinate)
-            );
+                    new Vector2f(xCoord, zCoord));
         } else {
-            triangleHeight = Maths.calculateTriangleHeightByBarycentric(
+            answer = Maths.baryCentric(
                     new Vector3f(1, heights[gridX + 1][gridZ], 0),
                     new Vector3f(1, heights[gridX + 1][gridZ + 1], 1),
                     new Vector3f(0, heights[gridX][gridZ + 1], 1),
-                    new Vector2f(xCoordinate, zCoordinate)
-            );
+                    new Vector2f(xCoord, zCoord));
         }
-
-        return triangleHeight;
+        return answer;
     }
 
-    private RawModel generateTerrain(ModelLoader modelLoader, String heightMapFilename) {
-        BufferedImage bufferedImage = null;
+    private RawModel generateTerrain(ModelLoader loader, String heightMap, int vertexCount, float maxHeight) {
+
+        HeightsGenerator generator = new HeightsGenerator(gridX, gridZ, vertexCount, SEED, maxHeight);
+
+        this.waterHeight = generator.getWaterHeight();
+
+        BufferedImage image = null;
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-        InputStream stream = classloader.getResourceAsStream(heightMapFilename);
+        InputStream stream = classloader.getResourceAsStream(heightMap);
 
         try {
             assert stream != null;
-            bufferedImage = ImageIO.read(stream);
+            image = ImageIO.read(stream);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        assert bufferedImage != null;
-
-        final int VERTEX_COUNT = bufferedImage.getHeight();   // don't use too big a height map or the terrain will be high poly
-
-        heights = new float[VERTEX_COUNT][VERTEX_COUNT];
+        //int VERTEX_COUNT = image.getHeight();
+        int VERTEX_COUNT = vertexCount;
 
         int count = VERTEX_COUNT * VERTEX_COUNT;
+        heights = new float[VERTEX_COUNT][VERTEX_COUNT];
         float[] vertices = new float[count * 3];
         float[] normals = new float[count * 3];
         float[] textureCoords = new float[count * 2];
-        int[] indices = new int[6 * (VERTEX_COUNT - 1) * (VERTEX_COUNT)];
-        int vertexPointer = 0;
 
+        int[] indices = new int[6 * (VERTEX_COUNT - 1) * (VERTEX_COUNT - 1)];
+
+        int vertexPointer = 0;
         for (int i = 0; i < VERTEX_COUNT; i++) {
             for (int j = 0; j < VERTEX_COUNT; j++) {
-                vertices[vertexPointer * 3] = (float) j / ((float) VERTEX_COUNT - 1) * SIZE;
-                float height = getHeight(j, i, bufferedImage);
-                heights[j][i] = height;
+                vertices[vertexPointer * 3] = (float) j / ((float) VERTEX_COUNT - 1) * size;
+                float height = getHeight(j, i, generator);
                 vertices[vertexPointer * 3 + 1] = height;
-                vertices[vertexPointer * 3 + 2] = (float) i / ((float) VERTEX_COUNT - 1) * SIZE;
-
-                Vector3f normal = calculateNormal(j, i, bufferedImage);
-
+                heights[j][i] = height;
+                vertices[vertexPointer * 3 + 2] = (float) i / ((float) VERTEX_COUNT - 1) * size;
+                Vector3f normal = calculateNormal(j, i, generator);
                 normals[vertexPointer * 3] = normal.x;
                 normals[vertexPointer * 3 + 1] = normal.y;
                 normals[vertexPointer * 3 + 2] = normal.z;
@@ -135,16 +178,13 @@ public class Terrain {
                 vertexPointer++;
             }
         }
-
         int pointer = 0;
-
         for (int gz = 0; gz < VERTEX_COUNT - 1; gz++) {
             for (int gx = 0; gx < VERTEX_COUNT - 1; gx++) {
                 int topLeft = (gz * VERTEX_COUNT) + gx;
                 int topRight = topLeft + 1;
                 int bottomLeft = ((gz + 1) * VERTEX_COUNT) + gx;
                 int bottomRight = bottomLeft + 1;
-
                 indices[pointer++] = topLeft;
                 indices[pointer++] = bottomLeft;
                 indices[pointer++] = topRight;
@@ -154,34 +194,22 @@ public class Terrain {
             }
         }
 
-        return modelLoader.loadToVao(vertices, textureCoords, normals, indices);
+        generator.getInfo();
+
+        return loader.loadToVao(vertices, textureCoords, normals, indices);
     }
 
-    private float getHeight(int x, int z,  BufferedImage bufferedImage) {
-        if (x < 0 || x >= bufferedImage.getHeight() || z < 0 || z >= bufferedImage.getHeight()) {
-            return 0;   // out of bounds
-        }
-
-        float height = bufferedImage.getRGB(x, z);
-        height += MAX_PIXEL_COLOR / 2f;
-        height /= MAX_PIXEL_COLOR / 2f;
-        height *= MAX_HEIGHT;
-        return height;
-    }
-
-    private Vector3f calculateNormal(int x, int z, BufferedImage bufferedImage) {
-        float heightL = getHeight(x - 1, z, bufferedImage);
-        float heightR = getHeight(x + 1, z, bufferedImage);
-        float heightD = getHeight(x, z - 1, bufferedImage);
-        float heightU = getHeight(x, z + 1, bufferedImage);
-        Vector3f normal= new Vector3f(heightL - heightR, 2.0f, heightD - heightU);
+    private Vector3f calculateNormal(int x, int z, HeightsGenerator generator) {
+        float heightL = getHeight(x-1, z, generator);
+        float heightR = getHeight(x+1, z, generator);
+        float heightD = getHeight(x, z-1, generator);
+        float heightU = getHeight(x, z+1, generator);
+        Vector3f normal = new Vector3f(heightL - heightR, 2f, heightD - heightU);
         normal.normalize();
         return normal;
     }
 
-    public static Terrain getTerrain(Map<Integer, Map<Integer, Terrain>> world, float worldX, float worldY){
-        int x = (int) Math.floor((double) worldX / (double) Terrain.SIZE);
-        int y = (int) Math.floor((double) worldY / (double) Terrain.SIZE);
-        return world.get(x).get(y);
+    private float getHeight(int x, int z, HeightsGenerator generator) {
+        return generator.generateHeight(x, z);
     }
 }
