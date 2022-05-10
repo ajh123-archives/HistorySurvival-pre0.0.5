@@ -13,10 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
 
 public class Terrain {
 	private static final Logger logger = LoggerFactory.getLogger(Terrain.class);
@@ -33,13 +31,15 @@ public class Terrain {
 	private int gridZ;
 	private float waterHeight;
 
+	private boolean isUsingHeightMap = false;
+
 	// hard coded seed to get the same result every time
 	private static final int SEED = 431; //new Random().nextInt(1000000000);
 
 	private float[][] heights;
 
 	public Terrain(int gridX, int gridZ, float size, float maxHeight, ModelLoader loader, TerrainTexturePack texturePack,
-				   TerrainTexture blendMap, String heightMap, int vertexCount) {
+				   TerrainTexture blendMap, String heightMap, int vertexCount, boolean isUsingHeightMap) {
 		this.texturePack = texturePack;
 		this.blendMap = blendMap;
 		this.size = size;
@@ -50,6 +50,7 @@ public class Terrain {
 		this.gridX = gridX;
 		this.gridZ = gridZ;
 		this.waterHeight = 0;
+		this.isUsingHeightMap = isUsingHeightMap;
 
 		long nanoTime1 = System.nanoTime();
 		this.model = generateTerrain(loader, heightMap, vertexCount, maxHeight);
@@ -135,11 +136,8 @@ public class Terrain {
 
 	private RawModel generateTerrain(ModelLoader loader, String heightMap, int vertexCount, float maxHeight) {
 
-		HeightsGenerator generator = new HeightsGenerator(gridX, gridZ, vertexCount, SEED, maxHeight);
-
-		this.waterHeight = generator.getWaterHeight();
-
 		BufferedImage image = null;
+		HeightsGenerator generator = null;
 		ClassLoader classloader = Thread.currentThread().getContextClassLoader();
 		InputStream stream = classloader.getResourceAsStream(heightMap);
 
@@ -149,6 +147,13 @@ public class Terrain {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+		if(!isUsingHeightMap) {
+			generator = new NoiseGenerator(gridX, gridZ, vertexCount, SEED, maxHeight);
+		} else {
+			generator = new MapGenerator(gridX, gridZ, vertexCount, SEED, maxHeight);
+		}
+		this.waterHeight = generator.getWaterHeight();
 
 		//int VERTEX_COUNT = image.getHeight();
 		int VERTEX_COUNT = vertexCount;

@@ -48,7 +48,7 @@ public class TestWorld implements World {
 
 		for (int x = 0; x < xTiles; x++) {
 			for (int z = 0; z < zTiles; z++) {
-				Terrain terrain = new Terrain(x, z, terrainSize, terrainMaxHeight, loader, texturePack, blendMap, "heightmap.png", terrainVertexCount);
+				Terrain terrain = new Terrain(x, z, terrainSize, terrainMaxHeight, loader, texturePack, blendMap, "heightmap.png", terrainVertexCount, false);
 				terrains.add(terrain);
 				// center the water tile on the terrain tile
 				waterHeight = terrain.getHeightOfWater();
