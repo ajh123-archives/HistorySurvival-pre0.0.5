@@ -2,7 +2,7 @@ apply plugin: 'application'
 apply plugin: 'java'
 
 group 'net.ddns.minersonline'
-version '0.0.1'
+version '0.0.2'
 
 targetCompatibility = 8
 sourceCompatibility = 8
@@ -30,24 +30,24 @@ repositories {
 import org.gradle.internal.os.OperatingSystem
 
 //ext.pluginsDir = rootProject.buildDir.path + '/plugins'
-project.ext.lwjgl_version = "3.2.1"
+project.ext.lwjgl_version = "3.2.3"
 project.ext.joml_version = "1.10.4"
 project.ext.brigadier_version = "1.0.18"
 project.ext.guava_version = "31.1-jre"
 project.ext.gson_version = "2.9.0"
 project.ext.commoms_cli_version = "1.5.0"
 
-switch (OperatingSystem.current()) {
-    case OperatingSystem.LINUX:
-        project.ext.lwjglNatives = "natives-linux"
-        break
-    case OperatingSystem.MAC_OS:
-        project.ext.lwjglNatives = "natives-macos"
-        break
-    case OperatingSystem.WINDOWS:
-        project.ext.lwjglNatives = "natives-windows"
-        break
-}
+//switch (OperatingSystem.current()) {
+//    case OperatingSystem.LINUX:
+//        project.ext.lwjglNatives = "natives-linux"
+//        break
+//    case OperatingSystem.MAC_OS:
+//        project.ext.lwjglNatives = "natives-macos"
+//        break
+//    case OperatingSystem.WINDOWS:
+//        project.ext.lwjglNatives = "natives-windows"
+//        break
+//}
 
 //cross compile
 //project.ext.lwjglNatives = "natives-linux"
@@ -97,12 +97,28 @@ dependencies {
     implementation "org.lwjgl:lwjgl-openal:$lwjgl_version"
     implementation "org.lwjgl:lwjgl-opengl:$lwjgl_version"
     implementation "org.lwjgl:lwjgl-stb:$lwjgl_version"
-    runtimeOnly "org.lwjgl:lwjgl:$lwjgl_version:$lwjglNatives"
-    runtimeOnly "org.lwjgl:lwjgl-assimp:$lwjgl_version:$lwjglNatives"
-    runtimeOnly "org.lwjgl:lwjgl-glfw:$lwjgl_version:$lwjglNatives"
-    runtimeOnly "org.lwjgl:lwjgl-openal:$lwjgl_version:$lwjglNatives"
-    runtimeOnly "org.lwjgl:lwjgl-opengl:$lwjgl_version:$lwjglNatives"
-    runtimeOnly "org.lwjgl:lwjgl-stb:$lwjgl_version:$lwjglNatives"
+
+    runtimeOnly "org.lwjgl:lwjgl:$lwjgl_version:natives-linux"
+    runtimeOnly "org.lwjgl:lwjgl-assimp:$lwjgl_version:natives-linux"
+    runtimeOnly "org.lwjgl:lwjgl-glfw:$lwjgl_version:natives-linux"
+    runtimeOnly "org.lwjgl:lwjgl-openal:$lwjgl_version:natives-linux"
+    runtimeOnly "org.lwjgl:lwjgl-opengl:$lwjgl_version:natives-linux"
+    runtimeOnly "org.lwjgl:lwjgl-stb:$lwjgl_version:natives-linux"
+
+    runtimeOnly "org.lwjgl:lwjgl:$lwjgl_version:natives-macos"
+    runtimeOnly "org.lwjgl:lwjgl-assimp:$lwjgl_version:natives-macos"
+    runtimeOnly "org.lwjgl:lwjgl-glfw:$lwjgl_version:natives-macos"
+    runtimeOnly "org.lwjgl:lwjgl-openal:$lwjgl_version:natives-macos"
+    runtimeOnly "org.lwjgl:lwjgl-opengl:$lwjgl_version:natives-macos"
+    runtimeOnly "org.lwjgl:lwjgl-stb:$lwjgl_version:natives-macos"
+
+    runtimeOnly "org.lwjgl:lwjgl:$lwjgl_version:natives-windows"
+    runtimeOnly "org.lwjgl:lwjgl-assimp:$lwjgl_version:natives-windows"
+    runtimeOnly "org.lwjgl:lwjgl-glfw:$lwjgl_version:natives-windows"
+    runtimeOnly "org.lwjgl:lwjgl-openal:$lwjgl_version:natives-windows"
+    runtimeOnly "org.lwjgl:lwjgl-opengl:$lwjgl_version:natives-windows"
+    runtimeOnly "org.lwjgl:lwjgl-stb:$lwjgl_version:natives-windows"
+
     implementation "org.joml:joml:${joml_version}"
 
 
@@ -123,6 +139,7 @@ task copyToLib(type: Copy) {
 }
 
 task buildJsonDefs(type:Exec){
+    dependsOn 'game:jar'
     dependsOn 'copyToLib'
     commandLine "python",
             "../build_json_defs.py",

@@ -6,12 +6,14 @@ import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Entity;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Player;
+import net.ddns.minersonline.HistorySurvival.engine.io.KeyEvent;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleMaster;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleSystem;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleTexture;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.TestWorld;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.World;
 import net.ddns.minersonline.HistorySurvival.engine.text.ChatColor;
+import net.ddns.minersonline.HistorySurvival.engine.text.JSONSafeText;
 import net.ddns.minersonline.HistorySurvival.engine.text.JSONTextBuilder;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontType;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.GUIText;
@@ -51,7 +53,7 @@ public class Game {
 	private static final Logger logger = LoggerFactory.getLogger(Game.class);
 
 	public static String GAME = "History Survival";
-	public static String VERSION = "0.0.1";
+	public static String VERSION = "0.0.2";
 
 
 	private void start() {
@@ -199,9 +201,12 @@ public class Game {
 		WaterFrameBuffers wfbos = new WaterFrameBuffers();
 		WaterRenderer waterRenderer = new WaterRenderer(modelLoader, waterShader, masterRenderer.getProjectionMatrix(), wfbos);
 
-		String my_text = "[{\"text\":\"Should not be shown!\"}]";
-		GUIText debugText = JSONTextBuilder.build_string(font, my_text);
-		debugText.setVisible(DisplayManager.getShowFPSTitle());
+		GUIText debugText = null;
+		GUIText debugParent = new GUIText("", 1.3f, font, new Vector2f(0, 0), -1, false);
+
+		GUIText chatParent = new GUIText("", 1.3f, font, new Vector2f(0, 0), 100, false);
+		GUIText chatPreview = new GUIText("", 1.3f, font, new Vector2f(0, 0), 100, false);
+		GUIText chatText = null;
 
 		ParticleTexture particleTexture = new ParticleTexture(modelLoader.loadTexture("grass.png"),  1, false);
 		ParticleSystem particleSystem = new ParticleSystem(particleTexture, 50, 0, 0.3f, 4, 2);
@@ -215,16 +220,78 @@ public class Game {
 			handler.hello();
 		}
 
+		boolean isInChat = false;
+		boolean ignoreChat = true;
+		int chatChars = 0;
+		String previewText = "";
+		List<JSONSafeText> chat = new ArrayList<>();
+		StringBuilder message = new StringBuilder();
 		while (DisplayManager.shouldDisplayClose()) {
-			Mouse.update();
-			player.move();
+			KeyEvent keyEvent = Keyboard.getKeyEvent();
 
 			if(Keyboard.isKeyDown(GLFW.GLFW_KEY_R)){
 				player.getPosition().set(new Vector3f(worldCenter));
 			}
 
-			camera.move();
-			picker.update();
+			float y = (1f/2f);
+			chatParent.remove();
+			if (chatText != null) {
+				chatText.remove();
+			}
+			chatParent = new GUIText("", 1.3f, font, new Vector2f(0, y), 100, false);
+			chatText = JSONTextBuilder.build_string_array(chat, chatParent);
+
+			if(isInChat){
+				chatParent.remove();
+				if (chatText != null) {
+					chatText.remove();
+				}
+				chatPreview.remove();
+				chatPreview = new GUIText(previewText, 1.3f, font, new Vector2f(0, y-0.13f), 50, false);
+				chatPreview.load();
+				chatPreview.setVisible(true);
+				chatParent = new GUIText("", 1.3f, font, new Vector2f(0, y-0.1f), 50, false);
+				chatText = JSONTextBuilder.build_string_array(chat, chatParent);
+
+
+				if(Keyboard.isKeyPressed(GLFW.GLFW_KEY_ENTER)){
+					JSONSafeText msg = new JSONSafeText(message +"\n");
+					chat.add(msg);
+					isInChat = false;
+					ignoreChat = true;
+					message.delete(0, message.length());
+					chatChars = 0;
+					previewText = "";
+					chatPreview.remove();
+				}
+				if(isInChat) {
+					if (chatText != null) {
+						chatText.setVisible(true);
+					}
+					if (chatChars < 50 && keyEvent != null && keyEvent.type == 2) {
+						String char_ = keyEvent.getChar();
+						if(!ignoreChat) {
+							message.append(char_);
+							chatChars += 1;
+							previewText += char_;
+						}
+						ignoreChat  = false;
+					}
+				}
+			}
+			if(Keyboard.isKeyPressed(GLFW.GLFW_KEY_T) && !isInChat){
+				isInChat = true;
+			}
+
+			Mouse.update();
+			if(!isInChat) {
+				player.checkInputs();
+				camera.move();
+				picker.update();
+			}
+
+			player.move();
+			camera.update();
 
 			Vector3f pos = new Vector3f(worldCenter);
 			pos.y += 20;
@@ -275,8 +342,10 @@ public class Game {
 			}
 			debugString += "]";
 
-			debugText.remove();
-			debugText = JSONTextBuilder.build_string(font, debugString);
+			if (debugText != null) {
+				debugText.remove();
+			}
+			debugText = JSONTextBuilder.build_string(debugString, debugParent);
 			debugText.setVisible(DisplayManager.getShowFPSTitle());
 
 			if(Keyboard.isKeyPressed(GLFW.GLFW_KEY_F3)) {

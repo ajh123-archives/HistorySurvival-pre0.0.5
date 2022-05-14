@@ -2,6 +2,7 @@ package net.ddns.minersonline.HistorySurvival.engine;
 
 import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
 import net.ddns.minersonline.HistorySurvival.engine.io.Mouse;
+import org.lwjgl.glfw.GLFWCharCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 
@@ -52,6 +53,9 @@ public class DisplayManager {
 
 		// register keyboard input callback
 		glfwSetKeyCallback(window, keyboard);
+		glfwSetCharCallback(window, GLFWCharCallback.create((window, codepoint) ->{
+			Keyboard.invoke2(codepoint);
+		}));
 		glfwSetCursorPosCallback(window, mouse.getMouseMoveCallback());
 		glfwSetMouseButtonCallback(window, mouse.getMouseButtonsCallback());
 		glfwSetScrollCallback(window, mouse.getMouseScrollCallback());

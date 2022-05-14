@@ -172,7 +172,7 @@ public class JSONTextComponent {
 	}
 
 	public GUIText asText(FontType font, GUIText parent){
-		GUIText text = new GUIText(this.text, 1.5f, font, new Vector2f(0, 0), -1, false);
+		GUIText text = new GUIText(this.text, parent.getFontSize(), font, new Vector2f(0, parent.getPosition().y), -1, false);
 		String color_char = " ";
 		color_char.toCharArray()[0] = ChatColor.COLOR_CHAR;
 		if(this.color!=null) {
@@ -181,11 +181,9 @@ public class JSONTextComponent {
 			text.setColour(text_color.color.getRed() / 255f, text_color.color.getGreen() / 255f, text_color.color.getBlue() / 255f);
 			text.setOutlineColor((text_color.color.getRed() / 255f) / 2, (text_color.color.getGreen() / 255f) / 2, (text_color.color.getBlue() / 255f) / 2);
 		}
-		if(parent != null){
-			text.setEndX(parent.getEndX());
-			text.setEndY(parent.getEndY());
-			text.setReady(true);
-		}
+		text.setEndX(parent.getEndX());
+		text.setEndY(parent.getEndY());
+		text.setReady(true);
 		return text;
 	}
 }

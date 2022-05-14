@@ -79,6 +79,8 @@ public class GUIText {
 		this.lineMaxSize = maxLineLength;
 		this.centerText = centered;
 		this.children = new ArrayList<>();
+		endX = position.x;
+		endY = position.y;
 	}
 
 	public void load(){

@@ -50,7 +50,6 @@ public class Player extends Entity {
 	}
 
 	public void move() {
-		checkInputs();
 		Vector3f pos = getPosition();
 		Terrain terrain = world.getTerrain(pos.x, pos.z);
 
@@ -83,7 +82,7 @@ public class Player extends Entity {
 		}
 	}
 
-	private void checkInputs() {
+	public void checkInputs() {
 		if (Keyboard.isKeyDown(GLFW_KEY_W) || Keyboard.isKeyDown(GLFW_KEY_UP)) {
 			currentSpeed = RUN_SPEED;
 		} else if (Keyboard.isKeyDown(GLFW_KEY_S) || Keyboard.isKeyDown(GLFW_KEY_DOWN)) {

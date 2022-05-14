@@ -33,7 +33,9 @@ public class Camera {
 		calculateZoom();
 		calculatePitch();
 		calculateAngleAroundPlayer();
+	}
 
+	public void update() {
 		float horizontalDistance = calculateHorizontalDistance();
 		float verticalDistance = calculateVerticalDistance();
 		calculateCameraPosition(horizontalDistance, verticalDistance);
