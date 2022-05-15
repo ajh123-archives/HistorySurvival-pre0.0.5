@@ -1,19 +1,21 @@
 package net.ddns.minersonline.HistorySurvival;
 
+import com.mojang.brigadier.CommandDispatcher;
 import net.ddns.minersonline.HistorySurvival.api.EventHandler;
+import net.ddns.minersonline.HistorySurvival.api.GameHook;
 import net.ddns.minersonline.HistorySurvival.engine.MasterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Entity;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Player;
+import net.ddns.minersonline.HistorySurvival.commands.ChatSystem;
 import net.ddns.minersonline.HistorySurvival.engine.io.KeyEvent;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleMaster;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleSystem;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleTexture;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.TestWorld;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.World;
-import net.ddns.minersonline.HistorySurvival.engine.text.ChatColor;
-import net.ddns.minersonline.HistorySurvival.engine.text.JSONSafeText;
+import net.ddns.minersonline.HistorySurvival.api.text.ChatColor;
 import net.ddns.minersonline.HistorySurvival.engine.text.JSONTextBuilder;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontType;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.GUIText;
@@ -49,19 +51,24 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-public class Game {
+public class Game extends GameHook {
 	private static final Logger logger = LoggerFactory.getLogger(Game.class);
+	private final CommandDispatcher<Object> dispatcher = new CommandDispatcher<>();
 
 	public static String GAME = "History Survival";
 	public static String VERSION = "0.0.2";
 
 
 	private void start() {
+		GameHook.setInstance(this);
+
 		List<Path> pluginDirs = new ArrayList<>();
 		if(GameSettings.assetsDir!=null)
 			pluginDirs.add(Paths.get(GameSettings.assetsDir));
 		if(GameSettings.gameDir!=null)
 			pluginDirs.add(Paths.get(GameSettings.gameDir+"/plugins"));
+		if(GameSettings.dev!=null)
+			pluginDirs.add(Paths.get(GameSettings.dev));
 
 		logger.info("Plugins dir: " + pluginDirs);
 
@@ -204,10 +211,6 @@ public class Game {
 		GUIText debugText = null;
 		GUIText debugParent = new GUIText("", 1.3f, font, new Vector2f(0, 0), -1, false);
 
-		GUIText chatParent = new GUIText("", 1.3f, font, new Vector2f(0, 0), 100, false);
-		GUIText chatPreview = new GUIText("", 1.3f, font, new Vector2f(0, 0), 100, false);
-		GUIText chatText = null;
-
 		ParticleTexture particleTexture = new ParticleTexture(modelLoader.loadTexture("grass.png"),  1, false);
 		ParticleSystem particleSystem = new ParticleSystem(particleTexture, 50, 0, 0.3f, 4, 2);
 		particleSystem.randomizeRotation();
@@ -220,12 +223,8 @@ public class Game {
 			handler.hello();
 		}
 
-		boolean isInChat = false;
-		boolean ignoreChat = true;
-		int chatChars = 0;
-		String previewText = "";
-		List<JSONSafeText> chat = new ArrayList<>();
-		StringBuilder message = new StringBuilder();
+		ChatSystem chatSystem = new ChatSystem(font, player);
+
 		while (DisplayManager.shouldDisplayClose()) {
 			KeyEvent keyEvent = Keyboard.getKeyEvent();
 
@@ -233,58 +232,14 @@ public class Game {
 				player.getPosition().set(new Vector3f(worldCenter));
 			}
 
-			float y = (1f/2f);
-			chatParent.remove();
-			if (chatText != null) {
-				chatText.remove();
-			}
-			chatParent = new GUIText("", 1.3f, font, new Vector2f(0, y), 100, false);
-			chatText = JSONTextBuilder.build_string_array(chat, chatParent);
+			chatSystem.update(keyEvent);
 
-			if(isInChat){
-				chatParent.remove();
-				if (chatText != null) {
-					chatText.remove();
-				}
-				chatPreview.remove();
-				chatPreview = new GUIText(previewText, 1.3f, font, new Vector2f(0, y-0.13f), 50, false);
-				chatPreview.load();
-				chatPreview.setVisible(true);
-				chatParent = new GUIText("", 1.3f, font, new Vector2f(0, y-0.1f), 50, false);
-				chatText = JSONTextBuilder.build_string_array(chat, chatParent);
-
-
-				if(Keyboard.isKeyPressed(GLFW.GLFW_KEY_ENTER)){
-					JSONSafeText msg = new JSONSafeText(message +"\n");
-					chat.add(msg);
-					isInChat = false;
-					ignoreChat = true;
-					message.delete(0, message.length());
-					chatChars = 0;
-					previewText = "";
-					chatPreview.remove();
-				}
-				if(isInChat) {
-					if (chatText != null) {
-						chatText.setVisible(true);
-					}
-					if (chatChars < 50 && keyEvent != null && keyEvent.type == 2) {
-						String char_ = keyEvent.getChar();
-						if(!ignoreChat) {
-							message.append(char_);
-							chatChars += 1;
-							previewText += char_;
-						}
-						ignoreChat  = false;
-					}
-				}
-			}
-			if(Keyboard.isKeyPressed(GLFW.GLFW_KEY_T) && !isInChat){
-				isInChat = true;
+			if(Keyboard.isKeyPressed(GLFW.GLFW_KEY_T) && chatSystem.notIsInChat()){
+				chatSystem.setInChat(true);
 			}
 
 			Mouse.update();
-			if(!isInChat) {
+			if(chatSystem.notIsInChat()) {
 				player.checkInputs();
 				camera.move();
 				picker.update();
@@ -397,6 +352,8 @@ public class Game {
 		options.addOption(ad);
 		Option de = new Option(null, "demo", false, "Demo Mode");
 		options.addOption(de);
+		Option dv = new Option(null, "dev", true, "Dev mode dir");
+		options.addOption(dv);
 
 		CommandLineParser parser = new DefaultParser();
 		HelpFormatter formatter = new HelpFormatter();
@@ -418,6 +375,7 @@ public class Game {
 		String accessToken = cmd.getOptionValue("accessToken");
 		String assetsDir = cmd.getOptionValue("assetsDir");
 		String demo = cmd.getOptionValue("demo");
+		String devDir = cmd.getOptionValue("dev");
 
 		GameSettings.username = username;
 		GameSettings.version = version;
@@ -426,7 +384,18 @@ public class Game {
 		GameSettings.accessToken = accessToken;
 		GameSettings.assetsDir = assetsDir;
 		GameSettings.demo = demo;
+		GameSettings.dev = devDir;
 
 		new Game().start();
+	}
+
+	@Override
+	public CommandDispatcher<Object> getDispatcher() {
+		return dispatcher;
+	}
+
+	@Override
+	public void hello() {
+		logger.info("Hello!");
 	}
 }

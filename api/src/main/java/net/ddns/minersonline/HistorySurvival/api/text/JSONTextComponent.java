@@ -1,8 +1,4 @@
-package net.ddns.minersonline.HistorySurvival.engine.text;
-
-import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontType;
-import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.GUIText;
-import org.joml.Vector2f;
+package net.ddns.minersonline.HistorySurvival.api.text;
 
 import java.util.List;
 
@@ -41,6 +37,44 @@ public class JSONTextComponent {
 		this.clickEvent = clickEvent;
 		this.hoverEvent = hoverEvent;
 		this.extra = extra;
+	}
+
+	public JSONTextComponent() {
+		this.text = null;
+		this.translate = null;
+		this.with = null;
+		this.score = null;
+		this.selector = null;
+		this.keybind = null;
+		this.color = null;
+		this.bold = false;
+		this.italic = false;
+		this.underline = false;
+		this.strikethrough = false;
+		this.obfuscated = false;
+		this.insertion = null;
+		this.clickEvent = null;
+		this.hoverEvent = null;
+		this.extra = null;
+	}
+
+	public JSONTextComponent(String text) {
+		this.text = text;
+		this.translate = null;
+		this.with = null;
+		this.score = null;
+		this.selector = null;
+		this.keybind = null;
+		this.color = null;
+		this.bold = false;
+		this.italic = false;
+		this.underline = false;
+		this.strikethrough = false;
+		this.obfuscated = false;
+		this.insertion = null;
+		this.clickEvent = null;
+		this.hoverEvent = null;
+		this.extra = null;
 	}
 
 	public String getText() {
@@ -169,21 +203,5 @@ public class JSONTextComponent {
 
 	public void setExtra(List<String> extra) {
 		this.extra = extra;
-	}
-
-	public GUIText asText(FontType font, GUIText parent){
-		GUIText text = new GUIText(this.text, parent.getFontSize(), font, new Vector2f(0, parent.getPosition().y), -1, false);
-		String color_char = " ";
-		color_char.toCharArray()[0] = ChatColor.COLOR_CHAR;
-		if(this.color!=null) {
-			char chat_color = color.replaceAll(color_char, "").toCharArray()[1];
-			ChatColor text_color = ChatColor.getByChar(chat_color);
-			text.setColour(text_color.color.getRed() / 255f, text_color.color.getGreen() / 255f, text_color.color.getBlue() / 255f);
-			text.setOutlineColor((text_color.color.getRed() / 255f) / 2, (text_color.color.getGreen() / 255f) / 2, (text_color.color.getBlue() / 255f) / 2);
-		}
-		text.setEndX(parent.getEndX());
-		text.setEndY(parent.getEndY());
-		text.setReady(true);
-		return text;
 	}
 }

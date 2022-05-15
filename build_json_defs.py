@@ -77,7 +77,7 @@ out = {
         "sha1": None,
         "size": 0,
         "totalSize": 0,
-        "url": "https://minersonline.ddns.net/files/history_survival/packages/0.0.1/assets.json"
+        "url": "https://minersonline.ddns.net/files/history_survival/packages/0.0.2/assets.json"
     },
     "assets": "legacy",
     "complianceLevel": 0,

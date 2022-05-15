@@ -4,8 +4,8 @@ apply plugin: 'java'
 group 'net.ddns.minersonline'
 version '0.0.2'
 
-targetCompatibility = 8
-sourceCompatibility = 8
+targetCompatibility = 16
+sourceCompatibility = 16
 
 repositories {
     mavenCentral()
@@ -27,42 +27,16 @@ repositories {
 }
 
 
-import org.gradle.internal.os.OperatingSystem
-
-//ext.pluginsDir = rootProject.buildDir.path + '/plugins'
-project.ext.lwjgl_version = "3.2.3"
-project.ext.joml_version = "1.10.4"
-project.ext.brigadier_version = "1.0.18"
-project.ext.guava_version = "31.1-jre"
+project.ext.lwjgl_version = "3.3.1"
 project.ext.gson_version = "2.9.0"
 project.ext.commoms_cli_version = "1.5.0"
-
-//switch (OperatingSystem.current()) {
-//    case OperatingSystem.LINUX:
-//        project.ext.lwjglNatives = "natives-linux"
-//        break
-//    case OperatingSystem.MAC_OS:
-//        project.ext.lwjglNatives = "natives-macos"
-//        break
-//    case OperatingSystem.WINDOWS:
-//        project.ext.lwjglNatives = "natives-windows"
-//        break
-//}
-
-//cross compile
-//project.ext.lwjglNatives = "natives-linux"
 
 test {
     useJUnitPlatform()
 }
 
-run {
-    systemProperty 'pf4j.pluginsDir', rootProject.buildDir.path + '/plugins'
-    mainClassName = "net.ddns.minersonline.HistorySurvival.Game"
-}
 run.dependsOn(':gameplay:build')
 run.dependsOn(':gameplay:assemblePlugin')
-
 
 configurations.all {
     resolutionStrategy.eachDependency { DependencyResolveDetails details ->
@@ -70,6 +44,13 @@ configurations.all {
             details.useTarget "org.apache.logging.log4j:log4j-slf4j-impl:2.17.2"
         }
     }
+}
+
+task RunGame(type: JavaExec) {
+    dependsOn ':gameplay:jar'
+    classpath sourceSets.main.runtimeClasspath
+    main = "net.ddns.minersonline.HistorySurvival.Game"
+    args "--dev", "${project.buildDir.path+"/../../gameplay/build/libs".replace('\\','/')}"
 }
 
 sourceSets {
@@ -88,6 +69,7 @@ dependencies {
 
     implementation group: 'org.pf4j', name: 'pf4j', version: "${pf4j_version}"
     annotationProcessor(group: 'org.pf4j', name: 'pf4j', version: "${pf4j_version}")
+
     implementation "org.apache.logging.log4j:log4j-slf4j-impl:2.17.2"
     implementation group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.25'
 

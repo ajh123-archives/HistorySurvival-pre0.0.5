@@ -8,4 +8,5 @@ public class GameSettings {
 	static String accessToken = null;
 	static String assetsDir = null;
 	static String demo = null;
+	static String dev = null;
 }

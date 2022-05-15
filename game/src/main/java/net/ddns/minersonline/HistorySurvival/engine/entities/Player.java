@@ -1,5 +1,9 @@
 package net.ddns.minersonline.HistorySurvival.engine.entities;
 
+import net.ddns.minersonline.HistorySurvival.api.GameHook;
+import net.ddns.minersonline.HistorySurvival.api.commands.ClientPlayerSender;
+import net.ddns.minersonline.HistorySurvival.api.text.JSONTextComponent;
+import net.ddns.minersonline.HistorySurvival.commands.ChatSystem;
 import net.ddns.minersonline.HistorySurvival.engine.DisplayManager;
 import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
 import net.ddns.minersonline.HistorySurvival.engine.models.TexturedModel;
@@ -11,7 +15,7 @@ import java.util.Map;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class Player extends Entity {
+public class Player extends Entity implements ClientPlayerSender {
 	private static final float RUN_SPEED = 24;  // units per second
 	private static final float TURN_SPEED = 160;    // degrees per second
 	public static final float GRAVITY = -50;
@@ -21,7 +25,7 @@ public class Player extends Entity {
 	private float currentTurnSpeed;
 	private float upwardsSpeed;
 	private boolean isJump;
-	private World world;
+	private final World world;
 
 	public Player(World world, TexturedModel texturedModel, Vector3f position, float rotationX, float rotationY, float rotationZ, float scale) {
 		super(texturedModel, position, rotationX, rotationY, rotationZ, scale);
@@ -128,5 +132,10 @@ public class Player extends Entity {
 		if (i > 0) {
 			jump();
 		}
+	}
+
+	@Override
+	public void sendMessage(JSONTextComponent message) {
+		ChatSystem.addChatMessage(message);
 	}
 }

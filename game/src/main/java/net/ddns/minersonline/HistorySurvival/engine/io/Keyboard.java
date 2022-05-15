@@ -10,9 +10,9 @@ import java.util.concurrent.ArrayBlockingQueue;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Keyboard extends GLFWKeyCallback {
-	private static boolean[] keys = new boolean[GLFW_KEY_LAST];
-	private static boolean[] keys_pressed = new boolean[GLFW_KEY_LAST];
-	private static boolean[] keys_was_pressed = new boolean[GLFW_KEY_LAST];
+	private static final boolean[] keys = new boolean[GLFW_KEY_LAST];
+	private static final boolean[] keys_pressed = new boolean[GLFW_KEY_LAST];
+	private static final boolean[] keys_was_pressed = new boolean[GLFW_KEY_LAST];
 
 	// Maximum event queue size
 	private static final Queue<KeyEvent> keyEvents = new ArrayBlockingQueue<>(110);

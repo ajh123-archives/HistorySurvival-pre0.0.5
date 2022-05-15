@@ -4,8 +4,8 @@ apply plugin: 'java-library'
 group 'net.ddns.minersonline.HistorySurvival'
 version '0.0.2'
 
-targetCompatibility = 8
-sourceCompatibility = 8
+targetCompatibility = 16
+sourceCompatibility = 16
 
 repositories {
     mavenCentral()
@@ -17,22 +17,27 @@ repositories {
         name = "minecraft-libraries"
         url = "https://libraries.minecraft.net"
     }
-//    flatDir {
-//        dirs "E:\\web\\maven\\repositories\\releases"
-//    }
-}
-
-ext.pluginsDir = rootProject.buildDir.path + '/plugins'
-
-dependencies {
-    implementation group: 'org.pf4j', name: 'pf4j', version: "${pf4j_version}"
 }
 
 sourceSets {
     main {
         java.srcDir file('src/main/java')
         resources.srcDir file('src/main/resources')
-        //compileClasspath = sourceSets.main.output + configurations.compileClasspath + configurations.runtimeClasspath
         runtimeClasspath = output + compileClasspath
+    }
+}
+
+dependencies {
+    implementation group: 'org.pf4j', name: 'pf4j', version: "${pf4j_version}"
+    implementation "com.mojang:brigadier:${brigadier_version}"
+    implementation "org.joml:joml:${joml_version}"
+    implementation "com.google.guava:guava:${guava_version}"
+}
+
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        if (details.requested.name == 'slf4j-log4j12') {
+            details.useTarget "org.apache.logging.log4j:log4j-slf4j-impl:2.17.2"
+        }
     }
 }

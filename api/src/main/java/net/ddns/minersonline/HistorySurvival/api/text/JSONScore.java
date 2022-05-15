@@ -1,4 +1,4 @@
-package net.ddns.minersonline.HistorySurvival.engine.text;
+package net.ddns.minersonline.HistorySurvival.api.text;
 
 public class JSONScore {
 	private String name;

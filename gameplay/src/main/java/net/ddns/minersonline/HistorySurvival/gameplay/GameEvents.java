@@ -1,6 +1,7 @@
 package net.ddns.minersonline.HistorySurvival.gameplay;
 
 import net.ddns.minersonline.HistorySurvival.api.EventHandler;
+import net.ddns.minersonline.HistorySurvival.api.GameHook;
 import org.pf4j.Extension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
