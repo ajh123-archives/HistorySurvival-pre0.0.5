@@ -10,12 +10,7 @@ public abstract class GameHook {
 		return instance;
 	}
 
-	public static void setInstance(GameHook instance){
-		if (GameHook.instance == null){
-			GameHook.instance = instance;
-		}
-	}
-
 	public abstract CommandDispatcher<Object> getDispatcher();
+
 	public abstract void hello();
 }

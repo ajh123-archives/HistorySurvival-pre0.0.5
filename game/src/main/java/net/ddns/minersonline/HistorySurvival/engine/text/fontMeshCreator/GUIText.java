@@ -1,6 +1,7 @@
 package net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator;
 
 import net.ddns.minersonline.HistorySurvival.engine.text.fontRendering.TextMaster;
+import org.joml.Vector2d;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -29,7 +30,7 @@ public class GUIText {
 	private int vertexCount;
 	private final Vector3f colour = new Vector3f(0f, 0f, 0f);
 
-	private final Vector2f position;
+	private Vector2f position;
 	private float width = 0.5f;
 	private float edge = 0.1f;
 	private float borderWidth = 0.7f;
@@ -40,7 +41,8 @@ public class GUIText {
 	private final float lineMaxSize;
 	private int numberOfLines;
 
-	private final FontType font;
+	private final FontGroup font;
+	private FontType selectedFont;
 	private boolean visible = true;
 
 	private boolean centerText;
@@ -70,7 +72,7 @@ public class GUIText {
 	 * @param centered
 	 *            - whether the text should be centered or not.
 	 */
-	public GUIText(String text, float fontSize, FontType font, Vector2f position, float maxLineLength,
+	public GUIText(String text, float fontSize, FontGroup font, Vector2f position, float maxLineLength,
 				   boolean centered) {
 		this.textString = text;
 		this.fontSize = fontSize;
@@ -79,8 +81,9 @@ public class GUIText {
 		this.lineMaxSize = maxLineLength;
 		this.centerText = centered;
 		this.children = new ArrayList<>();
-		endX = position.x;
-		endY = position.y;
+		this.selectedFont = font.NORMAL;
+		this.endX = position.x;
+		this.endY = position.y;
 	}
 
 	public void load(){
@@ -103,7 +106,7 @@ public class GUIText {
 	/**
 	 * @return The font used by this text.
 	 */
-	public FontType getFont() {
+	public FontGroup getFont() {
 		return font;
 	}
 
@@ -144,6 +147,15 @@ public class GUIText {
 	 */
 	public Vector2f getPosition() {
 		return position;
+	}
+
+	/**
+	 * @return The position of the top-left corner of the text in screen-space.
+	 *         (0, 0) is the top left corner of the screen, (1, 1) is the bottom
+	 *         right.
+	 */
+	public void setPosition(Vector2f position) {
+		this.position = position;
 	}
 
 	/**
@@ -294,6 +306,10 @@ public class GUIText {
 		this.endY = endY;
 	}
 
+	public Vector2f getEndPos() {
+		return new Vector2f((float) endX, (float) endY);
+	}
+
 	public boolean isReady() {
 		return ready;
 	}
@@ -320,5 +336,17 @@ public class GUIText {
 
 	public void setOnNewLine(boolean onNewLine) {
 		isOnNewLine = onNewLine;
+	}
+
+	public FontType getSelectedFont() {
+		return selectedFont;
+	}
+
+	public void setSelectedFont(FontType selectedFont) {
+		this.selectedFont = selectedFont;
+	}
+
+	public boolean isCenterText() {
+		return centerText;
 	}
 }

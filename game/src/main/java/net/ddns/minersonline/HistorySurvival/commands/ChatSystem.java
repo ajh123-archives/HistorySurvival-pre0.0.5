@@ -1,74 +1,69 @@
 package net.ddns.minersonline.HistorySurvival.commands;
 
 import com.mojang.brigadier.ParseResults;
+import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.suggestion.Suggestion;
+import com.mojang.brigadier.suggestion.Suggestions;
 import net.ddns.minersonline.HistorySurvival.api.GameHook;
 import net.ddns.minersonline.HistorySurvival.api.text.ChatColor;
-import net.ddns.minersonline.HistorySurvival.engine.entities.Player;
+import net.ddns.minersonline.HistorySurvival.engine.ClientPlayer;
+import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTextBox;
 import net.ddns.minersonline.HistorySurvival.engine.io.KeyEvent;
-import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
 import net.ddns.minersonline.HistorySurvival.engine.text.JSONTextBuilder;
 import net.ddns.minersonline.HistorySurvival.api.text.JSONTextComponent;
-import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontType;
+import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontGroup;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.GUIText;
 import org.joml.Vector2f;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class ChatSystem {
 	private final int MAX_CHAT_LENGTH = 50;
 
 	private GUIText chatParent;
-	private GUIText chatPreview;
 	private GUIText chatText = null;
-
+	private final GuiTextBox chatPreview;
 	private boolean isInChat = false;
 	private boolean ignoreChat = true;
-	private int chatChars = 0;
-	private StringBuilder previewText = new StringBuilder();
 	private static final List<JSONTextComponent> chat = new ArrayList<>();
-	private final StringBuilder message = new StringBuilder();
-	private final FontType font;
+	private final FontGroup font;
 
-	private Player player;
+	private final ClientPlayer player;
+	List<String> completions = new ArrayList<>();
 
-	public ChatSystem(FontType font, Player player) {
+	public ChatSystem(FontGroup font, ClientPlayer player) {
 		this.chatParent = new GUIText("", 1.3f, font, new Vector2f(0, 0), MAX_CHAT_LENGTH, false);
-		this.chatPreview = new GUIText("", 1.3f, font, new Vector2f(0, 0), MAX_CHAT_LENGTH, false);
+		this.chatPreview = new GuiTextBox(font, new Vector2f(0, 0), MAX_CHAT_LENGTH);
 		this.font = font;
 		this.player = player;
 	}
 
 	public void update(KeyEvent keyEvent){
-		float y = (1f/2f);
 		chatParent.remove();
 		if (chatText != null) {
 			chatText.remove();
 		}
-		chatParent = new GUIText("", 1.3f, font, new Vector2f(0, y), 100, false);
+		chatParent = new GUIText("", 1.3f, font, new Vector2f(0, 0.13f), MAX_CHAT_LENGTH, false);
 		chatText = JSONTextBuilder.build_string_array(chat, chatParent);
 
+		chatPreview.setFocused(isInChat);
+		chatPreview.setVisible(isInChat);
 		if(isInChat){
 			chatParent.remove();
 			if (chatText != null) {
 				chatText.remove();
 			}
-			chatPreview.remove();
-			chatPreview = new GUIText(previewText.toString(), 1.3f, font, new Vector2f(0, 1), 50, false);
-			chatPreview.load();
-			chatPreview.setVisible(true);
-			chatParent = new GUIText("", 1.3f, font, new Vector2f(0, y-0.1f), 50, false);
+
+			chatPreview.setPosition(new Vector2f(0, 1-0.13f));
+			chatPreview.render();
+
+			chatParent = new GUIText("", 1.3f, font, new Vector2f(0, 0.13f), 50, false);
 			chatText = JSONTextBuilder.build_string_array(chat, chatParent);
 
-			if(Keyboard.isKeyPressed(GLFW.GLFW_KEY_BACKSPACE)) {
-				message.setLength(Math.max(message.length() - 1, 0));
-				previewText.setLength(Math.max(previewText.length() - 1, 0));
-				chatChars -= 1;
-			}
-
-			if(Keyboard.isKeyPressed(GLFW.GLFW_KEY_ENTER)){
+			chatPreview.setOnExecute(message -> {
 				if(message.length() > 0) {
 					String command;
 					if(message.charAt(0) == '/') {
@@ -81,6 +76,9 @@ public class ChatSystem {
 							msg.setColor(ChatColor.RED.toString());
 							msg.setText(e.getMessage() + "\n");
 							chat.add(msg);
+							JSONTextComponent msg2 = new JSONTextComponent();
+							msg2.setText(message + "\n");
+							chat.add(msg2);
 						}
 					} else {
 						JSONTextComponent msg = new JSONTextComponent();
@@ -89,25 +87,35 @@ public class ChatSystem {
 					}
 				}
 				isInChat = false;
-				ignoreChat = true;
-				message.delete(0, message.length());
-				chatChars = 0;
-				previewText.delete(0, previewText.length());
-				chatPreview.remove();
+				return null;
+			});
+
+
+			StringBuilder message = chatPreview.getMessage();
+			if(message.length() > 0) {
+				if(message.charAt(0) == '/') {
+					String command = message.substring(1);
+					ParseResults<Object> parse = GameHook.getInstance().getDispatcher().parse(command, player);
+					StringReader reader = new StringReader(parse.getReader().getString());
+					reader.setCursor(parse.getReader().getCursor());
+					completions.clear();
+					try {
+						String phrase = reader.readString();
+						Suggestions suggestions = GameHook.getInstance().getDispatcher().getCompletionSuggestions(parse).get();
+						for(Suggestion suggestion : suggestions.getList())
+							if(suggestion.getText().startsWith(phrase))
+								completions.add(suggestion.getText());
+					} catch (CommandSyntaxException | ExecutionException | InterruptedException ignored) {}
+				}
 			}
+
+
 			if(isInChat) {
 				if (chatText != null) {
 					chatText.setVisible(true);
 				}
-				if (chatChars < MAX_CHAT_LENGTH && keyEvent != null && keyEvent.type == 2) {
-					String char_ = keyEvent.getChar();
-					if(!ignoreChat) {
-						message.append(char_);
-						chatChars += 1;
-						previewText.append(char_);
-					}
-					ignoreChat  = false;
-				}
+				chatPreview.update(keyEvent, ignoreChat);
+				ignoreChat  = false;
 			}
 		}
 	}
@@ -118,6 +126,9 @@ public class ChatSystem {
 
 	public void setInChat(boolean inChat) {
 		isInChat = inChat;
+		if(inChat){
+			ignoreChat = true;
+		}
 	}
 
 	public static void addChatMessage(JSONTextComponent text){

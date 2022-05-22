@@ -10,9 +10,15 @@ public class ParticleMaster {
 	private static Map<ParticleTexture, List<Particle>> particles = new HashMap<>();
 	private static ParticleRenderer renderer;
 	private static int count;
+	private static boolean running = false;
 
 	public static void init(ModelLoader loader, Matrix4f projectionMatrix){
 		renderer = new ParticleRenderer(loader, projectionMatrix);
+		running = true;
+	}
+
+	public static void stop(){
+		running = false;
 	}
 
 	public static void update(Camera camera) {
@@ -23,7 +29,7 @@ public class ParticleMaster {
 			while (iterator.hasNext()) {
 				Particle p = iterator.next();
 				boolean stillActive = p.update(camera);
-				if (!stillActive) {
+				if (!stillActive || !running) {
 					count--;
 					iterator.remove();
 					if (list.isEmpty()) {

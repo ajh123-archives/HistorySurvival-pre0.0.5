@@ -34,8 +34,10 @@ public class TextMeshCreator {
 					currentLine.attemptToAddWord(currentWord);
 				}
 				currentWord = new Word(text.getFontSize());
+				text.setEndX(text.getParent().getEndX()+text.getEndX());
+
 				if(c == '\n') {
-					text.setEndX(0);
+					text.setEndY((text.getEndY()+LINE_HEIGHT * text.getFontSize()));
 					text.setOnNewLine(true);
 					lines.add(currentLine);
 					currentLine = new Line(metaData.getSpaceWidth(), text.getFontSize(), text.getMaxLineSize());
@@ -65,13 +67,14 @@ public class TextMeshCreator {
 		double curserX = 0f;
 		double curserY = 0f;
 		if (text.isReady() || text.getParent() != null) {
-			curserX = text.getEndX();
+			curserX = text.getParent().getEndX();
 			if(text.isOnNewLine()){
 				curserX = 0;
 			}
-			curserY = text.getEndY();
+			curserY = text.getParent().getEndY();
 			if(text.getParent() != null){
 				text.setReady(false);
+				text.setPosition(text.getParent().getEndPos());
 			}
 		}
 		List<Float> vertices = new ArrayList<>();
@@ -95,10 +98,12 @@ public class TextMeshCreator {
 			curserX = 0;
 			curserY += LINE_HEIGHT * text.getFontSize();
 		}
+
+		double size = LINE_HEIGHT * text.getFontSize();
+		text.setEndX(lineEndX);
+		text.setEndY(curserY-size);
+
 		if (!text.isReady() || text.getParent() != null) {
-			double size = LINE_HEIGHT * text.getFontSize();
-			text.setEndX(lineEndX);
-			text.setEndY(curserY-size);
 			if(text.getParent() != null){
 				text.setReady(true);
 			}

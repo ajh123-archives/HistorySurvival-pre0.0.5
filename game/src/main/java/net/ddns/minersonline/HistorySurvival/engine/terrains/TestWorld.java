@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TestWorld implements World {
-
 	float waterHeight;
 	float waterSize;
 	float terrainSize;
@@ -23,9 +22,10 @@ public class TestWorld implements World {
 	List<Terrain> terrains = new ArrayList<>();
 	List<WaterTile> waterTiles = new ArrayList<>();
 
-	public TestWorld(ModelLoader loader, int xTiles, int zTiles, float terrainSize, float terrainMaxHeight, int terrainVertexCount, float waterSize) {
+	public TestWorld(ModelLoader loader, int xTiles, int zTiles, float terrainMaxHeight, int terrainVertexCount) {
 
 		// *********TERRAIN TEXTURE STUFF**********
+		float terrainSize = Terrain.SIZE;
 
 		xSize = terrainSize * xTiles;
 		zSize = terrainSize * zTiles;
@@ -44,7 +44,7 @@ public class TestWorld implements World {
 		// tiles are assumed to be square
 		float waterOffset = (terrainSize) * 0.5f;
 		//this.waterHeight = waterHeight;
-		this.waterSize = waterSize;
+		this.waterSize = Terrain.SIZE;
 
 		for (int x = 0; x < xTiles; x++) {
 			for (int z = 0; z < zTiles; z++) {
@@ -92,8 +92,7 @@ public class TestWorld implements World {
 
 	public Terrain getTerrain(float worldX, float worldZ) {
 		// this could be optimized with a hash table
-		for (int i = 0; i < terrains.size(); i++) {
-			Terrain terrain = terrains.get(i);
+		for (Terrain terrain : terrains) {
 			if (terrain.containsPosition(worldX, worldZ)) {
 				return terrain;
 			}

@@ -10,6 +10,7 @@ import net.ddns.minersonline.HistorySurvival.engine.shaders.TerrainShader;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.Terrain;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.World;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import java.util.ArrayList;
@@ -24,9 +25,9 @@ public class MasterRenderer {
 	private static final float FOV = 70;
 	public static final float NEAR_PLANE = 0.1f;
 	public static final float FAR_PLANE = 1000;
-	private static final float SKY_RED = 0.65f;
-	private static final float SKY_GREEN = 0.9f;
-	private static final float SKY_BLUE = 0.97f;
+	private static float SKY_RED = 0.65f;
+	private static float SKY_GREEN = 0.9f;
+	private static float SKY_BLUE = 0.97f;
 
 	private StaticShader staticShader;
 	private EntityRenderer entityRenderer;
@@ -101,7 +102,9 @@ public class MasterRenderer {
 	}
 
 	public void processWorld(World world) {
-		terrainList.addAll(world.getTerrains());
+		if (world != null) {
+			terrainList.addAll(world.getTerrains());
+		}
 	}
 
 	public void destory() {
@@ -132,5 +135,11 @@ public class MasterRenderer {
 
 	public Matrix4f getProjectionMatrix() {
 		return projectionMatrix;
+	}
+
+	public void setBackgroundColour(Vector3f colour){
+		SKY_RED = colour.x;
+		SKY_GREEN = colour.y;
+		SKY_BLUE = colour.z;
 	}
 }

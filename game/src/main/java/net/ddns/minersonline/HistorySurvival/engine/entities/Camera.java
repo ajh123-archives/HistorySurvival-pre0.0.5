@@ -36,10 +36,12 @@ public class Camera {
 	}
 
 	public void update() {
-		float horizontalDistance = calculateHorizontalDistance();
-		float verticalDistance = calculateVerticalDistance();
-		calculateCameraPosition(horizontalDistance, verticalDistance);
-		yaw = 180 - (player.getRotationY() + angleAroundPLayer);
+		if(this.player != null) {
+			float horizontalDistance = calculateHorizontalDistance();
+			float verticalDistance = calculateVerticalDistance();
+			calculateCameraPosition(horizontalDistance, verticalDistance);
+			yaw = 180 - (player.getRotationY() + angleAroundPLayer);
+		}
 	}
 
 	public Vector3f getPosition() {

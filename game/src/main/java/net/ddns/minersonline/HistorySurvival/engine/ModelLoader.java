@@ -15,10 +15,10 @@ import static org.lwjgl.opengl.GL30.*;
 public class ModelLoader {
 	private List<Integer> vaos = new ArrayList<>();
 	private List<Integer> vbos = new ArrayList<>();
-	private List<Integer> textureList;
+	private List<Integer> textureList = new ArrayList<>();;
 
 	public ModelLoader() {
-		textureList = new ArrayList<>();
+
 	}
 
 	private int createVao() {
@@ -99,7 +99,8 @@ public class ModelLoader {
 	public void destroy(int vao) {
 		//vao_vbos.get(vao).forEach(GL15::glDeleteBuffers);
 		glDeleteVertexArrays(vao);
-		vaos.remove(vao-1);
+		//vaos.remove(vao-1);
+		vaos.remove(vaos.indexOf(vao)-1);
 	}
 
 	public void destroy() {
@@ -112,6 +113,9 @@ public class ModelLoader {
 		for (int texture : textureList) {
 			GL11.glDeleteTextures(texture);
 		}
+		vaos.clear();
+		vbos.clear();
+		textureList.clear();
 	}
 
 	public int createEmptyVbo(int floatCount) {

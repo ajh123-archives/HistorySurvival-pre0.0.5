@@ -5,7 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.ddns.minersonline.HistorySurvival.api.text.ChatColor;
 import net.ddns.minersonline.HistorySurvival.api.text.JSONTextComponent;
-import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontType;
+import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontGroup;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.GUIText;
 import net.ddns.minersonline.HistorySurvival.engine.utils.StringUtils;
 import org.joml.Vector2f;
@@ -54,8 +54,12 @@ public class JSONTextBuilder {
 		return build_string(JSON, parent);
 	}
 
-	public static GUIText asText(JSONTextComponent JSON, FontType font, GUIText parent){
-		GUIText text = new GUIText(JSON.getText(), parent.getFontSize(), font, new Vector2f(0, parent.getPosition().y), -1, false);
+	public static GUIText asText(JSONTextComponent JSON, FontGroup font, GUIText parent){
+		Vector2f pos = new Vector2f(parent.getEndPos());
+		GUIText text = new GUIText(JSON.getText(), parent.getFontSize(), font, pos, -1, parent.isCenterText());
+		text.setParent(parent);
+		text.setPosition(parent.getEndPos());
+
 		String color_char = " ";
 		color_char.toCharArray()[0] = ChatColor.COLOR_CHAR;
 		if(JSON.getColor()!=null) {
@@ -64,8 +68,26 @@ public class JSONTextBuilder {
 			text.setColour(text_color.color.getRed() / 255f, text_color.color.getGreen() / 255f, text_color.color.getBlue() / 255f);
 			text.setOutlineColor((text_color.color.getRed() / 255f) / 2, (text_color.color.getGreen() / 255f) / 2, (text_color.color.getBlue() / 255f) / 2);
 		}
-		text.setEndX(parent.getEndX());
-		text.setEndY(parent.getEndY());
+		if(JSON.isBold()){
+			text.setSelectedFont(font.getBOLD());
+			if(JSON.isItalic()){
+				text.setSelectedFont(font.getBOLD_ITALIC());
+				if(JSON.isUnderline()){
+					text.setSelectedFont(font.getBOLD_ITALIC_UNDERLINE());
+				}
+			} else {
+				if(JSON.isUnderline()){
+					text.setSelectedFont(font.getBOLD_UNDERLINE());
+				}
+			}
+		}else if(JSON.isUnderline()){
+			text.setSelectedFont(font.getUNDERLINE());
+		} else if(JSON.isItalic()){
+			text.setSelectedFont(font.getITALIC());
+			if(JSON.isUnderline()){
+				text.setSelectedFont(font.getITALIC_UNDERLINE());
+			}
+		}
 		text.setReady(true);
 		return text;
 	}

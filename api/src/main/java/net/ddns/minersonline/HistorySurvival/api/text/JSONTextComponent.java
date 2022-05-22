@@ -18,9 +18,9 @@ public class JSONTextComponent {
 	private String insertion;
 	private JSONClickEvent clickEvent;
 	private JSONHoverEvent hoverEvent;
-	private List<String> extra;
+	private List<JSONTextComponent> extra;
 
-	public JSONTextComponent(String text, String translate, List<String> with, JSONScore score, String selector, String keybind, String color, boolean bold, boolean italic, boolean underline, boolean strikethrough, boolean obfuscated, String insertion, JSONClickEvent clickEvent, JSONHoverEvent hoverEvent, List<String> extra) {
+	public JSONTextComponent(String text, String translate, List<String> with, JSONScore score, String selector, String keybind, String color, boolean bold, boolean italic, boolean underline, boolean strikethrough, boolean obfuscated, String insertion, JSONClickEvent clickEvent, JSONHoverEvent hoverEvent, List<JSONTextComponent> extra) {
 		this.text = text;
 		this.translate = translate;
 		this.with = with;
@@ -197,11 +197,11 @@ public class JSONTextComponent {
 		this.hoverEvent = hoverEvent;
 	}
 
-	public List<String> getExtra() {
+	public List<JSONTextComponent> getExtra() {
 		return extra;
 	}
 
-	public void setExtra(List<String> extra) {
+	public void setExtra(List<JSONTextComponent> extra) {
 		this.extra = extra;
 	}
 }

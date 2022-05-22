@@ -19,6 +19,8 @@ import java.io.InputStream;
 public class Terrain {
 	private static final Logger logger = LoggerFactory.getLogger(Terrain.class);
 
+	public static final int SIZE = 300;
+
 	private float x;
 	private float z;
 	private float size;

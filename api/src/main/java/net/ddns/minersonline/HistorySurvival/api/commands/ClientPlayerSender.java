@@ -1,8 +1,9 @@
 package net.ddns.minersonline.HistorySurvival.api.commands;
 
+
 import net.ddns.minersonline.HistorySurvival.api.text.JSONTextComponent;
 
-public interface ClientPlayerSender extends CommandSender {
+public abstract class ClientPlayerSender extends CommandSender {
 	@Override
-	void sendMessage(JSONTextComponent message);
+	public abstract void sendMessage(JSONTextComponent message);
 }

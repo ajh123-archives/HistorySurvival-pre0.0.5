@@ -32,6 +32,8 @@ dependencies {
     implementation "com.mojang:brigadier:${brigadier_version}"
     implementation "org.joml:joml:${joml_version}"
     implementation "com.google.guava:guava:${guava_version}"
+    implementation('io.netty:netty-all:4.1.77.Final')
+    implementation 'com.github.Querz:NBT:6.1'
 }
 
 configurations.all {

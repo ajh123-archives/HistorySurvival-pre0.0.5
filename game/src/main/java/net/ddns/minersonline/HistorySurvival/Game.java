@@ -1,41 +1,38 @@
 package net.ddns.minersonline.HistorySurvival;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.tree.CommandNode;
 import net.ddns.minersonline.HistorySurvival.api.EventHandler;
 import net.ddns.minersonline.HistorySurvival.api.GameHook;
+import net.ddns.minersonline.HistorySurvival.api.commands.CommandSender;
+import net.ddns.minersonline.HistorySurvival.api.text.JSONTextComponent;
 import net.ddns.minersonline.HistorySurvival.engine.MasterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Entity;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Player;
-import net.ddns.minersonline.HistorySurvival.commands.ChatSystem;
 import net.ddns.minersonline.HistorySurvival.engine.io.KeyEvent;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleMaster;
-import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleSystem;
-import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleTexture;
-import net.ddns.minersonline.HistorySurvival.engine.terrains.TestWorld;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.World;
 import net.ddns.minersonline.HistorySurvival.api.text.ChatColor;
 import net.ddns.minersonline.HistorySurvival.engine.text.JSONTextBuilder;
+import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontGroup;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontType;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.GUIText;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontRendering.TextMaster;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiRenderer;
-import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
 import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
 import net.ddns.minersonline.HistorySurvival.engine.io.Mouse;
-import net.ddns.minersonline.HistorySurvival.engine.models.TexturedModel;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.Terrain;
-import net.ddns.minersonline.HistorySurvival.engine.textures.ModelTexture;
 import net.ddns.minersonline.HistorySurvival.engine.DisplayManager;
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
-import net.ddns.minersonline.HistorySurvival.engine.ObjLoader;
-import net.ddns.minersonline.HistorySurvival.engine.utils.MousePicker;
+import net.ddns.minersonline.HistorySurvival.engine.utils.ClassUtils;
 import net.ddns.minersonline.HistorySurvival.engine.water.WaterFrameBuffers;
 import net.ddns.minersonline.HistorySurvival.engine.water.WaterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.water.WaterShader;
+import net.ddns.minersonline.HistorySurvival.gameplay.GamePlugin;
 import org.joml.Vector2f;
-import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
@@ -51,6 +48,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
+import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
+import static com.mojang.brigadier.arguments.StringArgumentType.string;
+import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
+import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
+
 public class Game extends GameHook {
 	private static final Logger logger = LoggerFactory.getLogger(Game.class);
 	private final CommandDispatcher<Object> dispatcher = new CommandDispatcher<>();
@@ -58,9 +61,39 @@ public class Game extends GameHook {
 	public static String GAME = "History Survival";
 	public static String VERSION = "0.0.2";
 
+	private Scene currentScene = null;
+
+
+	private void helpCommand(CommandContext<Object> c) {
+		CommandContext<CommandSender> context = (CommandContext<CommandSender>) (CommandContext<? extends Object>) c;
+		CommandSender sender = context.getSource();
+		Collection<CommandNode<CommandSender>> commands = context.getRootNode().getChildren();
+		try {
+			int page = getInteger(c, "page");
+			sender.sendMessage(new JSONTextComponent("Help page ("+page+")\n"));
+		} catch (IllegalArgumentException ignored){
+			JSONTextComponent header = new JSONTextComponent(" Help page (0) ");
+			header.setColor(ChatColor.DARK_GREEN.toString());
+
+			JSONTextComponent prefix = new JSONTextComponent("=====");
+			prefix.setColor(ChatColor.GOLD.toString());
+			JSONTextComponent suffix = new JSONTextComponent("\n");
+
+			sender.sendMessage(prefix);
+			sender.sendMessage(header);
+			sender.sendMessage(prefix);
+			sender.sendMessage(suffix);
+
+			for(CommandNode<CommandSender> command : commands){
+				sender.sendMessage(new JSONTextComponent("/"+command.getName()));
+			}
+		}
+
+	}
+
 
 	private void start() {
-		GameHook.setInstance(this);
+		GameHook.instance = this;
 
 		List<Path> pluginDirs = new ArrayList<>();
 		if(GameSettings.assetsDir!=null)
@@ -70,20 +103,50 @@ public class Game extends GameHook {
 		if(GameSettings.dev!=null)
 			pluginDirs.add(Paths.get(GameSettings.dev));
 
+		pluginDirs.add(Paths.get(Objects.requireNonNull(ClassUtils.GetClassContainer(GamePlugin.class)).substring(10)).getParent());
+
 		logger.info("Plugins dir: " + pluginDirs);
 
 		// create the plugin manager
 		final PluginManager pluginManager = new DefaultPluginManager(pluginDirs) {
 			@Override
-			protected CompoundPluginDescriptorFinder createPluginDescriptorFinder() {
-				return new CompoundPluginDescriptorFinder()
-						.add(new PropertiesPluginDescriptorFinder())
-						.add(new ManifestPluginDescriptorFinder());
+			protected PluginLoader createPluginLoader() {
+				// load only jar plugins
+				return new JarPluginLoader(this);
+			}
+
+			@Override
+			protected PluginDescriptorFinder createPluginDescriptorFinder() {
+				// read plugin descriptor from jar's manifest
+				return new ManifestPluginDescriptorFinder();
 			}
 		};
+		pluginManager.setSystemVersion(VERSION);
 
 		pluginManager.loadPlugins();
 		pluginManager.startPlugins();
+
+
+		this.dispatcher.register(literal("help")
+		.then(
+			argument("page", integer())
+			.executes(c -> {
+				helpCommand(c);
+				return 1;
+			})
+		)
+		.then(
+			argument("comm", string())
+			.executes(c -> {
+				helpCommand(c);
+				return 1;
+			})
+		)
+		.executes(c -> {
+			helpCommand(c);
+			return 1;
+		}));
+
 
 		DisplayManager.createDisplay();
 		DisplayManager.setShowFPSTitle(false);
@@ -99,164 +162,48 @@ public class Game extends GameHook {
 		ParticleMaster.init(modelLoader, masterRenderer.getProjectionMatrix());
 
 		FontType font = new FontType(modelLoader.loadTexture("font/consolas.png"), "font/consolas.fnt");
-
-		// Tree entity
-		TexturedModel treeModel = new TexturedModel(ObjLoader.loadObjModel("tree.obj", modelLoader), new ModelTexture(modelLoader.loadTexture("tree.png")));
-
-		// Low poly tree entity
-		TexturedModel lowPolyTreeModel = new TexturedModel(ObjLoader.loadObjModel("lowPolyTree.obj", modelLoader), new ModelTexture(modelLoader.loadTexture("lowPolyTree.png")));
-
-		// Grass entity
-		TexturedModel grassModel = new TexturedModel(ObjLoader.loadObjModel("grassModel.obj", modelLoader), new ModelTexture(modelLoader.loadTexture("grassTexture.png")));
-		grassModel.getModelTexture().setHasTransparency(true);
-		grassModel.getModelTexture().setUseFakeLighting(true);
-
-		// Fern entity
-		ModelTexture fernTextureAtlas = new ModelTexture(modelLoader.loadTexture("fern.png"));
-		fernTextureAtlas.setNumberOfRowsInTextureAtlas(2);
-		TexturedModel fernModel = new TexturedModel(ObjLoader.loadObjModel("fern.obj", modelLoader), fernTextureAtlas);
-		fernModel.getModelTexture().setHasTransparency(true);
-
-		World world = new TestWorld(modelLoader, 2, 3, 300, 15, 256, 300);
-
-		List<Entity> entityList = new ArrayList<>();
-
-		Random random = new Random();
-
-		for (int i = 0; i < 400; i++) {
-			float x = random.nextFloat() * 800 - 400;
-			float z = random.nextFloat() * -600;
-			float y = world.getHeightOfTerrain(x, z);
-
-			if (i % 20 == 0) {
-				entityList.add(new Entity(lowPolyTreeModel, new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 1));
-			}
-
-			x = random.nextFloat() * 800 - 400;
-			z = random.nextFloat() * -600;
-			y = world.getHeightOfTerrain(x, z);
-
-			if (i % 20 == 0) {
-				entityList.add(new Entity(treeModel, new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 5));
-			}
-
-			x = random.nextFloat() * 800 - 400;
-			z = random.nextFloat() * -600;
-			y = world.getHeightOfTerrain(x, z);
-
-			if (i % 10 == 0) {
-				// assigns a random texture for each fern from its texture atlas
-				entityList.add(new Entity(fernModel, random.nextInt(4), new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 0.9f));
-			}
-
-			if (i % 5 == 0) {
-				entityList.add(new Entity(grassModel, new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 1));
-			}
-		}
-
-		List<Light> lights = new ArrayList<>();
-		Light sun = new Light(new Vector3f(3000, 2000, 2000), new Vector3f(0.6f, 0.6f,0.6f));
-		lights.add(sun);
-
-		TexturedModel lamp = new TexturedModel(ObjLoader.loadObjModel("lamp.obj", modelLoader), new ModelTexture(modelLoader.loadTexture("lamp.png")));
-
-		Light moveLight = new Light(
-				new Vector3f(400, 22, -293),
-				new Vector3f(2, 0,0),
-				new Vector3f(1, 0.01f,0.002f));
-		lights.add(moveLight);
-		Entity moveEntity = new Entity(lamp,
-				new Vector3f(400, 9, -293),
-				0,
-				0,
-				0,
-				1);
-		entityList.add(moveEntity);
-
-
-		lights.add(new Light(
-				new Vector3f(370, 17, -293),
-				new Vector3f(0, 2,0),
-				new Vector3f(1, 0.01f,0.002f)));
-		entityList.add(new Entity(lamp,
-				new Vector3f(370, 4.2f, -293),
-				0,
-				0,
-				0,
-				1));
-
-
-		TexturedModel playerOBJ = new TexturedModel(ObjLoader.loadObjModel("person.obj", modelLoader), new ModelTexture(modelLoader.loadTexture("playerTexture.png")));
-
-		float centerX = world.getXSize()/2;
-		float centerZ = world.getZSize()/2;
-		Vector3f worldCenter = world.getTerrainPoint(centerX, centerZ, 10);
-
-		Player player = new Player(world, playerOBJ, new Vector3f(worldCenter), 0,0,0,0.6f);
-		entityList.add(player);
-		Camera camera = new Camera(player);
-
-		List<GuiTexture> guis = new ArrayList<>();
-		GuiTexture gui = new GuiTexture(modelLoader.loadTexture("health.png"), new Vector2f(-0.75f, -0.85f), new Vector2f(0.25f, 0.15f));
-		guis.add(gui);
+		FontType font_bold = new FontType(modelLoader.loadTexture("font/consolas_bold.png"), "font/consolas_bold.fnt");
+		FontType font_bold_italic = new FontType(modelLoader.loadTexture("font/consolas_bold_italic.png"), "font/consolas_bold_italic.fnt");
+		FontType font_italic = new FontType(modelLoader.loadTexture("font/consolas_italic.png"), "font/consolas_italic.fnt");
+		FontGroup consolas = new FontGroup(font, font_bold, font_bold_italic, font, font, font_italic, font, font);
 
 		GuiRenderer guiRenderer = new GuiRenderer(modelLoader);
-
-		MousePicker picker = new MousePicker(world, masterRenderer.getProjectionMatrix(), camera);
-
 		WaterShader waterShader = new WaterShader();
 		WaterFrameBuffers wfbos = new WaterFrameBuffers();
 		WaterRenderer waterRenderer = new WaterRenderer(modelLoader, waterShader, masterRenderer.getProjectionMatrix(), wfbos);
 
 		GUIText debugText = null;
-		GUIText debugParent = new GUIText("", 1.3f, font, new Vector2f(0, 0), -1, false);
+		GUIText debugParent = new GUIText("", 1.3f, consolas, new Vector2f(0, 0), -1, false);
 
-		ParticleTexture particleTexture = new ParticleTexture(modelLoader.loadTexture("grass.png"),  1, false);
-		ParticleSystem particleSystem = new ParticleSystem(particleTexture, 50, 0, 0.3f, 4, 2);
-		particleSystem.randomizeRotation();
-		particleSystem.setDirection(new Vector3f(0, 1, 0), 0.1f);
-		particleSystem.setLifeError(0.1f);
-		particleSystem.setSpeedError(0.4f);
-		particleSystem.setScaleError(0.8f);
+		currentScene = new MenuScene(this, modelLoader, masterRenderer, guiRenderer);
+		currentScene.init();
 
 		for (EventHandler handler : eventHandlers) {
-			handler.hello();
+			if(!Objects.equals(handler.getClass().getClassLoader().getName(), "app")) {
+				handler.hello();
+			}
 		}
-
-		ChatSystem chatSystem = new ChatSystem(font, player);
 
 		while (DisplayManager.shouldDisplayClose()) {
 			KeyEvent keyEvent = Keyboard.getKeyEvent();
-
-			if(Keyboard.isKeyDown(GLFW.GLFW_KEY_R)){
-				player.getPosition().set(new Vector3f(worldCenter));
-			}
-
-			chatSystem.update(keyEvent);
-
-			if(Keyboard.isKeyPressed(GLFW.GLFW_KEY_T) && chatSystem.notIsInChat()){
-				chatSystem.setInChat(true);
-			}
-
 			Mouse.update();
-			if(chatSystem.notIsInChat()) {
-				player.checkInputs();
-				camera.move();
-				picker.update();
-			}
 
-			player.move();
-			camera.update();
+			currentScene.update(keyEvent);
 
-			Vector3f pos = new Vector3f(worldCenter);
-			pos.y += 20;
-			particleSystem.generateParticles(pos);
-			ParticleMaster.update(camera);
+			World world = currentScene.getWorld();
+			Camera camera = currentScene.getCamera();
+			Player player = currentScene.getPlayer();
+			List<Entity> entityList = currentScene.getEntities();
+			List<Light> lights = currentScene.getLights();
+			Light sun = currentScene.getSun();
 
 
 			GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
 			wfbos.bindReflectionFrameBuffer();
-			float waterHeight = world.getHeightOfWater(player.getPosition().x, player.getPosition().z);
+			float waterHeight = 0;
+			if(player != null) {
+				waterHeight = world.getHeightOfWater(player.getPosition().x, player.getPosition().z);
+			}
 			float distance = 2 * (camera.getPosition().y - waterHeight);
 			camera.getPosition().y -= distance;
 			camera.invertPitch();
@@ -269,18 +216,25 @@ public class Game extends GameHook {
 			wfbos.unbindCurrentFrameBuffer();
 
 			masterRenderer.renderScene(entityList, world, lights, camera, new Vector4f(0, -1, 0, 999999999));
-			waterRenderer.render(world.getWaterTiles(), camera, sun);
+			if(world != null) {
+				waterRenderer.render(world.getWaterTiles(), camera, sun);
+			}
 			ParticleMaster.renderParticles(camera);
 
-			guiRenderer.render(guis);
-			Terrain region = world.getTerrain(player.getPosition().x, player.getPosition().z);
+			guiRenderer.render(currentScene.getGUIs());
+			Terrain region = null;
+			if(world != null && player != null) {
+				region = world.getTerrain(player.getPosition().x, player.getPosition().z);
+			}
 			String debugString = "[{\"text\":\""+GAME+" \"},{\"text\":\""+VERSION+"\"},";
 			debugString+="{\"text\":\"\nFPS: "+DisplayManager.getFPS()+"\"},";
 			debugString+="{\"text\":\"\nP: "+ParticleMaster.getCount()+"\"},";
-			debugString+="{\"text\":\"\nPlayerPosition:\"},";
-			debugString+="{\"text\":\" X:"+player.getPosition().x+"\"},";
-			debugString+="{\"text\":\" Y:"+player.getPosition().y+"\"},";
-			debugString+="{\"text\":\" Z:"+player.getPosition().z+"\"},";
+			if(player!=null) {
+				debugString += "{\"text\":\"\nPlayerPosition:\"},";
+				debugString += "{\"text\":\" X:" + player.getPosition().x + "\"},";
+				debugString += "{\"text\":\" Y:" + player.getPosition().y + "\"},";
+				debugString += "{\"text\":\" Z:" + player.getPosition().z + "\"},";
+			}
 			debugString+="{\"text\":\"\nCameraPosition:\"},";
 			debugString+="{\"text\":\" X:"+camera.getPosition().x+"\"},";
 			debugString+="{\"text\":\" Y:"+camera.getPosition().y+"\"},";
@@ -313,11 +267,13 @@ public class Game extends GameHook {
 			DisplayManager.updateDisplay();
 		}
 
+		currentScene.stop();
 		logger.info("Stopping!");
 		DisplayManager.closeDisplay();
 		logger.info("Closed display");
 		pluginManager.stopPlugins();
 		logger.info("Plugins stopped");
+		currentScene.stop();
 		ParticleMaster.cleanUp();
 		logger.info("Cleaned particles");
 		TextMaster.cleanUp();
@@ -397,5 +353,11 @@ public class Game extends GameHook {
 	@Override
 	public void hello() {
 		logger.info("Hello!");
+	}
+
+	public void setCurrentScene(Scene currentScene) {
+		this.currentScene.stop();
+		this.currentScene = currentScene;
+		currentScene.init();
 	}
 }

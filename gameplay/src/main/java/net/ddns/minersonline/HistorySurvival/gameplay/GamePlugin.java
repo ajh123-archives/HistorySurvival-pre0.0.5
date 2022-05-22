@@ -2,8 +2,10 @@ package net.ddns.minersonline.HistorySurvival.gameplay;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.ddns.minersonline.HistorySurvival.api.GameHook;
 import net.ddns.minersonline.HistorySurvival.api.commands.CommandSender;
+import net.ddns.minersonline.HistorySurvival.api.commands.Permission;
 import net.ddns.minersonline.HistorySurvival.api.text.JSONTextComponent;
 import org.pf4j.Plugin;
 import org.pf4j.PluginWrapper;
@@ -24,25 +26,25 @@ public class GamePlugin extends Plugin {
     @Override
     public void start() {
         logger.info("History Survival gameplay started!");
-        GameHook game = GameHook.getInstance();
-        game.getDispatcher().register(
-        literal("foo")
-                .then(
-                        argument("bar", integer())
-                                .executes(c -> {
-                                    fooBar(c);
-                                    return 1;
-                                })
-                )
-                .executes(c -> {
-                    System.out.println("Called foo with no arguments");
-                    return 1;
-                })
-        );
+        GameHook.getInstance().getDispatcher().register(literal("foo")
+        .then(
+            argument("bar", integer())
+            .executes(c -> {
+                fooBar(c);
+                return 1;
+            })
+        )
+        .executes(c -> {
+            fooBar(c);
+            System.out.println("Called foo with no arguments");
+            return 1;
+        }));
+        logger.info("Commands registered");
     }
 
     private void fooBar(CommandContext<Object> c) {
-        CommandSender sender = (CommandSender) c.getSource();
+        CommandContext<CommandSender> context = (CommandContext<CommandSender>) (CommandContext<? extends Object>) c;
+        CommandSender sender = context.getSource();
         sender.sendMessage(new JSONTextComponent("Hello"));
     }
 

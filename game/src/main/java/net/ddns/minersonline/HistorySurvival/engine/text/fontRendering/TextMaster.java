@@ -26,7 +26,7 @@ public class TextMaster {
     }
 
     public static void loadText(GUIText text){
-        FontType font = text.getFont();
+        FontType font = text.getSelectedFont();
         TextMeshData data = font.loadText(text);
         int vao = loader.loadToVao(data.getVertexPositions(), data.getTextureCoords());
         text.setMeshInfo(vao, data.getVertexCount());
@@ -35,12 +35,12 @@ public class TextMaster {
     }
 
     public static void removeText(GUIText text){
-        List<GUIText> textBatch = texts.get(text.getFont());
+        List<GUIText> textBatch = texts.get(text.getSelectedFont());
         if(textBatch != null) {
             textBatch.remove(text);
             if (textBatch.isEmpty()) {
                 loader.destroy(text.getMesh());
-                texts.remove(text.getFont());
+                texts.remove(text.getSelectedFont());
             }
         }
     }
