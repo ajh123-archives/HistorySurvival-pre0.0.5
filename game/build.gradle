@@ -50,6 +50,15 @@ task RunGame(type: JavaExec) {
     dependsOn ':gameplay:jar'
     classpath sourceSets.main.runtimeClasspath
     main = "net.ddns.minersonline.HistorySurvival.Game"
+
+    if(project.rootProject.file('local.properties').exists()) {
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file('local.properties').newDataInputStream())
+        def access = properties.getProperty('access')
+        def user = properties.getProperty('user')
+
+        args "--accessToken", access, "--username", user
+    }
 }
 
 task RunServer(type: JavaExec) {

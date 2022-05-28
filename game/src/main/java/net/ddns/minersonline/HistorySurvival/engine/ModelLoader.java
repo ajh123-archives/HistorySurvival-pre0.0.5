@@ -99,7 +99,7 @@ public class ModelLoader {
 	public void destroy(int vao) {
 		//vao_vbos.get(vao).forEach(GL15::glDeleteBuffers);
 		glDeleteVertexArrays(vao);
-		//vaos.remove(vao-1);
+		//vaos.remove(vao-2);
 		vaos.remove(vaos.indexOf(vao)-1);
 	}
 

@@ -111,7 +111,7 @@ public class ChatSystem {
 
 
 			if(isInChat) {
-				if (chatText != null) {
+				if(chatText != null) {
 					chatText.setVisible(true);
 				}
 				chatPreview.update(keyEvent, ignoreChat);
@@ -129,6 +129,18 @@ public class ChatSystem {
 		if(inChat){
 			ignoreChat = true;
 		}
+	}
+
+	public void cleanUp(){
+		chatText.setVisible(false);
+		chatText.remove();
+		chatText = null;
+		if (chatParent != null) {
+			chatParent.setVisible(false);
+			chatParent.remove();
+			chatParent = null;
+		}
+		chatPreview.cleanUp();
 	}
 
 	public static void addChatMessage(JSONTextComponent text){

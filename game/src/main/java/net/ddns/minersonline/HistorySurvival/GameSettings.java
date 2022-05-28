@@ -1,12 +1,12 @@
 package net.ddns.minersonline.HistorySurvival;
 
 public class GameSettings {
-	static String username = null;
-	static String version = null;
-	static String gameDir = null;
-	static String uuid = null;
-	static String accessToken = null;
-	static String assetsDir = null;
-	static String demo = null;
-	static String dev = null;
+	public static String username = null;
+	public static String version = null;
+	public static String gameDir = null;
+	public static String uuid = null;
+	public static String accessToken = null;
+	public static String assetsDir = null;
+	public static String demo = null;
+	public static String dev = null;
 }

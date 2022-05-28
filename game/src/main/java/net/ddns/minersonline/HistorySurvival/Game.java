@@ -32,6 +32,7 @@ import net.ddns.minersonline.HistorySurvival.engine.water.WaterFrameBuffers;
 import net.ddns.minersonline.HistorySurvival.engine.water.WaterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.water.WaterShader;
 import net.ddns.minersonline.HistorySurvival.gameplay.GamePlugin;
+import net.ddns.minersonline.HistorySurvival.scenes.MenuScene;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 import org.lwjgl.Version;
@@ -47,6 +48,9 @@ import org.apache.commons.cli.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
 import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
@@ -62,6 +66,9 @@ public class Game extends GameHook {
 	public static String VERSION = "0.0.2";
 
 	private Scene currentScene = null;
+	private final List<JSONTextComponent> debugString = new ArrayList<>();
+	private final Map<DelayedTask, Integer> tasks = new HashMap<>();
+	public static final BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
 
 
 	private void helpCommand(CommandContext<Object> c) {
@@ -188,7 +195,27 @@ public class Game extends GameHook {
 			KeyEvent keyEvent = Keyboard.getKeyEvent();
 			Mouse.update();
 
-			currentScene.update(keyEvent);
+			Iterator<Map.Entry<DelayedTask, Integer>> taskIterator = tasks.entrySet().iterator();
+			while (taskIterator.hasNext()) {
+				Map.Entry<DelayedTask, Integer> pair = taskIterator.next();
+				DelayedTask task = pair.getKey();
+				int delay = pair.getValue();
+				if(delay == 0){
+					Executors.newSingleThreadExecutor().execute(task::execute);
+					taskIterator.remove();
+				}
+				pair.setValue(delay - 1);
+			}
+			try {
+				while (!queue.isEmpty())
+				queue.take().run();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			try {
+				currentScene.update(keyEvent);
+			} catch (Exception ignored){}
 
 			World world = currentScene.getWorld();
 			Camera camera = currentScene.getCamera();
@@ -198,27 +225,28 @@ public class Game extends GameHook {
 			Light sun = currentScene.getSun();
 
 
-			GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
-			wfbos.bindReflectionFrameBuffer();
-			float waterHeight = 0;
-			if(player != null) {
-				waterHeight = world.getHeightOfWater(player.getPosition().x, player.getPosition().z);
-			}
-			float distance = 2 * (camera.getPosition().y - waterHeight);
-			camera.getPosition().y -= distance;
-			camera.invertPitch();
-			masterRenderer.renderScene(entityList, world, lights, camera, new Vector4f(0, 1, 0, -waterHeight+1f));
-			camera.getPosition().y += distance;
-			camera.invertPitch();
-
-			wfbos.bindRefractionFrameBuffer();
-			masterRenderer.renderScene(entityList, world, lights, camera, new Vector4f(0, -1, 0, waterHeight+1f));
-			wfbos.unbindCurrentFrameBuffer();
-
-			masterRenderer.renderScene(entityList, world, lights, camera, new Vector4f(0, -1, 0, 999999999));
 			if(world != null) {
+				GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
+				wfbos.bindReflectionFrameBuffer();
+				float waterHeight = world.getHeightOfWater(player.getPosition().x, player.getPosition().z);
+				float distance = 2 * (camera.getPosition().y - waterHeight);
+				camera.getPosition().y -= distance;
+				camera.invertPitch();
+				masterRenderer.renderScene(entityList, world, lights, camera, new Vector4f(0, 1, 0, -waterHeight+1f));
+				camera.getPosition().y += distance;
+				camera.invertPitch();
+
+				wfbos.bindRefractionFrameBuffer();
+				masterRenderer.renderScene(entityList, world, lights, camera, new Vector4f(0, -1, 0, waterHeight+1f));
+				wfbos.unbindCurrentFrameBuffer();
+
+				masterRenderer.renderScene(entityList, world, lights, camera, new Vector4f(0, -1, 0, 999999999));
 				waterRenderer.render(world.getWaterTiles(), camera, sun);
+				GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
+			} else {
+				masterRenderer.renderScene(entityList, null, lights, camera, new Vector4f(0, -1, 0, 999999999));
 			}
+
 			ParticleMaster.renderParticles(camera);
 
 			guiRenderer.render(currentScene.getGUIs());
@@ -226,35 +254,44 @@ public class Game extends GameHook {
 			if(world != null && player != null) {
 				region = world.getTerrain(player.getPosition().x, player.getPosition().z);
 			}
-			String debugString = "[{\"text\":\""+GAME+" \"},{\"text\":\""+VERSION+"\"},";
-			debugString+="{\"text\":\"\nFPS: "+DisplayManager.getFPS()+"\"},";
-			debugString+="{\"text\":\"\nP: "+ParticleMaster.getCount()+"\"},";
+
+			debugString.clear();
+			debugString.add(new JSONTextComponent(GAME+" "+VERSION+"\n"));
+			debugString.add(new JSONTextComponent("FPS: "+DisplayManager.getFPS()+"\n"));
+			debugString.add(new JSONTextComponent("P: "+ParticleMaster.getCount()+"\n"));
 			if(player!=null) {
-				debugString += "{\"text\":\"\nPlayerPosition:\"},";
-				debugString += "{\"text\":\" X:" + player.getPosition().x + "\"},";
-				debugString += "{\"text\":\" Y:" + player.getPosition().y + "\"},";
-				debugString += "{\"text\":\" Z:" + player.getPosition().z + "\"},";
+				debugString.add(new JSONTextComponent("PlayerPosition\n"));
+				debugString.add(new JSONTextComponent("X: "+player.getPosition().x+"\n"));
+				debugString.add(new JSONTextComponent("Y: "+player.getPosition().y+"\n"));
+				debugString.add(new JSONTextComponent("Z: "+player.getPosition().z+"\n"));
 			}
-			debugString+="{\"text\":\"\nCameraPosition:\"},";
-			debugString+="{\"text\":\" X:"+camera.getPosition().x+"\"},";
-			debugString+="{\"text\":\" Y:"+camera.getPosition().y+"\"},";
-			debugString+="{\"text\":\" Z:"+camera.getPosition().z+"\"}";
+			debugString.add(new JSONTextComponent("CameraPosition\n"));
+			debugString.add(new JSONTextComponent("X: "+camera.getPosition().x+"\n"));
+			debugString.add(new JSONTextComponent("Y: "+camera.getPosition().y+"\n"));
+			debugString.add(new JSONTextComponent("Z: "+camera.getPosition().z+"\n"));
 			if(region == null) {
-				debugString+=",{\"text\":\"\nRegion:\"},";
-				debugString+="{\"text\":\" X:null\", \"color\":\""+ChatColor.RED+"\"},";
-				debugString+="{\"text\":\" Z:null\", \"color\":\""+ChatColor.RED+"\"}";
+				debugString.add(new JSONTextComponent("Region\n"));
+				JSONTextComponent x = new JSONTextComponent("X: null\n");
+				x.setColor(ChatColor.RED.toString());
+				debugString.add(x);
+				JSONTextComponent z = new JSONTextComponent("Z: null\n");
+				z.setColor(ChatColor.RED.toString());
+				debugString.add(z);
 			}
 			if(region != null) {
-				debugString+=",{\"text\":\"\nRegion:\"},";
-				debugString+="{\"text\":\" X:"+region.getX() / region.getSize()+"\", \"color\":\""+ChatColor.GREEN+"\"},";
-				debugString+="{\"text\":\" Z:"+region.getZ() / region.getSize()+"\", \"color\":\""+ChatColor.GREEN+"\"}";
+				debugString.add(new JSONTextComponent("Region\n"));
+				JSONTextComponent x = new JSONTextComponent("X: "+region.getX() / region.getSize()+"\n");
+				x.setColor(ChatColor.RED.toString());
+				debugString.add(x);
+				JSONTextComponent z = new JSONTextComponent("Z: "+region.getZ() / region.getSize()+"\n");
+				z.setColor(ChatColor.RED.toString());
+				debugString.add(z);
 			}
-			debugString += "]";
 
 			if (debugText != null) {
 				debugText.remove();
 			}
-			debugText = JSONTextBuilder.build_string(debugString, debugParent);
+			debugText = JSONTextBuilder.build_string_array(debugString, debugParent);
 			debugText.setVisible(DisplayManager.getShowFPSTitle());
 
 			if(Keyboard.isKeyPressed(GLFW.GLFW_KEY_F3)) {
@@ -356,8 +393,18 @@ public class Game extends GameHook {
 	}
 
 	public void setCurrentScene(Scene currentScene) {
+		logger.debug("Left Scene "+ this.currentScene);
 		this.currentScene.stop();
 		this.currentScene = currentScene;
-		currentScene.init();
+		try {
+			currentScene.init();
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+		logger.debug("Entered Scene "+ currentScene);
+	}
+
+	public void addTask(DelayedTask task) {
+		tasks.put(task, 2);
 	}
 }

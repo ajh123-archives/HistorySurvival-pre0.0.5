@@ -34,7 +34,9 @@ public class TextMeshCreator {
 					currentLine.attemptToAddWord(currentWord);
 				}
 				currentWord = new Word(text.getFontSize());
-				text.setEndX(text.getParent().getEndX()+text.getEndX());
+				if(text.getParent() != null) {
+					text.setEndX(text.getParent().getEndX() + text.getEndX());
+				}
 
 				if(c == '\n') {
 					text.setEndY((text.getEndY()+LINE_HEIGHT * text.getFontSize()));
@@ -64,12 +66,12 @@ public class TextMeshCreator {
 
 	private TextMeshData createQuadVertices(GUIText text, List<Line> lines) {
 		text.setNumberOfLines(lines.size());
-		double curserX = 0f;
-		double curserY = 0f;
+		double curserX = text.getPosition().x, startCurserX = text.getPosition().x;
+		double curserY = text.getPosition().y;
 		if (text.isReady() || text.getParent() != null) {
 			curserX = text.getParent().getEndX();
 			if(text.isOnNewLine()){
-				curserX = 0;
+				curserX = startCurserX;
 			}
 			curserY = text.getParent().getEndY();
 			if(text.getParent() != null){
@@ -79,7 +81,7 @@ public class TextMeshCreator {
 		}
 		List<Float> vertices = new ArrayList<>();
 		List<Float> textureCoOrds = new ArrayList<>();
-		double lineEndX = 0;
+		double lineEndX = startCurserX;
 
 		for (Line line : lines) {
 			if (text.isCentered()) {
@@ -95,7 +97,7 @@ public class TextMeshCreator {
 				lineEndX = curserX;
 				curserX += metaData.getSpaceWidth() * text.getFontSize();
 			}
-			curserX = 0;
+			curserX = startCurserX;
 			curserY += LINE_HEIGHT * text.getFontSize();
 		}
 

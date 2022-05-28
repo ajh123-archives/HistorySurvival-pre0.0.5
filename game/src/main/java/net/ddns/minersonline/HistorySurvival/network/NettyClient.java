@@ -9,11 +9,18 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
-public class NettyClient {
-	public static void main(String[] args) throws Exception {
+import java.util.concurrent.Callable;
 
-		String host = "localhost";
-		int port = 36676;
+public class NettyClient implements Callable<Object> {
+	String host;
+	int port;
+
+	public NettyClient(String host, int port) {
+		this.host = host;
+		this.port = port;
+	}
+
+	public Object call() throws Exception {
 		EventLoopGroup workerGroup = new NioEventLoopGroup();
 
 		try {
@@ -22,7 +29,6 @@ public class NettyClient {
 			b.channel(NioSocketChannel.class);
 			b.option(ChannelOption.SO_KEEPALIVE, true);
 			b.handler(new ChannelInitializer<SocketChannel>() {
-
 				@Override
 				public void initChannel(SocketChannel ch) throws Exception {
 					ch.pipeline().addLast(new PacketEncoder(), new PacketDecoder(), new ClientHandler());
@@ -35,5 +41,6 @@ public class NettyClient {
 		} finally {
 			workerGroup.shutdownGracefully();
 		}
+		return null;
 	}
 }

@@ -1,5 +1,7 @@
-package net.ddns.minersonline.HistorySurvival;
+package net.ddns.minersonline.HistorySurvival.scenes;
 
+import net.ddns.minersonline.HistorySurvival.Game;
+import net.ddns.minersonline.HistorySurvival.Scene;
 import net.ddns.minersonline.HistorySurvival.commands.ChatSystem;
 import net.ddns.minersonline.HistorySurvival.engine.ClientPlayer;
 import net.ddns.minersonline.HistorySurvival.engine.MasterRenderer;
@@ -33,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class MainScene extends Scene{
+public class MainScene extends Scene {
 	private static final Logger logger = LoggerFactory.getLogger(MainScene.class);
 	private final ModelLoader modelLoader;
 	private final MasterRenderer masterRenderer;
@@ -62,12 +64,14 @@ public class MainScene extends Scene{
 
 	ParticleSystem particleSystem;
 	Game game;
+	Scene prevScene;
 
-	public MainScene(Game game, ModelLoader modelLoader, MasterRenderer masterRenderer, GuiRenderer guiRenderer) {
+	public MainScene(Scene prevScene, Game game, ModelLoader modelLoader, MasterRenderer masterRenderer, GuiRenderer guiRenderer) {
 		this.masterRenderer = masterRenderer;
 		this.modelLoader = modelLoader;
 		this.guiRenderer = guiRenderer;
 		this.game = game;
+		this.prevScene = prevScene;
 
 		masterRenderer.setBackgroundColour(new Vector3f(0.65f, 0.9f, 0.97f));
 
@@ -191,10 +195,6 @@ public class MainScene extends Scene{
 
 	@Override
 	public void update(KeyEvent keyEvent) {
-		if(Keyboard.isKeyDown(GLFW.GLFW_KEY_ESCAPE)){
-			game.setCurrentScene(new MenuScene(game, modelLoader, masterRenderer, guiRenderer));
-		}
-
 		if(Keyboard.isKeyDown(GLFW.GLFW_KEY_R)){
 			player.getPosition().set(new Vector3f(worldCenter));
 		}
@@ -218,12 +218,18 @@ public class MainScene extends Scene{
 		pos.y += 20;
 		particleSystem.generateParticles(pos);
 		ParticleMaster.update(camera);
+
+		if(Keyboard.isKeyDown(GLFW.GLFW_KEY_ESCAPE)){
+			game.setCurrentScene(prevScene);
+		}
 	}
 
 	@Override
 	public void stop() {
 		ParticleMaster.stop();
 		ParticleMaster.update(camera);
+		chatSystem.setInChat(false);
+		chatSystem.cleanUp();
 	}
 
 	@Override
