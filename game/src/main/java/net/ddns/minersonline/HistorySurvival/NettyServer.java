@@ -10,11 +10,10 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import net.ddns.minersonline.HistorySurvival.network.PacketDecoder;
 import net.ddns.minersonline.HistorySurvival.network.PacketEncoder;
-import net.ddns.minersonline.HistorySurvival.network.ProcessingHandler;
+import net.ddns.minersonline.HistorySurvival.network.ServerHandler;
 
 public class NettyServer {
-
-	private int port;
+	private final int port;
 
 	public NettyServer(int port) {
 		this.port = port;
@@ -39,7 +38,7 @@ public class NettyServer {
 						public void initChannel(SocketChannel ch) throws Exception {
 							ch.pipeline().addLast(new PacketDecoder(),
 									new PacketEncoder(),
-									new ProcessingHandler());
+									new ServerHandler());
 						}
 					}).option(ChannelOption.SO_BACKLOG, 128)
 					.childOption(ChannelOption.SO_KEEPALIVE, true);

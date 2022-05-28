@@ -10,7 +10,7 @@ import java.io.IOException;
 
 public class Packet {
 	private int length;
-	private NamedTag value;
+	private NamedTag value = null;
 	private String owner = "";
 	private String id = "";
 
@@ -38,11 +38,11 @@ public class Packet {
 	}
 
 	public String getOwner() {
-		return owner;
+		return owner.trim();
 	}
 
 	public String getId() {
-		return id;
+		return id.trim();
 	}
 
 	private void setValue(NamedTag value) {

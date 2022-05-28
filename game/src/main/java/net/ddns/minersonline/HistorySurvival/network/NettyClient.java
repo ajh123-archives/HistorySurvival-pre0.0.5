@@ -8,10 +8,11 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import net.ddns.minersonline.HistorySurvival.Scene;
 
 import java.util.concurrent.Callable;
 
-public class NettyClient implements Callable<Object> {
+public class NettyClient {
 	String host;
 	int port;
 

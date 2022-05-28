@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class MenuScene extends Scene {
 	private static final Logger logger = LoggerFactory.getLogger(MenuScene.class);
@@ -175,13 +174,26 @@ public class MenuScene extends Scene {
 		}
 
 		if(Keyboard.isKeyDown(GLFW.GLFW_KEY_ENTER) && !inMultiplayer){
-			game.setCurrentScene(new MainScene(
-					this,
+			game.setCurrentScene(new ConnectingScene(
+					"Loading world...",
+					"",
 					game,
 					modelLoader,
 					masterRenderer,
 					guiRenderer
 			));
+
+			DelayedTask task = () -> {
+				MenuScene scene = this;
+				Game.queue.add(() -> game.setCurrentScene(new MainScene(
+						scene,
+						game,
+						modelLoader,
+						masterRenderer,
+						guiRenderer
+				)));
+			};
+			game.addTask(task);
 		}
 
 		if(Keyboard.isKeyDown(GLFW.GLFW_KEY_ESCAPE) && inMultiplayer){
@@ -192,13 +204,24 @@ public class MenuScene extends Scene {
 
 	@Override
 	public void stop() {
-		playText.setVisible(false);
-		playText.remove();
-		playText = null;
-		playParent.remove();
-		playParent = null;
-		serverIP.setVisible(false);
-		serverIP.setFocused(false);
+		if(multiStatus != null){
+			multiStatus.setVisible(false);
+			multiStatus.remove();
+			multiStatus = null;
+		}
+		if(playText != null){
+			playText.setVisible(false);
+			playText.remove();
+			playText = null;
+		}
+		if(playParent != null) {
+			playParent.remove();
+			playParent = null;
+		}
+		if(serverIP != null) {
+			serverIP.setVisible(false);
+			serverIP.setFocused(false);
+		}
 	}
 
 	@Override
@@ -234,5 +257,21 @@ public class MenuScene extends Scene {
 	@Override
 	public Light getSun() {
 		return sun;
+	}
+
+	public Game getGame() {
+		return game;
+	}
+
+	public ModelLoader getModelLoader() {
+		return modelLoader;
+	}
+
+	public MasterRenderer getMasterRenderer() {
+		return masterRenderer;
+	}
+
+	public GuiRenderer getGuiRenderer() {
+		return guiRenderer;
 	}
 }

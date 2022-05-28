@@ -66,6 +66,7 @@ public class Game extends GameHook {
 	public static String VERSION = "0.0.2";
 
 	private Scene currentScene = null;
+	private static Scene startScene = null;
 	private final List<JSONTextComponent> debugString = new ArrayList<>();
 	private final Map<DelayedTask, Integer> tasks = new HashMap<>();
 	public static final BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
@@ -184,6 +185,7 @@ public class Game extends GameHook {
 
 		currentScene = new MenuScene(this, modelLoader, masterRenderer, guiRenderer);
 		currentScene.init();
+		startScene = currentScene;
 
 		for (EventHandler handler : eventHandlers) {
 			if(!Objects.equals(handler.getClass().getClassLoader().getName(), "app")) {
@@ -275,7 +277,7 @@ public class Game extends GameHook {
 				x.setColor(ChatColor.RED.toString());
 				debugString.add(x);
 				JSONTextComponent z = new JSONTextComponent("Z: null\n");
-				z.setColor(ChatColor.RED.toString());
+				z.setColor(ChatColor.GREEN.toString());
 				debugString.add(z);
 			}
 			if(region != null) {
@@ -404,7 +406,15 @@ public class Game extends GameHook {
 		logger.debug("Entered Scene "+ currentScene);
 	}
 
+	public static Scene getStartSceneScene(){
+		return startScene;
+	}
+
 	public void addTask(DelayedTask task) {
 		tasks.put(task, 2);
+	}
+
+	public void addTask(DelayedTask task, int delay) {
+		tasks.put(task, delay);
 	}
 }
