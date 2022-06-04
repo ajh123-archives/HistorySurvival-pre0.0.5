@@ -16,6 +16,10 @@ Keyboard arrow keys also work for movement.
 ~~Mouse input is buggy. Good luck!~~ 
 Mouse input now fixed! Used left control + hold left/right click to rotate the camera
 
+## Multiplayer!
+This feature is sill in-development! Beware!
+Please register an account [here](https://minersonline.ddns.net/register.php) to enjoy encrypted servers!
+
 ## Dependencies
 All their licenses can be found [here](3rd_party)
  * Brigadier

@@ -8,8 +8,8 @@ public class Utils {
 	public static String GAME = "History Survival";
 	public static String VERSION = "0.0.2";
 
-	public static String JOIN_URL = "https://minersonline.ddns.net/api/session/minecraft/join";
-	public static String HAS_JOINED_URL = "https://minersonline.ddns.net/api/session/minecraft/hasJoined";
+	public static String JOIN_URL = "https://minersonline.ddns.net/api/session/hs/join";
+	public static String HAS_JOINED_URL = "https://minersonline.ddns.net/api/session/hs/hasJoined";
 
 	/**
 	 * Encryption mode is used to identify what side of communications we are
