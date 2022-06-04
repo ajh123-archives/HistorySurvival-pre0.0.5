@@ -30,6 +30,8 @@ repositories {
 project.ext.lwjgl_version = "3.3.1"
 project.ext.gson_version = "2.9.0"
 project.ext.commoms_cli_version = "1.5.0"
+project.ext.commoms_codec_version = "1.15"
+project.ext.httpclient_version = "4.5.13"
 
 test {
     useJUnitPlatform()
@@ -54,10 +56,11 @@ task RunGame(type: JavaExec) {
     if(project.rootProject.file('local.properties').exists()) {
         Properties properties = new Properties()
         properties.load(project.rootProject.file('local.properties').newDataInputStream())
-        def access = properties.getProperty('access')
-        def user = properties.getProperty('user')
+        def access = properties.getProperty('access') //Player access token
+        def user = properties.getProperty('user') //Player display name
+        def uuid = properties.getProperty('uuid') //Player uuid name
 
-        args "--accessToken", access, "--username", user
+        args "--accessToken", access, "--username", user, "--uuid", uuid
     }
 }
 
@@ -81,6 +84,10 @@ dependencies {
     implementation project(path: ':gameplay')
 
     implementation "commons-cli:commons-cli:${commoms_cli_version}"
+    implementation "commons-codec:commons-codec:${commoms_codec_version}"
+    implementation "org.apache.httpcomponents:httpclient:${httpclient_version}"
+
+
 
     implementation group: 'org.pf4j', name: 'pf4j', version: "${pf4j_version}"
 
@@ -93,6 +100,7 @@ dependencies {
     implementation "org.lwjgl:lwjgl-openal:$lwjgl_version"
     implementation "org.lwjgl:lwjgl-opengl:$lwjgl_version"
     implementation "org.lwjgl:lwjgl-stb:$lwjgl_version"
+    implementation 'org.jetbrains:annotations:20.1.0'
 
     runtimeOnly "org.lwjgl:lwjgl:$lwjgl_version:natives-linux"
     runtimeOnly "org.lwjgl:lwjgl-assimp:$lwjgl_version:natives-linux"

@@ -1,7 +1,9 @@
 package net.ddns.minersonline.HistorySurvival.commands;
 
 import com.mojang.brigadier.ParseResults;
+import com.mojang.brigadier.ResultConsumer;
 import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;

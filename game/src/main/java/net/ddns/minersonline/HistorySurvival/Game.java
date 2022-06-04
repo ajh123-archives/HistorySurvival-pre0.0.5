@@ -6,6 +6,7 @@ import com.mojang.brigadier.tree.CommandNode;
 import net.ddns.minersonline.HistorySurvival.api.EventHandler;
 import net.ddns.minersonline.HistorySurvival.api.GameHook;
 import net.ddns.minersonline.HistorySurvival.api.commands.CommandSender;
+import net.ddns.minersonline.HistorySurvival.api.commands.Permission;
 import net.ddns.minersonline.HistorySurvival.api.text.JSONTextComponent;
 import net.ddns.minersonline.HistorySurvival.engine.MasterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
@@ -51,19 +52,19 @@ import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.Predicate;
 
 import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
 import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
 import static com.mojang.brigadier.arguments.StringArgumentType.string;
 import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
+import static net.ddns.minersonline.HistorySurvival.network.Utils.GAME;
+import static net.ddns.minersonline.HistorySurvival.network.Utils.VERSION;
 
 public class Game extends GameHook {
 	private static final Logger logger = LoggerFactory.getLogger(Game.class);
 	private final CommandDispatcher<Object> dispatcher = new CommandDispatcher<>();
-
-	public static String GAME = "History Survival";
-	public static String VERSION = "0.0.2";
 
 	private Scene currentScene = null;
 	private static Scene startScene = null;
@@ -134,7 +135,6 @@ public class Game extends GameHook {
 		pluginManager.loadPlugins();
 		pluginManager.startPlugins();
 
-
 		this.dispatcher.register(literal("help")
 		.then(
 			argument("page", integer())
@@ -154,6 +154,7 @@ public class Game extends GameHook {
 			helpCommand(c);
 			return 1;
 		}));
+
 
 
 		DisplayManager.createDisplay();
@@ -327,6 +328,15 @@ public class Game extends GameHook {
 		logger.info("Cleaned main renderer");
 		modelLoader.destroy();
 		logger.info("Cleaned model loader");
+	}
+
+	private Predicate<Object> permission(String s) {
+		return b -> {
+			if (b instanceof String c) {
+				return c.equals(s);
+			}
+			return false;
+		};
 	}
 
 

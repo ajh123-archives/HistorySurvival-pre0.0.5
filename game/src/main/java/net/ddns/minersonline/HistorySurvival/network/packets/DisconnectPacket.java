@@ -5,8 +5,11 @@ import net.ddns.minersonline.HistorySurvival.network.Utils;
 import net.querz.nbt.tag.CompoundTag;
 
 public class DisconnectPacket extends Packet {
-	private final String reason;
-	private final String title;
+	@PacketValue
+	private String reason = "";
+
+	@PacketValue
+	private String title = "";
 
 	public DisconnectPacket(String reason, String title) {
 		super(Utils.GAME_ID, "disconnect");
@@ -17,6 +20,8 @@ public class DisconnectPacket extends Packet {
 		this.title = title;
 		this.reason = reason;
 	}
+
+	private DisconnectPacket(){}
 
 	public String getReason() {
 		return reason;

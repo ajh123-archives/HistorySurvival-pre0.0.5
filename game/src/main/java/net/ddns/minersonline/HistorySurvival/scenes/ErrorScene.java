@@ -121,17 +121,25 @@ public class ErrorScene extends Scene {
 
 	@Override
 	public void stop() {
-		header.setVisible(false);
-		header.remove();
-		header = null;
-		headerParent.remove();
-		headerParent = null;
+		if (this.header != null) {
+			header.setVisible(false);
+			header.remove();
+			header = null;
+		}
+		if (this.headerParent != null) {
+			headerParent.remove();
+			headerParent = null;
+		}
 
-		body.setVisible(false);
-		body.remove();
-		body = null;
-		bodyParent.remove();
-		bodyParent = null;
+		if (this.body != null) {
+			body.setVisible(false);
+			body.remove();
+			body = null;
+		}
+		if(this.bodyParent != null) {
+			bodyParent.remove();
+			bodyParent = null;
+		}
 	}
 
 	@Override

@@ -1,8 +1,5 @@
 package net.ddns.minersonline.HistorySurvival.engine.entities;
 
-import net.ddns.minersonline.HistorySurvival.api.commands.ClientPlayerSender;
-import net.ddns.minersonline.HistorySurvival.api.text.JSONTextComponent;
-import net.ddns.minersonline.HistorySurvival.commands.ChatSystem;
 import net.ddns.minersonline.HistorySurvival.engine.DisplayManager;
 import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
 import net.ddns.minersonline.HistorySurvival.engine.models.TexturedModel;

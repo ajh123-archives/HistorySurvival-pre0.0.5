@@ -1,16 +1,10 @@
 package net.ddns.minersonline.HistorySurvival.network;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import net.ddns.minersonline.HistorySurvival.Scene;
-
-import java.util.concurrent.Callable;
 
 public class NettyClient {
 	String host;
@@ -21,7 +15,7 @@ public class NettyClient {
 		this.port = port;
 	}
 
-	public Object call() throws Exception {
+	public void call() throws Exception {
 		EventLoopGroup workerGroup = new NioEventLoopGroup();
 
 		try {
@@ -29,10 +23,17 @@ public class NettyClient {
 			b.group(workerGroup);
 			b.channel(NioSocketChannel.class);
 			b.option(ChannelOption.SO_KEEPALIVE, true);
+			b.option(ChannelOption.TCP_NODELAY, true);
+			b.option(ChannelOption.SO_RCVBUF, 4096);
+			b.option(ChannelOption.RCVBUF_ALLOCATOR, new AdaptiveRecvByteBufAllocator(1024,16*1024,1024*1024));
 			b.handler(new ChannelInitializer<SocketChannel>() {
 				@Override
 				public void initChannel(SocketChannel ch) throws Exception {
-					ch.pipeline().addLast(new PacketEncoder(), new PacketDecoder(), new ClientHandler());
+					ch.pipeline().addLast(
+							new PacketEncoder(),
+							new PacketDecoder(),
+							new ClientHandler(host, port)
+					);
 				}
 			});
 
@@ -42,6 +43,5 @@ public class NettyClient {
 		} finally {
 			workerGroup.shutdownGracefully();
 		}
-		return null;
 	}
 }

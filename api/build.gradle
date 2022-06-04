@@ -27,6 +27,10 @@ sourceSets {
     }
 }
 
+javadoc {
+    include "net/ddns/minersonline/HistorySurvival/api/**/*.java"
+}
+
 dependencies {
     implementation group: 'org.pf4j', name: 'pf4j', version: "${pf4j_version}"
     implementation "com.mojang:brigadier:${brigadier_version}"

@@ -18,9 +18,11 @@ public class Keyboard extends GLFWKeyCallback {
 	private static final Queue<KeyEvent> keyEvents = new ArrayBlockingQueue<>(110);
 
 	public void invoke(long window, int key, int scancode, int action, int mods) {
-		keys[key] = action != GLFW.GLFW_RELEASE;
-		KeyEvent currentEvent = new KeyEvent(action, key, 1);
-		keyEvents.add(currentEvent);
+		if(key != -1) {
+			keys[key] = action != GLFW.GLFW_RELEASE;
+			KeyEvent currentEvent = new KeyEvent(action, key, 1);
+			keyEvents.add(currentEvent);
+		}
 	}
 
 	public static void invoke2(int key) {

@@ -2,6 +2,10 @@ package net.ddns.minersonline.HistorySurvival.api.text;
 
 import java.util.List;
 
+/**
+ * A system used for defining text.
+ * @see <a href="https://minersonline.ddns.net/wiki/index.php/History_Survival:Text">The wiki</a>
+ */
 public class JSONTextComponent {
 	private String text;
 	private String translate;
