@@ -8,10 +8,8 @@ import net.querz.nbt.io.NamedTag;
 import net.querz.nbt.tag.CompoundTag;
 import net.querz.nbt.tag.Tag;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
+import javax.crypto.*;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -19,6 +17,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 
 public class Packet {
 	private int length;
@@ -78,27 +77,48 @@ public class Packet {
 	}
 
 	public static Packet fromBytes(ByteBuf in) throws IOException, IllegalBlockSizeException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException {
-		int length = in.readInt();
-		ByteBuf buf = in.readBytes(length);
-		byte[] bytes = new byte[buf.readableBytes()];
-		byte[] new_bytes = new byte[buf.readableBytes()];
-		buf.readBytes(bytes);
-		byte[] old_bytes = bytes;
-
 		Cipher cipher = Cipher.getInstance(Utils.ENC_ALGO);
+		byte[] bytes;
+		byte[] old_bytes = new byte[0];
+		int length = 0;
 
 		try {
 			if (Utils.ENCRYPTION_MODE != Utils.EncryptionMode.NONE) {
+				int sec_key_length = in.readInt();
+				byte[] sec_bytes = new byte[sec_key_length];
+				ByteBuf buf = in.readBytes(sec_key_length);
+				buf.readBytes(sec_bytes);
+				buf.release();
+
+				length = in.readInt();
+				ByteBuf buf2 = in.readBytes(length);
+				bytes = new byte[length];
+				buf2.readBytes(bytes);
+				old_bytes = bytes;
+				buf2.release();
+
+				byte[] sec_bytes_dec = new byte[0];
+
 				if (Utils.ENCRYPTION_MODE == Utils.EncryptionMode.CLIENT) {
 					cipher.init(Cipher.DECRYPT_MODE, Utils.ENC_PUBLIC);
-					new_bytes = cipher.doFinal(bytes);
-					bytes = new_bytes;
+					sec_bytes_dec = cipher.doFinal(sec_bytes);
 				}
 				if (Utils.ENCRYPTION_MODE == Utils.EncryptionMode.SERVER) {
 					cipher.init(Cipher.DECRYPT_MODE, Utils.ENC_PRIVATE);
-					new_bytes = cipher.doFinal(bytes);
-					bytes = new_bytes;
+					sec_bytes_dec = cipher.doFinal(sec_bytes);
 				}
+
+				SecretKey originalKey = new SecretKeySpec(sec_bytes_dec , 0, sec_bytes_dec.length, "AES");
+				Cipher aesCipher = Cipher.getInstance("AES");
+				aesCipher.init(Cipher.DECRYPT_MODE, originalKey);
+				bytes = aesCipher.doFinal(bytes);
+			} else {
+				length = in.readInt();
+				ByteBuf buf = in.readBytes(length);
+				bytes = new byte[length];
+				buf.readBytes(bytes);
+				old_bytes = bytes;
+				buf.release();
 			}
 
 		} catch (BadPaddingException e){
@@ -113,7 +133,6 @@ public class Packet {
 		CompoundTag tag = (CompoundTag) message.getTag();
 		packet.id = tag.getString("id");
 		packet.owner = tag.getString("owner");
-		buf.release();
 
  		return packet;
 	}
@@ -123,19 +142,33 @@ public class Packet {
 		Cipher cipher = Cipher.getInstance(Utils.ENC_ALGO);
 
 		if(Utils.ENCRYPTION_MODE != Utils.EncryptionMode.NONE){
+			KeyGenerator generator = KeyGenerator.getInstance("AES");
+			generator.init(128); // The AES key size in number of bits
+			SecretKey secKey = generator.generateKey();
+
+			Cipher aesCipher = Cipher.getInstance("AES");
+			aesCipher.init(Cipher.ENCRYPT_MODE, secKey);
+			byte[] byteCipherText = aesCipher.doFinal(data);
+			byte[] secData = new byte[0];
+
 			if(Utils.ENCRYPTION_MODE == Utils.EncryptionMode.CLIENT){
 				cipher.init(Cipher.ENCRYPT_MODE, Utils.ENC_PUBLIC);
-				data = cipher.doFinal(data);
+				secData = cipher.doFinal(secKey.getEncoded());
 			}
 			if(Utils.ENCRYPTION_MODE == Utils.EncryptionMode.SERVER){
 				cipher.init(Cipher.ENCRYPT_MODE, Utils.ENC_PRIVATE);
-				data = cipher.doFinal(data);
+				secData = cipher.doFinal(secKey.getEncoded());
 			}
+			out.writeInt(secData.length);
+			out.writeBytes(secData);
+			setLength(byteCipherText.length);
+			out.writeInt(getLength());
+			out.writeBytes(byteCipherText);
+		} else {
+			setLength(data.length);
+			out.writeInt(getLength());
+			out.writeBytes(data);
 		}
-
-		setLength(data.length);
-		out.writeInt(getLength());
-		out.writeBytes(data);
 	}
 
 	public static <T extends Packet> T cast(Packet packet, Class<T> c) {

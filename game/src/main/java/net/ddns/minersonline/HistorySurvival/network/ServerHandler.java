@@ -1,6 +1,7 @@
 package net.ddns.minersonline.HistorySurvival.network;
 
 import com.google.gson.Gson;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import net.ddns.minersonline.HistorySurvival.BrokenHash;
@@ -132,10 +133,13 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 								}
 								//ctx.writeAndFlush(new AlivePacket());
 								logger.info(profile.getID().toString());
-								ctx.writeAndFlush(new DisconnectPacket(
+								ChannelFuture future = ctx.writeAndFlush(new DisconnectPacket(
 										profile.getName(),
 										profile.getID().toString()
 								));
+
+								//logger.error(future.cause().getMessage());
+
 								ctx.close();
 							}
 						} else {

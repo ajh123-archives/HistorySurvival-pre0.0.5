@@ -38,7 +38,7 @@ public class NettyServer {
 		int port = args.length > 0 ? Integer.parseInt(args[0]) : 36676;
 
 		try {
-			keys = new GenerateKeys(4096);
+			keys = new GenerateKeys(2048);
 			keys.createKeys();
 		} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
 			e.printStackTrace();

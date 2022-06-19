@@ -35,7 +35,7 @@ public class Utils {
 	 * Java Security Standard Algorithm Names Specification</a>
 	 * for information about standard algorithm names.
 	 **/
-	public static String ENC_ALGO = "RSA";
+	public static String ENC_ALGO = "RSA/ECB/PKCS1Padding";
 	public static String KEY_ENC_ALGO = "RSA";
 	public static EncryptionMode ENCRYPTION_MODE;
 
