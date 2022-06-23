@@ -1,8 +1,8 @@
 package net.ddns.minersonline.HistorySurvival.engine.terrains;
 
+import net.ddns.minersonline.HistorySurvival.api.data.models.RawModel;
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
-import net.ddns.minersonline.HistorySurvival.engine.models.RawModel;
-import net.ddns.minersonline.HistorySurvival.engine.textures.ModelTexture;
+import net.ddns.minersonline.HistorySurvival.api.data.models.ModelTexture;
 import net.ddns.minersonline.HistorySurvival.engine.textures.TerrainTexture;
 import net.ddns.minersonline.HistorySurvival.engine.textures.TerrainTexturePack;
 import net.ddns.minersonline.HistorySurvival.engine.utils.Maths;

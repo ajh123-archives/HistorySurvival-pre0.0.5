@@ -1,4 +1,6 @@
-package net.ddns.minersonline.HistorySurvival.api.text;
+package net.ddns.minersonline.HistorySurvival.api.data.text;
+
+import com.mojang.brigadier.Message;
 
 import java.util.List;
 
@@ -6,7 +8,7 @@ import java.util.List;
  * A system used for defining text.
  * @see <a href="https://minersonline.ddns.net/wiki/index.php/History_Survival:Text">The wiki</a>
  */
-public class JSONTextComponent {
+public class JSONTextComponent implements Message {
 	private String text;
 	private String translate;
 	private List<String> with;
@@ -207,5 +209,10 @@ public class JSONTextComponent {
 
 	public void setExtra(List<JSONTextComponent> extra) {
 		this.extra = extra;
+	}
+
+	@Override
+	public String getString() {
+		return text;
 	}
 }

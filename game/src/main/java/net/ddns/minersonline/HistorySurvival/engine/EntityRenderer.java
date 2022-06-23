@@ -1,10 +1,10 @@
 package net.ddns.minersonline.HistorySurvival.engine;
 
-import net.ddns.minersonline.HistorySurvival.engine.entities.Entity;
-import net.ddns.minersonline.HistorySurvival.engine.models.RawModel;
-import net.ddns.minersonline.HistorySurvival.engine.models.TexturedModel;
+import net.ddns.minersonline.HistorySurvival.api.data.models.RawModel;
+import net.ddns.minersonline.HistorySurvival.api.entities.ClientEntity;
+import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
 import net.ddns.minersonline.HistorySurvival.engine.shaders.StaticShader;
-import net.ddns.minersonline.HistorySurvival.engine.textures.ModelTexture;
+import net.ddns.minersonline.HistorySurvival.api.data.models.ModelTexture;
 import net.ddns.minersonline.HistorySurvival.engine.utils.Maths;
 
 import java.util.List;
@@ -33,12 +33,12 @@ public class EntityRenderer {
 		staticShader.unbind();
 	}
 
-	public void render(Map<TexturedModel, List<Entity>> entities) {
+	public void render(Map<TexturedModel, List<ClientEntity>> entities) {
 		for (TexturedModel texturedModel : entities.keySet()) {
 			prepareTexturedModel(texturedModel);
-			List<Entity> entityList = entities.get(texturedModel);
+			List<ClientEntity> entityList = entities.get(texturedModel);
 
-			for (Entity entity : entityList) {
+			for (ClientEntity entity : entityList) {
 				prepareEntity(entity);
 				glDrawElements(GL_TRIANGLES, texturedModel.getRawModel().getVertexCount(), GL_UNSIGNED_INT, 0);    // Draw using index buffer and triangles
 			}
@@ -78,7 +78,7 @@ public class EntityRenderer {
 		glBindVertexArray(0);   // Unbind the VAO
 	}
 
-	private void prepareEntity(Entity entity) {
+	private void prepareEntity(ClientEntity entity) {
 		Matrix4f transformationMatrix = Maths.createTransformationMatrix(entity.getPosition(), entity.getRotationX(), entity.getRotationY(), entity.getRotationZ(), entity.getScale());
 		staticShader.loadTransformationMatrix(transformationMatrix);
 		staticShader.loadOffset(entity.getTextureAtlasXOffset(), entity.getTextureAtlasYOffset());

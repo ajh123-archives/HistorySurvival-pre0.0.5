@@ -1,6 +1,6 @@
 package net.ddns.minersonline.HistorySurvival.engine;
 
-import net.ddns.minersonline.HistorySurvival.engine.models.RawModel;
+import net.ddns.minersonline.HistorySurvival.api.data.models.RawModel;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 

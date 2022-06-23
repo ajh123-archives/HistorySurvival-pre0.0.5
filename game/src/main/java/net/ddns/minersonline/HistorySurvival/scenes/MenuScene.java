@@ -4,13 +4,13 @@ import net.ddns.minersonline.HistorySurvival.DelayedTask;
 import net.ddns.minersonline.HistorySurvival.Game;
 import net.ddns.minersonline.HistorySurvival.GameSettings;
 import net.ddns.minersonline.HistorySurvival.Scene;
-import net.ddns.minersonline.HistorySurvival.api.text.JSONTextComponent;
+import net.ddns.minersonline.HistorySurvival.api.data.text.JSONTextComponent;
 import net.ddns.minersonline.HistorySurvival.engine.MasterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
-import net.ddns.minersonline.HistorySurvival.engine.entities.Entity;
+import net.ddns.minersonline.HistorySurvival.api.entities.ClientEntity;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
-import net.ddns.minersonline.HistorySurvival.engine.entities.Player;
+import net.ddns.minersonline.HistorySurvival.engine.entities.ClientPlayer;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTextBox;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
@@ -38,7 +38,7 @@ public class MenuScene extends Scene {
 	private final MasterRenderer masterRenderer;
 	private final GuiRenderer guiRenderer;
 
-	private final List<Entity> entityList = new ArrayList<>();
+	private final List<ClientEntity> entityList = new ArrayList<>();
 	private final List<Light> lights = new ArrayList<>();
 	private final List<GuiTexture> guis = new ArrayList<>();
 
@@ -240,12 +240,12 @@ public class MenuScene extends Scene {
 	}
 
 	@Override
-	public Player getPlayer() {
+	public ClientPlayer getPlayer() {
 		return null;
 	}
 
 	@Override
-	public List<Entity> getEntities() {
+	public List<ClientEntity> getEntities() {
 		return entityList;
 	}
 

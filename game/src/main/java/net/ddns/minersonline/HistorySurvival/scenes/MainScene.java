@@ -2,20 +2,18 @@ package net.ddns.minersonline.HistorySurvival.scenes;
 
 import net.ddns.minersonline.HistorySurvival.Game;
 import net.ddns.minersonline.HistorySurvival.Scene;
+import net.ddns.minersonline.HistorySurvival.api.entities.ClientEntity;
+import net.ddns.minersonline.HistorySurvival.api.entities.EntityType;
 import net.ddns.minersonline.HistorySurvival.commands.ChatSystem;
-import net.ddns.minersonline.HistorySurvival.engine.ClientPlayer;
 import net.ddns.minersonline.HistorySurvival.engine.MasterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
 import net.ddns.minersonline.HistorySurvival.engine.ObjLoader;
-import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
-import net.ddns.minersonline.HistorySurvival.engine.entities.Entity;
-import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
-import net.ddns.minersonline.HistorySurvival.engine.entities.Player;
+import net.ddns.minersonline.HistorySurvival.engine.entities.*;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
 import net.ddns.minersonline.HistorySurvival.engine.io.KeyEvent;
 import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
-import net.ddns.minersonline.HistorySurvival.engine.models.TexturedModel;
+import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleMaster;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleSystem;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleTexture;
@@ -23,7 +21,7 @@ import net.ddns.minersonline.HistorySurvival.engine.terrains.TestWorld;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.World;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontGroup;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontType;
-import net.ddns.minersonline.HistorySurvival.engine.textures.ModelTexture;
+import net.ddns.minersonline.HistorySurvival.api.data.models.ModelTexture;
 import net.ddns.minersonline.HistorySurvival.engine.utils.MousePicker;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -41,7 +39,7 @@ public class MainScene extends Scene {
 	private final MasterRenderer masterRenderer;
 	private final GuiRenderer guiRenderer;
 
-	List<Entity> entityList = new ArrayList<>();
+	List<ClientEntity> entityList = new ArrayList<>();
 	List<Light> lights = new ArrayList<>();
 	List<GuiTexture> guis = new ArrayList<>();
 
@@ -52,8 +50,7 @@ public class MainScene extends Scene {
 	ModelTexture fernTextureAtlas;
 	TexturedModel fernModel;
 
-	Player player;
-	ClientPlayer clientPlayer;
+	ClientPlayer player;
 	Camera camera;
 	ChatSystem chatSystem;
 	MousePicker picker;
@@ -110,7 +107,7 @@ public class MainScene extends Scene {
 			float y = world.getHeightOfTerrain(x, z);
 
 			if (i % 20 == 0) {
-				entityList.add(new Entity(lowPolyTreeModel, new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 1));
+				entityList.add(new ClientEntity<>(EntityType.EMPTY_ENTITY.create(), lowPolyTreeModel, new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 1));
 			}
 
 			x = random.nextFloat() * 800 - 400;
@@ -118,7 +115,7 @@ public class MainScene extends Scene {
 			y = world.getHeightOfTerrain(x, z);
 
 			if (i % 20 == 0) {
-				entityList.add(new Entity(treeModel, new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 5));
+				entityList.add(new ClientEntity<>(EntityType.EMPTY_ENTITY.create(), treeModel, new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 5));
 			}
 
 			x = random.nextFloat() * 800 - 400;
@@ -127,11 +124,11 @@ public class MainScene extends Scene {
 
 			if (i % 10 == 0) {
 				// assigns a random texture for each fern from its texture atlas
-				entityList.add(new Entity(fernModel, random.nextInt(4), new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 0.9f));
+				entityList.add(new ClientEntity<>(EntityType.EMPTY_ENTITY.create(), fernModel, random.nextInt(4), new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 0.9f));
 			}
 
 			if (i % 5 == 0) {
-				entityList.add(new Entity(grassModel, new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 1));
+				entityList.add(new ClientEntity<>(EntityType.EMPTY_ENTITY.create(), grassModel, new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 1));
 			}
 		}
 
@@ -172,10 +169,9 @@ public class MainScene extends Scene {
 		float centerZ = world.getZSize()/2;
 		worldCenter = world.getTerrainPoint(centerX, centerZ, 10);
 
-		player = new Player(world, playerOBJ, new Vector3f(worldCenter), 0,0,0,0.6f);
+		player = new ClientPlayer(world, playerOBJ, new Vector3f(worldCenter), 0,0,0,0.6f);
 		entityList.add(player);
 		camera = new Camera(player);
-		clientPlayer = new ClientPlayer(player);
 
 		GuiTexture gui = new GuiTexture(modelLoader.loadTexture("health.png"), new Vector2f(-0.75f, -0.85f), new Vector2f(0.25f, 0.15f));
 		guis.add(gui);
@@ -190,7 +186,7 @@ public class MainScene extends Scene {
 		particleSystem.setSpeedError(0.4f);
 		particleSystem.setScaleError(0.8f);
 
-		chatSystem = new ChatSystem(consolas, clientPlayer);
+		chatSystem = new ChatSystem(consolas, player);
 	}
 
 	@Override
@@ -248,12 +244,12 @@ public class MainScene extends Scene {
 	}
 
 	@Override
-	public Player getPlayer() {
+	public ClientPlayer getPlayer() {
 		return player;
 	}
 
 	@Override
-	public List<Entity> getEntities() {
+	public List<ClientEntity> getEntities() {
 		return entityList;
 	}
 

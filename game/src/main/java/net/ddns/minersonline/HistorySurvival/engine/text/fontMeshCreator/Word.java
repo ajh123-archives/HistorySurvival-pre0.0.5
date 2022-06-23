@@ -1,6 +1,6 @@
 package net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator;
 
-import net.ddns.minersonline.HistorySurvival.api.text.ChatColor;
+import net.ddns.minersonline.HistorySurvival.api.data.text.ChatColor;
 
 import java.util.ArrayList;
 import java.util.List;

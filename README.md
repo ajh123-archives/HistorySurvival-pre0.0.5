@@ -1,9 +1,9 @@
 # HistorySurvival
 
-This "game" is mostly the product of the tutorial series "OpenGL 3D Game Tutorials" published on YouTube by ThinMatrix.
+This "game" has been made partly from the tutorial series "OpenGL 3D Game Tutorials" published on YouTube by ThinMatrix.
 https://youtu.be/VS8wlS9hF8E
 
-This code was meant to be a migration of his tutorial game from LWJGL 2 to modern LWJGWL 3, but based of https://github.com/gruberchris/ThinMatrixGame as a starter.
+This code made from https://github.com/gruberchris/ThinMatrixGame which was to be a migration of ThinMatrix's tutorial game from LWJGL 2 to modern LWJGL 3.
 
 ## Keyboard Controls
 * W is forward movement
@@ -20,10 +20,10 @@ Mouse input now fixed! Used left control + hold left/right click to rotate the c
 This feature is sill in-development! Beware!
 Please register an account [here](https://minersonline.ddns.net/register.php) to enjoy encrypted servers!
 
-## Dependencies
+## Dependencies - Currently inaccurate, these are possible to change quickly
 All their licenses can be found [here](3rd_party)
  * Brigadier
  * LWJGL 3
  * JOML
- * ~~Mod Loader~~ Can't get working because they [refused to help](https://github.com/McModLauncher/modlauncher/issues/109)
+ * ~~Mod Loader~~ They [refused to help](https://github.com/McModLauncher/modlauncher/issues/109)
  

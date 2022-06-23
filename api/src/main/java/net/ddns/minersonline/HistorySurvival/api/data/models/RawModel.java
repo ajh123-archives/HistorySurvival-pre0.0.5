@@ -1,4 +1,4 @@
-package net.ddns.minersonline.HistorySurvival.engine.models;
+package net.ddns.minersonline.HistorySurvival.api.data.models;
 
 public class RawModel {
 	private int vaoId;

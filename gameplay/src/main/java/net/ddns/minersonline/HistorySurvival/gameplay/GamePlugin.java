@@ -3,7 +3,7 @@ package net.ddns.minersonline.HistorySurvival.gameplay;
 import com.mojang.brigadier.context.CommandContext;
 import net.ddns.minersonline.HistorySurvival.api.GameHook;
 import net.ddns.minersonline.HistorySurvival.api.commands.CommandSender;
-import net.ddns.minersonline.HistorySurvival.api.text.JSONTextComponent;
+import net.ddns.minersonline.HistorySurvival.api.data.text.JSONTextComponent;
 import org.pf4j.Plugin;
 import org.pf4j.PluginWrapper;
 import org.slf4j.Logger;

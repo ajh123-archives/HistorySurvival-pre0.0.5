@@ -1,6 +1,4 @@
-package net.ddns.minersonline.HistorySurvival.engine.models;
-
-import net.ddns.minersonline.HistorySurvival.engine.textures.ModelTexture;
+package net.ddns.minersonline.HistorySurvival.api.data.models;
 
 public class TexturedModel {
 	private RawModel rawModel;

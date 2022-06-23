@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.group.ChannelGroup;
 import net.ddns.minersonline.HistorySurvival.BrokenHash;
 import net.ddns.minersonline.HistorySurvival.NettyServer;
 import net.ddns.minersonline.HistorySurvival.api.auth.GameProfile;
@@ -31,16 +32,25 @@ import java.util.Arrays;
 public class ServerHandler extends ChannelInboundHandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(ServerHandler.class);
 
+	private final ChannelGroup channelGroup;
 	private Integer currentState = -1;
 	private String userName = null;
 	private GameProfile profile;
 
-	public ServerHandler() {
+	public ServerHandler(ChannelGroup channelGroup) {
 		Utils.ENCRYPTION_MODE = Utils.EncryptionMode.NONE;
+		this.channelGroup = channelGroup;
 	}
 
 	@Override
-	public void channelActive(ChannelHandlerContext ctx) {}
+	public void channelActive(ChannelHandlerContext ctx) {
+		channelGroup.add(ctx.channel());
+	}
+
+	@Override
+	public void channelInactive(@NotNull ChannelHandlerContext ctx) {
+		channelGroup.remove(ctx.channel());
+	}
 
 	@Override
 	public void channelRead(@NotNull ChannelHandlerContext ctx, @NotNull Object msg){
@@ -133,12 +143,10 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 								}
 								//ctx.writeAndFlush(new AlivePacket());
 								logger.info(profile.getID().toString());
-								ChannelFuture future = ctx.writeAndFlush(new DisconnectPacket(
+								ctx.writeAndFlush(new DisconnectPacket(
 										profile.getName(),
 										profile.getID().toString()
 								));
-
-								//logger.error(future.cause().getMessage());
 
 								ctx.close();
 							}

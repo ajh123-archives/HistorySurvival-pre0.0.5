@@ -2,11 +2,14 @@ package net.ddns.minersonline.HistorySurvival;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
+import io.netty.channel.group.ChannelGroup;
+import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
+import io.netty.util.concurrent.GlobalEventExecutor;
 import net.ddns.minersonline.HistorySurvival.network.GenerateKeys;
 import net.ddns.minersonline.HistorySurvival.network.PacketDecoder;
 import net.ddns.minersonline.HistorySurvival.network.PacketEncoder;
@@ -56,6 +59,7 @@ public class NettyServer {
 
 		EventLoopGroup bossGroup = new NioEventLoopGroup();
 		EventLoopGroup workerGroup = new NioEventLoopGroup();
+		ChannelGroup group = new DefaultChannelGroup("ClientList", GlobalEventExecutor.INSTANCE);
 		try {
 			ServerBootstrap b = new ServerBootstrap();
 			b.group(bossGroup, workerGroup)
@@ -66,7 +70,7 @@ public class NettyServer {
 							ch.pipeline().addLast(
 									new PacketDecoder(),
 									new PacketEncoder(),
-									new ServerHandler()
+									new ServerHandler(group)
 							);
 						}
 					}).option(ChannelOption.SO_BACKLOG, 1024)

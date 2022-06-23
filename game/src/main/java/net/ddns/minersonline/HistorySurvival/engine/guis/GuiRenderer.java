@@ -1,7 +1,7 @@
 package net.ddns.minersonline.HistorySurvival.engine.guis;
 
+import net.ddns.minersonline.HistorySurvival.api.data.models.RawModel;
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
-import net.ddns.minersonline.HistorySurvival.engine.models.RawModel;
 import net.ddns.minersonline.HistorySurvival.engine.utils.Maths;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;

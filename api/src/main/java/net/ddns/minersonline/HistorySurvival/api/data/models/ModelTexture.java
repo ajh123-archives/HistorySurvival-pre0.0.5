@@ -1,4 +1,4 @@
-package net.ddns.minersonline.HistorySurvival.engine.textures;
+package net.ddns.minersonline.HistorySurvival.api.data.models;
 
 public class ModelTexture {
 	private int textureId;

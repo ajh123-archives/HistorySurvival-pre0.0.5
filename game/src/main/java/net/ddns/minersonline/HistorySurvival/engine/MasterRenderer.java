@@ -1,10 +1,9 @@
 package net.ddns.minersonline.HistorySurvival.engine;
 
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
-import net.ddns.minersonline.HistorySurvival.engine.entities.Entity;
+import net.ddns.minersonline.HistorySurvival.api.entities.ClientEntity;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
-import net.ddns.minersonline.HistorySurvival.engine.models.TexturedModel;
-import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleMaster;
+import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
 import net.ddns.minersonline.HistorySurvival.engine.shaders.StaticShader;
 import net.ddns.minersonline.HistorySurvival.engine.shaders.TerrainShader;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.Terrain;
@@ -31,7 +30,7 @@ public class MasterRenderer {
 
 	private StaticShader staticShader;
 	private EntityRenderer entityRenderer;
-	private Map<TexturedModel, List<Entity>> entities;
+	private Map<TexturedModel, List<ClientEntity>> entities;
 	private Matrix4f projectionMatrix;
 	private TerrainRenderer terrainRenderer;
 	private TerrainShader terrainShader;
@@ -58,12 +57,12 @@ public class MasterRenderer {
 		glDisable(GL_CULL_FACE);
 	}
 
-	public void processEntity(Entity entity) {
+	public void processEntity(ClientEntity entity) {
 		TexturedModel entityModel = entity.getTexturedModel();
-		List<Entity> entityList = entities.get(entityModel);
+		List<ClientEntity> entityList = entities.get(entityModel);
 
 		if (entityList == null) {
-			List<Entity> newEntityList = new ArrayList<>();
+			List<ClientEntity> newEntityList = new ArrayList<>();
 			newEntityList.add(entity);
 			entities.put(entityModel, newEntityList);
 			return;
@@ -72,9 +71,9 @@ public class MasterRenderer {
 		entityList.add(entity);
 	}
 
-	public void renderScene(List<Entity> entities, World world, List<Light> lights, Camera camera, Vector4f clipping_plane){
+	public void renderScene(List<ClientEntity> entities, World world, List<Light> lights, Camera camera, Vector4f clipping_plane){
 		processWorld(world);
-		for (Entity entity : entities) {
+		for (ClientEntity entity : entities) {
 			processEntity(entity);
 		}
 		render(lights, camera, clipping_plane);

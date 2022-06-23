@@ -1,6 +1,6 @@
 package net.ddns.minersonline.HistorySurvival.engine.guis;
 
-import net.ddns.minersonline.HistorySurvival.api.text.JSONTextComponent;
+import net.ddns.minersonline.HistorySurvival.api.data.text.JSONTextComponent;
 import net.ddns.minersonline.HistorySurvival.engine.io.KeyEvent;
 import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
 import net.ddns.minersonline.HistorySurvival.engine.text.JSONTextBuilder;

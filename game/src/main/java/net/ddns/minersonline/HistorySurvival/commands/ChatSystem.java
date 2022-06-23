@@ -1,19 +1,17 @@
 package net.ddns.minersonline.HistorySurvival.commands;
 
 import com.mojang.brigadier.ParseResults;
-import com.mojang.brigadier.ResultConsumer;
 import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
 import net.ddns.minersonline.HistorySurvival.api.GameHook;
-import net.ddns.minersonline.HistorySurvival.api.text.ChatColor;
-import net.ddns.minersonline.HistorySurvival.engine.ClientPlayer;
+import net.ddns.minersonline.HistorySurvival.api.data.text.ChatColor;
+import net.ddns.minersonline.HistorySurvival.engine.entities.ClientPlayer;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTextBox;
 import net.ddns.minersonline.HistorySurvival.engine.io.KeyEvent;
 import net.ddns.minersonline.HistorySurvival.engine.text.JSONTextBuilder;
-import net.ddns.minersonline.HistorySurvival.api.text.JSONTextComponent;
+import net.ddns.minersonline.HistorySurvival.api.data.text.JSONTextComponent;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontGroup;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.GUIText;
 import org.joml.Vector2f;

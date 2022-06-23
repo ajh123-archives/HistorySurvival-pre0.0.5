@@ -1,6 +1,6 @@
 package net.ddns.minersonline.HistorySurvival.api.commands;
 
-import net.ddns.minersonline.HistorySurvival.api.text.JSONTextComponent;
+import net.ddns.minersonline.HistorySurvival.api.data.text.JSONTextComponent;
 
 /**
  * An api used for commands to interface with the object that executes commands.

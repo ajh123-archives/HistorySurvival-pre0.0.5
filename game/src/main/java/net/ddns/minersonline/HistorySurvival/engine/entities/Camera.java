@@ -11,7 +11,7 @@ public class Camera {
 	private float pitch;
 	private float yaw;
 	private float roll;
-	private Player player;
+	private ClientPlayer player;
 	private float distanceFromPlayer;
 	private float angleAroundPLayer;
 
@@ -22,7 +22,7 @@ public class Camera {
 	private final float MIN_PITCH = -90;
 	private final float MAX_PITCH = 90;
 
-	public Camera(Player player) {
+	public Camera(ClientPlayer player) {
 		this.player = player;
 		position = new Vector3f(0, 0, 0);
 		distanceFromPlayer = 50;

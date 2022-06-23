@@ -2,17 +2,16 @@ package net.ddns.minersonline.HistorySurvival.scenes;
 
 import net.ddns.minersonline.HistorySurvival.Game;
 import net.ddns.minersonline.HistorySurvival.Scene;
-import net.ddns.minersonline.HistorySurvival.api.text.JSONTextComponent;
+import net.ddns.minersonline.HistorySurvival.api.data.text.JSONTextComponent;
 import net.ddns.minersonline.HistorySurvival.engine.MasterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
-import net.ddns.minersonline.HistorySurvival.engine.entities.Entity;
+import net.ddns.minersonline.HistorySurvival.api.entities.ClientEntity;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
-import net.ddns.minersonline.HistorySurvival.engine.entities.Player;
+import net.ddns.minersonline.HistorySurvival.engine.entities.ClientPlayer;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
 import net.ddns.minersonline.HistorySurvival.engine.io.KeyEvent;
-import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.World;
 import net.ddns.minersonline.HistorySurvival.engine.text.JSONTextBuilder;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontGroup;
@@ -20,7 +19,6 @@ import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontTyp
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.GUIText;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +31,7 @@ public class ConnectingScene extends Scene {
 	private final MasterRenderer masterRenderer;
 	private final GuiRenderer guiRenderer;
 
-	private final List<Entity> entityList = new ArrayList<>();
+	private final List<ClientEntity> entityList = new ArrayList<>();
 	private final List<Light> lights = new ArrayList<>();
 	private final List<GuiTexture> guis = new ArrayList<>();
 
@@ -148,12 +146,12 @@ public class ConnectingScene extends Scene {
 	}
 
 	@Override
-	public Player getPlayer() {
+	public ClientPlayer getPlayer() {
 		return null;
 	}
 
 	@Override
-	public List<Entity> getEntities() {
+	public List<ClientEntity> getEntities() {
 		return entityList;
 	}
 

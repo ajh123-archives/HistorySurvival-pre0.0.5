@@ -6,17 +6,16 @@ import com.mojang.brigadier.tree.CommandNode;
 import net.ddns.minersonline.HistorySurvival.api.EventHandler;
 import net.ddns.minersonline.HistorySurvival.api.GameHook;
 import net.ddns.minersonline.HistorySurvival.api.commands.CommandSender;
-import net.ddns.minersonline.HistorySurvival.api.commands.Permission;
-import net.ddns.minersonline.HistorySurvival.api.text.JSONTextComponent;
+import net.ddns.minersonline.HistorySurvival.api.data.text.JSONTextComponent;
 import net.ddns.minersonline.HistorySurvival.engine.MasterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
-import net.ddns.minersonline.HistorySurvival.engine.entities.Entity;
+import net.ddns.minersonline.HistorySurvival.api.entities.ClientEntity;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
-import net.ddns.minersonline.HistorySurvival.engine.entities.Player;
+import net.ddns.minersonline.HistorySurvival.engine.entities.ClientPlayer;
 import net.ddns.minersonline.HistorySurvival.engine.io.KeyEvent;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleMaster;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.World;
-import net.ddns.minersonline.HistorySurvival.api.text.ChatColor;
+import net.ddns.minersonline.HistorySurvival.api.data.text.ChatColor;
 import net.ddns.minersonline.HistorySurvival.engine.text.JSONTextBuilder;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontGroup;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontType;
@@ -222,8 +221,8 @@ public class Game extends GameHook {
 
 			World world = currentScene.getWorld();
 			Camera camera = currentScene.getCamera();
-			Player player = currentScene.getPlayer();
-			List<Entity> entityList = currentScene.getEntities();
+			ClientPlayer player = currentScene.getPlayer();
+			List<ClientEntity> entityList = currentScene.getEntities();
 			List<Light> lights = currentScene.getLights();
 			Light sun = currentScene.getSun();
 

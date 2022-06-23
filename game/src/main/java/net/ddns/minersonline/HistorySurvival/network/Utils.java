@@ -1,10 +1,12 @@
 package net.ddns.minersonline.HistorySurvival.network;
 
+import net.ddns.minersonline.HistorySurvival.api.util.Defaults;
+
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
 public class Utils {
-	public static String GAME_ID = "history_survival";
+	public static String GAME_ID = Defaults.DEFAULT_NAMESPACE;
 	public static String GAME = "History Survival";
 	public static String VERSION = "0.0.2";
 

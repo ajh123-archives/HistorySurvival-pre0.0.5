@@ -1,4 +1,4 @@
-package net.ddns.minersonline.HistorySurvival.api.text;
+package net.ddns.minersonline.HistorySurvival.api.data.text;
 
 import com.google.common.base.Preconditions;
 import org.joml.Vector3f;

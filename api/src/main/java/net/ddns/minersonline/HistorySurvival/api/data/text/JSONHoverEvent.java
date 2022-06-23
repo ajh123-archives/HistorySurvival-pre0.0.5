@@ -1,10 +1,10 @@
-package net.ddns.minersonline.HistorySurvival.api.text;
+package net.ddns.minersonline.HistorySurvival.api.data.text;
 
-public class JSONClickEvent {
+public class JSONHoverEvent {
 	private String action;
 	private String value;
 
-	public JSONClickEvent(String action, String value) {
+	public JSONHoverEvent(String action, String value) {
 		this.action = action;
 		this.value = value;
 	}
