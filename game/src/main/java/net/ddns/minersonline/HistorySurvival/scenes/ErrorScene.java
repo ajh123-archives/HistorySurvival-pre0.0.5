@@ -96,19 +96,21 @@ public class ErrorScene extends Scene {
 		if(header != null && headerParent != null) {
 			header.setVisible(false);
 			headerParent.remove();
+			headerParent = null;
 			header.remove();
 		}
 		headerParent = new GUIText("", 1.3f, consolas, new Vector2f(headerPos), 20, false);
-		header = JSONTextBuilder.build_string_array(header_text, headerParent);
+		header = JSONTextBuilder.build_string_array(header_text, headerParent, header);
 		header.setVisible(true);
 
 		if(body != null && bodyParent != null) {
 			body.setVisible(false);
 			bodyParent.remove();
+			bodyParent = null;
 			body.remove();
 		}
 		bodyParent = new GUIText("", 1.3f, consolas, new Vector2f(bodyPos), 20, false);
-		body = JSONTextBuilder.build_string_array(body_text, bodyParent);
+		body = JSONTextBuilder.build_string_array(body_text, bodyParent, body);
 		body.setVisible(true);
 //		bodyPos.x = body.getTextString().length()/10f;
 //		headerPos.x = header.getTextString().length()/10f;

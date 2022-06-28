@@ -1,19 +1,21 @@
 package net.ddns.minersonline.HistorySurvival;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
-import io.netty.handler.codec.LengthFieldPrepender;
+import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import net.ddns.minersonline.HistorySurvival.engine.EntityManager;
 import net.ddns.minersonline.HistorySurvival.network.GenerateKeys;
 import net.ddns.minersonline.HistorySurvival.network.PacketDecoder;
 import net.ddns.minersonline.HistorySurvival.network.PacketEncoder;
 import net.ddns.minersonline.HistorySurvival.network.ServerHandler;
+import net.ddns.minersonline.HistorySurvival.network.packets.server.UpdateEntityPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +23,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class NettyServer {
 	private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
@@ -32,9 +36,33 @@ public class NettyServer {
 	public static PrivateKey privateKey;
 	public static String verifyToken = "";
 	public static String serverId = "";
+	public static boolean running = true;
+	public static ChannelGroup group;
+	private static Thread logicThread = null;
 
 	public NettyServer(int port) {
 		this.port = port;
+	}
+
+	public static void update(){
+		while (running) {
+			if (group != null) {
+				EntityManager.getEntities().forEach(((id, entity) -> {
+
+					group.forEach((channel -> {
+						if ((Integer) (channel.attr(AttributeKey.valueOf("state")).get()) == 3) {
+							ByteBuf buf = channel.alloc().buffer();
+							entity.save(buf);
+							ChannelFuture future = channel.writeAndFlush(new UpdateEntityPacket(entity, buf));
+							buf.release();
+						}
+					}));
+
+					entity.updateMe = false;
+
+				}));
+			}
+		}
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -59,9 +87,32 @@ public class NettyServer {
 
 		EventLoopGroup bossGroup = new NioEventLoopGroup();
 		EventLoopGroup workerGroup = new NioEventLoopGroup();
-		ChannelGroup group = new DefaultChannelGroup("ClientList", GlobalEventExecutor.INSTANCE);
+		group = new DefaultChannelGroup("ClientList", GlobalEventExecutor.INSTANCE);
 		try {
 			ServerBootstrap b = new ServerBootstrap();
+			  logicThread = new Thread(() -> {
+				while (running){
+					try {
+						update();
+					} catch (Exception e){
+						logger.error("An error :(", e);
+					}
+				}
+			});
+			logicThread.start();
+
+			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+				logger.info("Stopping");
+				running = false;
+				if (logicThread != null) {
+					try {
+						logicThread.join();
+					} catch (InterruptedException ignored) {}
+				}
+				workerGroup.shutdownGracefully();
+				bossGroup.shutdownGracefully();
+			}));
+
 			b.group(bossGroup, workerGroup)
 					.channel(NioServerSocketChannel.class)
 					.childHandler(new ChannelInitializer<SocketChannel>() {
@@ -82,6 +133,10 @@ public class NettyServer {
 			ChannelFuture f = b.bind(port).sync();
 			f.channel().closeFuture().sync();
 		} finally {
+			running = false;
+			if (logicThread != null) {
+				logicThread.join();
+			}
 			workerGroup.shutdownGracefully();
 			bossGroup.shutdownGracefully();
 		}

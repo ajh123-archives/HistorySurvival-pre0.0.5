@@ -4,6 +4,7 @@ import net.ddns.minersonline.HistorySurvival.engine.DisplayManager;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWKeyCallback;
 
+import java.util.Arrays;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
@@ -47,5 +48,11 @@ public class Keyboard extends GLFWKeyCallback {
 
 	public static KeyEvent getKeyEvent() {
 		return keyEvents.poll();
+	}
+
+	public static void clear(){
+		Arrays.fill(keys, false);
+		Arrays.fill(keys_pressed, false);
+		Arrays.fill(keys_was_pressed, false);
 	}
 }

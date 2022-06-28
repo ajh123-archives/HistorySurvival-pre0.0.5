@@ -1,6 +1,7 @@
 package net.ddns.minersonline.HistorySurvival.engine.text.fontRendering;
 
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
+import net.ddns.minersonline.HistorySurvival.engine.text.MeshData;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontType;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.GUIText;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.TextMeshData;
@@ -28,8 +29,8 @@ public class TextMaster {
     public static void loadText(GUIText text){
         FontType font = text.getSelectedFont();
         TextMeshData data = font.loadText(text);
-        int vao = loader.loadToVao(data.getVertexPositions(), data.getTextureCoords());
-        text.setMeshInfo(vao, data.getVertexCount());
+        MeshData ids = loader.loadToVao(data.getVertexPositions(), data.getTextureCoords());
+        text.setMeshInfo(ids, data.getVertexCount());
         List<GUIText> textBatch = texts.computeIfAbsent(font, k -> new ArrayList<>());
         textBatch.add(text);
     }
@@ -39,7 +40,9 @@ public class TextMaster {
         if(textBatch != null) {
             textBatch.remove(text);
             if (textBatch.isEmpty()) {
-                loader.destroy(text.getMesh());
+                loader.destroy(text.getMesh().getVao());
+                loader.destroyVBO(text.getMesh().getVbo1());
+                loader.destroyVBO(text.getMesh().getVbo2());
                 texts.remove(text.getSelectedFont());
             }
         }

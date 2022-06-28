@@ -1,8 +1,17 @@
+plugins {
+    id 'ru.vyarus.mkdocs' version '2.4.0'
+}
+
 apply plugin: 'java'
 apply plugin: 'java-library'
 
 group 'net.ddns.minersonline.HistorySurvival'
 version '0.0.2'
+
+mkdocs.publish {
+    docPath = '0.0.2'
+    rootRedirect = true
+}
 
 targetCompatibility = 16
 sourceCompatibility = 16

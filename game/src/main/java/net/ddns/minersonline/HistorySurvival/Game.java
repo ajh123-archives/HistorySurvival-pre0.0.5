@@ -39,6 +39,7 @@ import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.system.Configuration;
 import org.pf4j.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +63,7 @@ import static net.ddns.minersonline.HistorySurvival.network.Utils.GAME;
 import static net.ddns.minersonline.HistorySurvival.network.Utils.VERSION;
 
 public class Game extends GameHook {
-	private static final Logger logger = LoggerFactory.getLogger(Game.class);
+	public static final Logger logger = LoggerFactory.getLogger(Game.class);
 	private final CommandDispatcher<Object> dispatcher = new CommandDispatcher<>();
 
 	private Scene currentScene = null;
@@ -70,6 +71,14 @@ public class Game extends GameHook {
 	private final List<JSONTextComponent> debugString = new ArrayList<>();
 	private final Map<DelayedTask, Integer> tasks = new HashMap<>();
 	public static final BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
+
+	GuiRenderer guiRenderer;
+	WaterFrameBuffers wfbos;
+	WaterShader waterShader;
+	WaterRenderer waterRenderer;
+	MasterRenderer masterRenderer;
+	public static ModelLoader modelLoader;
+	FontGroup consolas;
 
 
 	private void helpCommand(CommandContext<Object> c) {
@@ -99,9 +108,28 @@ public class Game extends GameHook {
 
 	}
 
+	private void init(){
+		modelLoader = new ModelLoader();
+		TextMaster.init(modelLoader);
+		masterRenderer = new MasterRenderer();
+		ParticleMaster.init(modelLoader, masterRenderer.getProjectionMatrix());
+
+		FontType font = new FontType(modelLoader.loadTexture("font/consolas.png"), "font/consolas.fnt");
+		FontType font_bold = new FontType(modelLoader.loadTexture("font/consolas_bold.png"), "font/consolas_bold.fnt");
+		FontType font_bold_italic = new FontType(modelLoader.loadTexture("font/consolas_bold_italic.png"), "font/consolas_bold_italic.fnt");
+		FontType font_italic = new FontType(modelLoader.loadTexture("font/consolas_italic.png"), "font/consolas_italic.fnt");
+		consolas = new FontGroup(font, font_bold, font_bold_italic, font, font, font_italic, font, font);
+
+		guiRenderer = new GuiRenderer(modelLoader);
+		waterShader = new WaterShader();
+		wfbos = new WaterFrameBuffers();
+		waterRenderer = new WaterRenderer(modelLoader, waterShader, masterRenderer.getProjectionMatrix(), wfbos);
+	}
+
 
 	private void start() {
 		GameHook.instance = this;
+		Configuration.DEBUG_MEMORY_ALLOCATOR.set(true);
 
 		List<Path> pluginDirs = new ArrayList<>();
 		if(GameSettings.assetsDir!=null)
@@ -163,22 +191,7 @@ public class Game extends GameHook {
 
 		logger.info("OpenGL: " + DisplayManager.getOpenGlVersionMessage());
 		logger.info("LWJGL: " + Version.getVersion());
-
-		ModelLoader modelLoader = new ModelLoader();
-		TextMaster.init(modelLoader);
-		MasterRenderer masterRenderer = new MasterRenderer();
-		ParticleMaster.init(modelLoader, masterRenderer.getProjectionMatrix());
-
-		FontType font = new FontType(modelLoader.loadTexture("font/consolas.png"), "font/consolas.fnt");
-		FontType font_bold = new FontType(modelLoader.loadTexture("font/consolas_bold.png"), "font/consolas_bold.fnt");
-		FontType font_bold_italic = new FontType(modelLoader.loadTexture("font/consolas_bold_italic.png"), "font/consolas_bold_italic.fnt");
-		FontType font_italic = new FontType(modelLoader.loadTexture("font/consolas_italic.png"), "font/consolas_italic.fnt");
-		FontGroup consolas = new FontGroup(font, font_bold, font_bold_italic, font, font, font_italic, font, font);
-
-		GuiRenderer guiRenderer = new GuiRenderer(modelLoader);
-		WaterShader waterShader = new WaterShader();
-		WaterFrameBuffers wfbos = new WaterFrameBuffers();
-		WaterRenderer waterRenderer = new WaterRenderer(modelLoader, waterShader, masterRenderer.getProjectionMatrix(), wfbos);
+		init();
 
 		GUIText debugText = null;
 		GUIText debugParent = new GUIText("", 1.3f, consolas, new Vector2f(0, 0), -1, false);
@@ -217,7 +230,9 @@ public class Game extends GameHook {
 
 			try {
 				currentScene.update(keyEvent);
-			} catch (Exception ignored){}
+			} catch (Exception e){
+				logger.error("An error occurred!", e);
+			}
 
 			World world = currentScene.getWorld();
 			Camera camera = currentScene.getCamera();
@@ -253,7 +268,7 @@ public class Game extends GameHook {
 
 			guiRenderer.render(currentScene.getGUIs());
 			Terrain region = null;
-			if(world != null && player != null) {
+			if(world != null) {
 				region = world.getTerrain(player.getPosition().x, player.getPosition().z);
 			}
 
@@ -293,13 +308,13 @@ public class Game extends GameHook {
 			if (debugText != null) {
 				debugText.remove();
 			}
-			debugText = JSONTextBuilder.build_string_array(debugString, debugParent);
-			debugText.setVisible(DisplayManager.getShowFPSTitle());
+			debugText = JSONTextBuilder.build_string_array(debugString, debugParent, debugText);
+
+			boolean debug = DisplayManager.getShowFPSTitle();
+			debugText.setVisible(debug);
 
 			if(Keyboard.isKeyPressed(GLFW.GLFW_KEY_F3)) {
-				boolean debug = DisplayManager.getShowFPSTitle();
 				DisplayManager.setShowFPSTitle(!debug);
-				debugText.setVisible(!debug);
 			}
 			TextMaster.render();
 
@@ -308,8 +323,6 @@ public class Game extends GameHook {
 
 		currentScene.stop();
 		logger.info("Stopping!");
-		DisplayManager.closeDisplay();
-		logger.info("Closed display");
 		pluginManager.stopPlugins();
 		logger.info("Plugins stopped");
 		currentScene.stop();
@@ -327,6 +340,9 @@ public class Game extends GameHook {
 		logger.info("Cleaned main renderer");
 		modelLoader.destroy();
 		logger.info("Cleaned model loader");
+		DisplayManager.closeDisplay();
+		logger.info("Closed display");
+		System.exit(0);
 	}
 
 	private Predicate<Object> permission(String s) {
@@ -404,15 +420,27 @@ public class Game extends GameHook {
 	}
 
 	public void setCurrentScene(Scene currentScene) {
-		logger.debug("Left Scene "+ this.currentScene);
 		this.currentScene.stop();
-		this.currentScene = currentScene;
+		String sceneName = this.currentScene.toString();
+		this.currentScene = null;
+		wfbos.cleanUp();
+		waterShader.destroy();
+		guiRenderer.cleanUp();
+		masterRenderer.destory();
+		modelLoader.destroy();
+		logger.info("Left Scene "+ sceneName);
+		init();
 		try {
 			currentScene.init();
 		} catch (Exception e){
 			e.printStackTrace();
 		}
-		logger.debug("Entered Scene "+ currentScene);
+		this.currentScene = currentScene;
+		logger.info("Entered Scene "+ currentScene);
+	}
+
+	public Scene getCurrentScene() {
+		return currentScene;
 	}
 
 	public static Scene getStartSceneScene(){

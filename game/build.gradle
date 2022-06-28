@@ -1,8 +1,17 @@
+plugins {
+    id 'ru.vyarus.mkdocs' version '2.4.0'
+}
+
 apply plugin: 'application'
 apply plugin: 'java'
 
 group 'net.ddns.minersonline'
 version '0.0.2'
+
+mkdocs.publish {
+    docPath = '0.0.2'
+    rootRedirect = true
+}
 
 targetCompatibility = 16
 sourceCompatibility = 16
@@ -52,6 +61,7 @@ task RunGame(type: JavaExec) {
     dependsOn ':gameplay:jar'
     classpath sourceSets.main.runtimeClasspath
     main = "net.ddns.minersonline.HistorySurvival.Game"
+    jvmArgs "-Xms1024m", "-Xmx2048m"
 
     if(project.rootProject.file('local.properties').exists()) {
         Properties properties = new Properties()
@@ -67,6 +77,7 @@ task RunGame(type: JavaExec) {
 task RunServer(type: JavaExec) {
     dependsOn ':gameplay:jar'
     classpath sourceSets.main.runtimeClasspath
+    //jvmArgs "-Xms1024m -Xmx2048m"
     main = "net.ddns.minersonline.HistorySurvival.NettyServer"
 }
 

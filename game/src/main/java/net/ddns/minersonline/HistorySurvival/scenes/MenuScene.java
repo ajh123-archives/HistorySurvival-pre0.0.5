@@ -98,12 +98,15 @@ public class MenuScene extends Scene {
 		if(playText != null && playParent != null) {
 			playText.setVisible(false);
 			playParent.remove();
+			playParent = null;
 			playText.remove();
+			playText = null;
 		}
 
 		if(multiStatus != null) {
 			multiStatus.setVisible(false);
 			multiStatus.remove();
+			multiStatus = null;
 		}
 		playParent = new GUIText("", 1.3f, consolas, new Vector2f(0f, 0f), -1, false);
 
@@ -111,12 +114,12 @@ public class MenuScene extends Scene {
 		serverIP.setVisible(inMultiplayer);
 
 		if(!inMultiplayer) {
-			playText = JSONTextBuilder.build_string_array(intro, playParent);
+			playText = JSONTextBuilder.build_string_array(intro, playParent, playText);
 			if(multiStatus != null) {
 				multiStatus.setVisible(false);
 			}
 		} else {
-			playText = JSONTextBuilder.build_string_array(sub_intro, playParent);
+			playText = JSONTextBuilder.build_string_array(sub_intro, playParent, playText);
 			multiStatus = new GUIText("Logged in as: "+ GameSettings.username, 1.3f, consolas, new Vector2f(0.6f, 0f), 10, false);
 			multiStatus.setVisible(true);
 			multiStatus.load();

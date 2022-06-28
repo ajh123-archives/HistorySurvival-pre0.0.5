@@ -79,7 +79,7 @@ public class GuiTextBox {
 		if(this.guiText != null) {
 			guiText.remove();
 			guiTextParent = new GUIText("", 1.3f, font, new Vector2f(position), MAX_LENGTH, false);
-			guiText = JSONTextBuilder.asText(new JSONTextComponent(previewText.toString()), font, guiTextParent);
+			guiText = JSONTextBuilder.asText(new JSONTextComponent(previewText.toString()), font, guiTextParent, guiText);
 			guiText.setVisible(isVisible);
 			guiText.load();
 		}

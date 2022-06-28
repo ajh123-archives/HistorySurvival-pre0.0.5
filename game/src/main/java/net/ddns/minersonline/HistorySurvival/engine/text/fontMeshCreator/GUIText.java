@@ -1,7 +1,7 @@
 package net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator;
 
+import net.ddns.minersonline.HistorySurvival.engine.text.MeshData;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontRendering.TextMaster;
-import org.joml.Vector2d;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -26,7 +26,7 @@ public class GUIText {
 	private List<GUIText> children;
 	private GUIText parent;
 
-	private int textMeshVao;
+	private MeshData ids;
 	private int vertexCount;
 	private final Vector3f colour = new Vector3f(0f, 0f, 0f);
 
@@ -38,10 +38,10 @@ public class GUIText {
 	private Vector2f offset = new Vector2f(0.0f, 0.0f);
 	private final Vector3f outlineColor = new Vector3f(1f, 1f, 1f);
 
-	private final float lineMaxSize;
+	private float lineMaxSize;
 	private int numberOfLines;
 
-	private final FontGroup font;
+	private FontGroup font;
 	private FontType selectedFont;
 	private boolean visible = true;
 
@@ -110,6 +110,10 @@ public class GUIText {
 		return font;
 	}
 
+	public void setFont(FontGroup font) {
+		this.font = font;
+	}
+
 	/**
 	 * Set the colour of the text.
 	 *
@@ -150,33 +154,33 @@ public class GUIText {
 	}
 
 	/**
-	 * @return The position of the top-left corner of the text in screen-space.
-	 *         (0, 0) is the top left corner of the screen, (1, 1) is the bottom
-	 *         right.
+	 *  The position of the top-left corner of the text in screen-space.
+	 *  (0, 0) is the top left corner of the screen, (1, 1) is the bottom
+	 *  right.
 	 */
 	public void setPosition(Vector2f position) {
 		this.position = position;
 	}
 
 	/**
-	 * @return the ID of the text's VAO, which contains all the vertex data for
+	 * @return the IDsResult object of the text, which contains all the vertex data for
 	 *         the quads on which the text will be rendered.
 	 */
-	public int getMesh() {
-		return textMeshVao;
+	public MeshData getMesh() {
+		return ids;
 	}
 
 	/**
 	 * Set the VAO and vertex count for this text.
 	 *
-	 * @param vao
-	 *            - the VAO containing all the vertex data for the quads on
+	 * @param id
+	 *            - the IDsResult object containing all the vertex data for the quads on
 	 *            which the text will be rendered.
 	 * @param verticesCount
 	 *            - the total number of vertices in all of the quads.
 	 */
-	public void setMeshInfo(int vao, int verticesCount) {
-		this.textMeshVao = vao;
+	public void setMeshInfo(MeshData id, int verticesCount) {
+		this.ids = id;
 		this.vertexCount = verticesCount;
 	}
 
@@ -195,10 +199,10 @@ public class GUIText {
 	}
 
 	/**
-	 * Sets the number of lines that this text covers (method used only in
-	 * loading).
+	 * @param number Sets the number of lines that this text covers (method used only in
+	 *               loading).
 	 *
-	 * @param number
+	 *
 	 */
 	protected void setNumberOfLines(int number) {
 		this.numberOfLines = number;
@@ -216,6 +220,10 @@ public class GUIText {
 	 */
 	protected float getMaxLineSize() {
 		return lineMaxSize;
+	}
+
+	public void setLineMaxSize(float lineMaxSize) {
+		this.lineMaxSize = lineMaxSize;
 	}
 
 	/**
@@ -348,5 +356,9 @@ public class GUIText {
 
 	public boolean isCenterText() {
 		return centerText;
+	}
+
+	public void setCenterText(boolean centerText) {
+		this.centerText = centerText;
 	}
 }

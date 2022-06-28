@@ -43,16 +43,16 @@ public class ChatSystem {
 
 	public void update(KeyEvent keyEvent){
 		chatParent.remove();
-		if (chatText != null) {
-			chatText.remove();
-		}
+		chatParent = null;
+
 		chatParent = new GUIText("", 1.3f, font, new Vector2f(0, 0.13f), MAX_CHAT_LENGTH, false);
-		chatText = JSONTextBuilder.build_string_array(chat, chatParent);
+		chatText = JSONTextBuilder.build_string_array(chat, chatParent, chatText);
 
 		chatPreview.setFocused(isInChat);
 		chatPreview.setVisible(isInChat);
 		if(isInChat){
 			chatParent.remove();
+			chatParent = null;
 			if (chatText != null) {
 				chatText.remove();
 			}
@@ -61,7 +61,7 @@ public class ChatSystem {
 			chatPreview.render();
 
 			chatParent = new GUIText("", 1.3f, font, new Vector2f(0, 0.13f), 50, false);
-			chatText = JSONTextBuilder.build_string_array(chat, chatParent);
+			chatText = JSONTextBuilder.build_string_array(chat, chatParent, chatText);
 
 			chatPreview.setOnExecute(message -> {
 				if(message.length() > 0) {
@@ -132,8 +132,10 @@ public class ChatSystem {
 	}
 
 	public void cleanUp(){
-		chatText.setVisible(false);
-		chatText.remove();
+		if (chatText != null){
+			chatText.setVisible(false);
+			chatText.remove();
+		}
 		chatText = null;
 		if (chatParent != null) {
 			chatParent.setVisible(false);

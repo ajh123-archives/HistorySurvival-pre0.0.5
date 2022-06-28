@@ -1,6 +1,7 @@
 package net.ddns.minersonline.HistorySurvival.api.entities;
 
 import io.netty.buffer.ByteBuf;
+import net.ddns.minersonline.HistorySurvival.api.auth.GameProfile;
 import net.ddns.minersonline.HistorySurvival.api.data.text.JSONTextComponent;
 
 public class PlayerEntity extends Entity{
@@ -9,6 +10,7 @@ public class PlayerEntity extends Entity{
 	private float upwardsSpeed;
 	private boolean isJump;
 	private ChatHandler messageHandler;
+	private GameProfile profile;
 
 	protected PlayerEntity(EntityType<?> type) {
 		super(type);
@@ -46,6 +48,7 @@ public class PlayerEntity extends Entity{
 
 	public void setCurrentSpeed(float currentSpeed) {
 		this.currentSpeed = currentSpeed;
+		updateMe = true;
 	}
 
 	public float getCurrentTurnSpeed() {
@@ -54,6 +57,7 @@ public class PlayerEntity extends Entity{
 
 	public void setCurrentTurnSpeed(float currentTurnSpeed) {
 		this.currentTurnSpeed = currentTurnSpeed;
+		updateMe = true;
 	}
 
 	public float getUpwardsSpeed() {
@@ -62,6 +66,7 @@ public class PlayerEntity extends Entity{
 
 	public void setUpwardsSpeed(float upwardsSpeed) {
 		this.upwardsSpeed = upwardsSpeed;
+		updateMe = true;
 	}
 
 	public boolean isJump() {
@@ -70,6 +75,7 @@ public class PlayerEntity extends Entity{
 
 	public void setJump(boolean jump) {
 		isJump = jump;
+		updateMe = true;
 	}
 
 	public void onChatMessage(ChatHandler handler){
@@ -77,5 +83,14 @@ public class PlayerEntity extends Entity{
 	}
 	public interface ChatHandler {
 		void run(JSONTextComponent message);
+	}
+
+	public GameProfile getProfile() {
+		return profile;
+	}
+
+	public void setProfile(GameProfile profile) {
+		this.profile = profile;
+		updateMe = true;
 	}
 }

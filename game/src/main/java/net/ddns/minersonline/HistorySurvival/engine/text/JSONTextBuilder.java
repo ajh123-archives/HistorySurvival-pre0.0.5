@@ -3,13 +3,16 @@ package net.ddns.minersonline.HistorySurvival.engine.text;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.ddns.minersonline.HistorySurvival.Game;
 import net.ddns.minersonline.HistorySurvival.api.data.text.ChatColor;
 import net.ddns.minersonline.HistorySurvival.api.data.text.JSONTextComponent;
+import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontGroup;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.GUIText;
 import net.ddns.minersonline.HistorySurvival.engine.utils.StringUtils;
 import org.joml.Vector2f;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
@@ -21,12 +24,15 @@ public class JSONTextBuilder {
 		return gson.fromJson(JSON, collectionType);
 	}
 
-	public static GUIText build_string(String JSON, GUIText parent){
+	public static GUIText build_string(String JSON, GUIText parent, @Nullable GUIText oldText){
 		Collection<JSONTextComponent> texts = JSONTextBuilder.build(JSON);
 		GUIText lastText = parent;
 		GUIText firstText = null;
+		if(oldText != null){
+			oldText.remove();
+		}
 		for(JSONTextComponent text : texts){
-			GUIText text1 = asText(text, parent.getFont(), lastText);
+			GUIText text1 = asText(text, parent.getFont(), lastText, oldText);
 			text1.setParent(lastText);
 			text1.load();
 			lastText = text1;
@@ -40,7 +46,7 @@ public class JSONTextBuilder {
 		return firstText;
 	}
 
-	public static GUIText build_string_array(List<JSONTextComponent> JSON_List, GUIText parent){
+	public static GUIText build_string_array(List<JSONTextComponent> JSON_List, GUIText parent, @Nullable GUIText oldText){
 		String JSON = "[]";
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		for (JSONTextComponent message : JSON_List) {
@@ -51,10 +57,14 @@ public class JSONTextBuilder {
 				JSON += gson.toJson(message) + "\n" + "]";
 			}
 		}
-		return build_string(JSON, parent);
+		return build_string(JSON, parent, oldText);
 	}
 
-	public static GUIText asText(JSONTextComponent JSON, FontGroup font, GUIText parent){
+	public static GUIText asText(JSONTextComponent JSON, FontGroup font, GUIText parent, @Nullable GUIText oldText){
+		if(oldText != null){
+			oldText.remove();
+		}
+
 		Vector2f pos = new Vector2f(parent.getEndPos());
 		GUIText text = new GUIText(JSON.getText(), parent.getFontSize(), font, pos, -1, parent.isCenterText());
 		text.setParent(parent);
@@ -88,6 +98,7 @@ public class JSONTextBuilder {
 				text.setSelectedFont(font.getITALIC_UNDERLINE());
 			}
 		}
+		text.setVisible(false);
 		text.setReady(true);
 		return text;
 	}

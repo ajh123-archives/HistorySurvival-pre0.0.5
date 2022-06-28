@@ -1,6 +1,7 @@
 package net.ddns.minersonline.HistorySurvival.engine;
 
 import net.ddns.minersonline.HistorySurvival.api.data.models.RawModel;
+import net.ddns.minersonline.HistorySurvival.engine.text.MeshData;
 import net.ddns.minersonline.HistorySurvival.engine.utils.BufferUtils;
 import org.lwjgl.opengl.*;
 
@@ -12,9 +13,9 @@ import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL30.*;
 
 public class ModelLoader {
-	private List<Integer> vaos = new ArrayList<>();
-	private List<Integer> vbos = new ArrayList<>();
-	private List<Integer> textureList = new ArrayList<>();;
+	private final List<Integer> vaos = new ArrayList<>();
+	private final List<MeshData> vbos = new LinkedList<>();
+	private final List<Integer> textureList = new ArrayList<>();;
 
 	public ModelLoader() {
 
@@ -27,40 +28,40 @@ public class ModelLoader {
 		return vaoId;
 	}
 
-	private void storeDataInAttributeList(int attributeNumber, int vertexLength, float[] data) {
+	private int storeDataInAttributeList(int attributeNumber, int vertexLength, float[] data) {
 		int vboId = glGenBuffers();                                 // initialize an empty VBO
 		glBindBuffer(GL_ARRAY_BUFFER, vboId);                       // select this VBO into the VAO Id specified
 		FloatBuffer buffer = BufferUtils.createFloatBuffer(data);   // make VBO from data
 		glBufferData(GL_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);      // store data into VBO & Not going to edit this data
 		glVertexAttribPointer(attributeNumber, vertexLength, GL_FLOAT, false, 0, 0);    // place VBO into VAO
 		glBindBuffer(GL_ARRAY_BUFFER, 0);                   // unbind the VBO
-		vbos.add(vboId);
+		vbos.add(new MeshData(attributeNumber, vboId, -Integer.MAX_VALUE));
+		return vboId;
 	}
 
 	private void unbindVao() {
 		glBindVertexArray(0);
 	}
 
-	private void bindIndicesBuffer(int[] indices) {
+	private void bindIndicesBuffer(int vao, int[] indices) {
 		int vboId = glGenBuffers();
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboId);
 		IntBuffer buffer = BufferUtils.createIntBuffer(indices);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);
-		vbos.add(vboId);
+		vbos.add(new MeshData(vao, vboId, -Integer.MAX_VALUE));
 	}
 
-	public int loadToVao(float[] positions, float[] textureCoords) {
+	public MeshData loadToVao(float[] positions, float[] textureCoords) {
 		int vaoId = createVao();
-		storeDataInAttributeList(0, 2, positions);     // using VAO attribute 0. Could be any 0 thru 15
-		storeDataInAttributeList(1, 2, textureCoords);
+		int vbo1 = storeDataInAttributeList(0, 2, positions);     // using VAO attribute 0. Could be any 0 thru 15
+		int vbo2 = storeDataInAttributeList(1, 2, textureCoords);
 		unbindVao();
-
-		return vaoId;
+		return new MeshData(vaoId, vbo1, vbo2);
 	}
 
 	public RawModel loadToVao(float[] positions, float[] textureCoords, float[] normals, int[] indices) {
 		int vaoId = createVao();
-		bindIndicesBuffer(indices);
+		bindIndicesBuffer(vaoId, indices);
 		storeDataInAttributeList(0, 3, positions);     // using VAO attribute 0. Could be any 0 thru 15
 		storeDataInAttributeList(1, 2, textureCoords);
 		storeDataInAttributeList(2, 3, normals);
@@ -96,19 +97,46 @@ public class ModelLoader {
 	}
 
 	public void destroy(int vao) {
-		//vao_vbos.get(vao).forEach(GL15::glDeleteBuffers);
-		glDeleteVertexArrays(vao);
-		//vaos.remove(vao-2);
-		vaos.remove(vaos.indexOf(vao)-1);
+		for (Iterator<Integer> it = vaos.iterator(); it.hasNext(); ) {
+			int vao_loop = it.next();
+			if (vao_loop == vao) {
+				GL30.glDeleteVertexArrays(vao);
+				it.remove();
+				break;
+			}
+		}
+		destroyVBOS();
+	}
+
+	public void destroyVBOS() {
+		for (Iterator<MeshData> it = vbos.iterator(); it.hasNext(); ) {
+			MeshData mesh = it.next();
+			GL15.glDeleteBuffers(mesh.getVbo1());
+			GL15.glDeleteBuffers(mesh.getVbo2());
+			it.remove();
+		}
+
+	}
+
+	public void destroyVBO(int vbo1) {
+		for (Iterator<MeshData> it = vbos.iterator(); it.hasNext(); ) {
+			MeshData mesh = it.next();
+			if(mesh.getVbo1() == vbo1) {
+				GL15.glDeleteBuffers(mesh.getVbo1());
+				GL15.glDeleteBuffers(mesh.getVbo2());
+				it.remove();
+			}
+		}
 	}
 
 	public void destroy() {
-		for (int vao : vaos) {
+		for (Iterator<Integer> it = vaos.iterator(); it.hasNext(); ) {
+			int vao = it.next();
 			GL30.glDeleteVertexArrays(vao);
+			it.remove();
 		}
-		for (int vbo : vbos) {
-			GL15.glDeleteBuffers(vbo);
-		}
+		destroyVBOS();
+
 		for (int texture : textureList) {
 			GL11.glDeleteTextures(texture);
 		}
@@ -119,7 +147,7 @@ public class ModelLoader {
 
 	public int createEmptyVbo(int floatCount) {
 		int vbo = GL15.glGenBuffers();
-		vbos.add(vbo);
+		vbos.add(new MeshData(-Integer.MAX_VALUE, vbo, -Integer.MAX_VALUE));
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo);
 		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, floatCount * 4L, GL15.GL_STREAM_DRAW);
 		// unbind

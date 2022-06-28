@@ -1,10 +1,13 @@
 package net.ddns.minersonline.HistorySurvival.engine;
 
+import net.ddns.minersonline.HistorySurvival.Game;
 import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
 import net.ddns.minersonline.HistorySurvival.engine.io.Mouse;
 import org.lwjgl.glfw.GLFWCharCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
+import org.lwjgl.opengl.GL;
+import org.lwjgl.system.Configuration;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL.*;
@@ -96,6 +99,7 @@ public class DisplayManager {
 	}
 
 	public static void closeDisplay() {
+		GL.setCapabilities(null);
 		glfwWindowShouldClose(window);
 		glfwDestroyWindow(window);
 		glfwTerminate();

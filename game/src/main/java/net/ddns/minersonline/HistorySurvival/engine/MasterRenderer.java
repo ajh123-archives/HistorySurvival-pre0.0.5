@@ -35,6 +35,7 @@ public class MasterRenderer {
 	private TerrainRenderer terrainRenderer;
 	private TerrainShader terrainShader;
 	private List<Terrain> terrainList;
+	List<ClientEntity> newEntityList = new ArrayList<>();
 
 	public MasterRenderer() {
 		enableCulling();
@@ -62,7 +63,6 @@ public class MasterRenderer {
 		List<ClientEntity> entityList = entities.get(entityModel);
 
 		if (entityList == null) {
-			List<ClientEntity> newEntityList = new ArrayList<>();
 			newEntityList.add(entity);
 			entities.put(entityModel, newEntityList);
 			return;
@@ -77,6 +77,7 @@ public class MasterRenderer {
 			processEntity(entity);
 		}
 		render(lights, camera, clipping_plane);
+		newEntityList.clear();
 	}
 
 
