@@ -40,9 +40,7 @@ public class TextMaster {
         if(textBatch != null) {
             textBatch.remove(text);
             if (textBatch.isEmpty()) {
-                loader.destroy(text.getMesh().getVao());
-                loader.destroyVBO(text.getMesh().getVbo1());
-                loader.destroyVBO(text.getMesh().getVbo2());
+                loader.destroy(text.getMesh());
                 texts.remove(text.getSelectedFont());
             }
         }

@@ -22,4 +22,16 @@ public class MeshData {
 	public int getVbo2() {
 		return vbo2;
 	}
+
+	public void setVao(int vao) {
+		this.vao = vao;
+	}
+
+	public void setVbo1(int vbo1) {
+		this.vbo1 = vbo1;
+	}
+
+	public void setVbo2(int vbo2) {
+		this.vbo2 = vbo2;
+	}
 }

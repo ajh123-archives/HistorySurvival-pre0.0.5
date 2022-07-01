@@ -7,6 +7,7 @@ import java.util.Map;
 import net.ddns.minersonline.HistorySurvival.api.data.models.RawModel;
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
+import net.ddns.minersonline.HistorySurvival.engine.text.MeshData;
 import net.ddns.minersonline.HistorySurvival.engine.utils.Maths;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -24,6 +25,7 @@ public class ParticleRenderer {
 
 	private RawModel quad;
 	private ParticleShader shader;
+	private MeshData data;
 
 	private ModelLoader loader;
 	private int vbo;
@@ -31,7 +33,9 @@ public class ParticleRenderer {
 	
 	protected ParticleRenderer(ModelLoader loader, Matrix4f projectionMatrix){
 		this.loader = loader;
-		this.vbo = loader.createEmptyVbo(INSTANCE_DATA_LENGTH * MAX_INSTANCES);
+		data = loader.createEmptyVbo(INSTANCE_DATA_LENGTH * MAX_INSTANCES);
+		this.vbo = data.getVao();
+		data.setVbo1(vbo);
 		quad = loader.loadToVao(VERTICES, 2);
 		loader.addInstancedAttribute(quad.getVaoId(), vbo, 1, 4, INSTANCE_DATA_LENGTH, 0);
 		loader.addInstancedAttribute(quad.getVaoId(), vbo, 2, 4, INSTANCE_DATA_LENGTH, 4);
@@ -127,6 +131,7 @@ public class ParticleRenderer {
 
 	protected void cleanUp(){
 		shader.destroy();
+		loader.destroy(data);
 	}
 	
 	private void prepare(){

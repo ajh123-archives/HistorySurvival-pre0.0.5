@@ -96,11 +96,12 @@ public class ModelLoader {
 		return textureId;
 	}
 
-	public void destroy(int vao) {
+	private void destroy(int vao) {
 		for (Iterator<Integer> it = vaos.iterator(); it.hasNext(); ) {
 			int vao_loop = it.next();
 			if (vao_loop == vao) {
 				GL30.glDeleteVertexArrays(vao);
+				destroyVBO(vao);
 				it.remove();
 				break;
 			}
@@ -108,7 +109,11 @@ public class ModelLoader {
 		destroyVBOS();
 	}
 
-	public void destroyVBOS() {
+	public void destroy(MeshData data){
+		destroy(data.getVao());
+	}
+
+	private void destroyVBOS() {
 		for (Iterator<MeshData> it = vbos.iterator(); it.hasNext(); ) {
 			MeshData mesh = it.next();
 			GL15.glDeleteBuffers(mesh.getVbo1());
@@ -118,10 +123,10 @@ public class ModelLoader {
 
 	}
 
-	public void destroyVBO(int vbo1) {
+	private void destroyVBO(int vao) {
 		for (Iterator<MeshData> it = vbos.iterator(); it.hasNext(); ) {
 			MeshData mesh = it.next();
-			if(mesh.getVbo1() == vbo1) {
+			if(mesh.getVao() == vao) {
 				GL15.glDeleteBuffers(mesh.getVbo1());
 				GL15.glDeleteBuffers(mesh.getVbo2());
 				it.remove();
@@ -145,14 +150,15 @@ public class ModelLoader {
 		textureList.clear();
 	}
 
-	public int createEmptyVbo(int floatCount) {
+	public MeshData createEmptyVbo(int floatCount) {
 		int vbo = GL15.glGenBuffers();
-		vbos.add(new MeshData(-Integer.MAX_VALUE, vbo, -Integer.MAX_VALUE));
+		MeshData data = new MeshData(-Integer.MAX_VALUE, vbo, -Integer.MAX_VALUE);
+		vbos.add(data);
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo);
 		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, floatCount * 4L, GL15.GL_STREAM_DRAW);
 		// unbind
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-		return vbo;
+		return data;
 	}
 
 	public void addInstancedAttribute(int vao, int vbo, int attribute, int dataSize,
