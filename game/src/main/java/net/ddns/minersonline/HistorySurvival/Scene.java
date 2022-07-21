@@ -12,9 +12,8 @@ import java.util.List;
 
 public abstract class Scene {
 	public abstract void init();
-	public abstract void update(KeyEvent keyEvent);
+	public abstract void update();//KeyEvent keyEvent
 
-	public abstract void doGui();
 	public abstract void stop();
 
 	public abstract World getWorld();
@@ -25,4 +24,10 @@ public abstract class Scene {
 	public abstract List<ClientEntity> getEntities();
 	public abstract List<Light> getLights();
 	public abstract Light getSun();
+
+	public void initDebug(){}
+
+	public final void renderDebug(){
+
+	}
 }

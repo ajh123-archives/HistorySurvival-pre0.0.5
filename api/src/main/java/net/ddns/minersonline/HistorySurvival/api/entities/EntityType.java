@@ -5,6 +5,7 @@ import net.ddns.minersonline.HistorySurvival.api.registries.Registries;
 import net.ddns.minersonline.HistorySurvival.api.registries.Registry;
 
 import javax.annotation.Nullable;
+import java.util.function.Function;
 
 public class EntityType<T extends Entity> {
 	protected ResourceLocation registryName;

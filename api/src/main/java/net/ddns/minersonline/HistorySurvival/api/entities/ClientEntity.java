@@ -11,7 +11,7 @@ public class ClientEntity<T extends Entity> {
 	public ClientEntity(T entity, TexturedModel texturedModel, Vector3f position, float rotationX, float rotationY, float rotationZ, float scale) {
 		this.texturedModel = texturedModel;
 		this.entity = entity;
-		this.entity.position = position;
+		this.entity.position = new Vector3f(position);
 		this.entity.rotationX = rotationX;
 		this.entity.rotationY = rotationY;
 		this.entity.rotationZ = rotationZ;
@@ -21,7 +21,7 @@ public class ClientEntity<T extends Entity> {
 	public ClientEntity(T entity, TexturedModel texturedModel, int textureAtlasIndex, Vector3f position, float rotationX, float rotationY, float rotationZ, float scale) {
 		this.entity = entity;
 		this.texturedModel = texturedModel;
-		this.entity.position = position;
+		this.entity.position = new Vector3f(position);
 		this.entity.rotationX = rotationX;
 		this.entity.rotationY = rotationY;
 		this.entity.rotationZ = rotationZ;
@@ -101,5 +101,11 @@ public class ClientEntity<T extends Entity> {
 
 	public T getEntity() {
 		return entity;
+	}
+
+	public void initDebug(){}
+
+	public final void renderDebug(){
+
 	}
 }

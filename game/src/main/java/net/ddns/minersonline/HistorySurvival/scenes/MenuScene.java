@@ -78,12 +78,12 @@ public class MenuScene extends Scene {
 	}
 
 	@Override
-	public void update(KeyEvent keyEvent) {
+	public void update() {
 		camera.update();
 	}
 
 	@Override
-	public void doGui() {
+	public void initDebug() {
 
 	}
 

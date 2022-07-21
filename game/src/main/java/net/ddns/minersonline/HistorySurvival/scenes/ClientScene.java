@@ -98,8 +98,8 @@ public class ClientScene extends Scene {
 	}
 
 	@Override
-	public void update(KeyEvent keyEvent) {
-		chatSystem.update(keyEvent);
+	public void update() {
+		//chatSystem.update(keyEvent);
 
 		if(Keyboard.isKeyPressed(GLFW.GLFW_KEY_T) && chatSystem.notIsInChat()){
 			chatSystem.setInChat(true);
@@ -123,7 +123,7 @@ public class ClientScene extends Scene {
 	}
 
 	@Override
-	public void doGui() {
+	public void initDebug() {
 
 	}
 

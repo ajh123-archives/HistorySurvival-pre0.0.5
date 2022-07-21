@@ -18,6 +18,7 @@ import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleMaster;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleSystem;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleTexture;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.TestWorld;
+import net.ddns.minersonline.HistorySurvival.engine.terrains.VoidWorld;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.World;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontGroup;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontType;
@@ -43,7 +44,6 @@ public class MainScene extends Scene {
 	List<Light> lights = new ArrayList<>();
 	List<GuiTexture> guis = new ArrayList<>();
 
-	FontGroup consolas;
 	TexturedModel treeModel;
 	TexturedModel lowPolyTreeModel;
 	TexturedModel grassModel;
@@ -72,12 +72,6 @@ public class MainScene extends Scene {
 
 		masterRenderer.setBackgroundColour(new Vector3f(0.65f, 0.9f, 0.97f));
 
-		FontType font = new FontType(modelLoader.loadTexture("font/consolas.png"), "font/consolas.fnt");
-		FontType font_bold = new FontType(modelLoader.loadTexture("font/consolas_bold.png"), "font/consolas_bold.fnt");
-		FontType font_bold_italic = new FontType(modelLoader.loadTexture("font/consolas_bold_italic.png"), "font/consolas_bold_italic.fnt");
-		FontType font_italic = new FontType(modelLoader.loadTexture("font/consolas_italic.png"), "font/consolas_italic.fnt");
-		consolas = new FontGroup(font, font_bold, font_bold_italic, font, font, font_italic, font, font);
-
 		// Tree entity
 		treeModel = new TexturedModel(ObjLoader.loadObjModel("tree.obj", modelLoader), new ModelTexture(modelLoader.loadTexture("tree.png")));
 
@@ -99,6 +93,7 @@ public class MainScene extends Scene {
 	@Override
 	public void init() {
 		world = new TestWorld(modelLoader, 3, 3, 15, 256);
+		//world = new VoidWorld();
 		Random random = new Random();
 
 		for (int i = 0; i < 400; i++) {
@@ -135,34 +130,6 @@ public class MainScene extends Scene {
 		sun = new Light(new Vector3f(3000, 2000, 2000), new Vector3f(0.6f, 0.6f,0.6f));
 		lights.add(sun);
 
-//		TexturedModel lamp = new TexturedModel(ObjLoader.loadObjModel("lamp.obj", modelLoader), new ModelTexture(modelLoader.loadTexture("lamp.png")));
-//
-//		Light moveLight = new Light(
-//				new Vector3f(400, 22, -293),
-//				new Vector3f(2, 0,0),
-//				new Vector3f(1, 0.01f,0.002f));
-//		lights.add(moveLight);
-//		Entity moveEntity = new Entity(lamp,
-//				new Vector3f(400, 9, -293),
-//				0,
-//				0,
-//				0,
-//				1);
-//		entityList.add(moveEntity);
-//
-//
-//		lights.add(new Light(
-//				new Vector3f(370, 17, -293),
-//				new Vector3f(0, 2,0),
-//				new Vector3f(1, 0.01f,0.002f)));
-//		entityList.add(new Entity(lamp,
-//				new Vector3f(370, 4.2f, -293),
-//				0,
-//				0,
-//				0,
-//				1));
-
-
 		TexturedModel playerOBJ = new TexturedModel(ObjLoader.loadObjModel("person.obj", modelLoader), new ModelTexture(modelLoader.loadTexture("playerTexture.png")));
 
 		float centerX = world.getXSize()/2;
@@ -185,43 +152,29 @@ public class MainScene extends Scene {
 		particleSystem.setLifeError(0.1f);
 		particleSystem.setSpeedError(0.4f);
 		particleSystem.setScaleError(0.8f);
-
-		chatSystem = new ChatSystem(consolas, player);
 	}
 
 	@Override
-	public void update(KeyEvent keyEvent) {
-		if(Keyboard.isKeyDown(GLFW.GLFW_KEY_R)){
-			player.getPosition().set(new Vector3f(worldCenter));
-		}
-
-		chatSystem.update(keyEvent);
-
-		if(Keyboard.isKeyPressed(GLFW.GLFW_KEY_T) && chatSystem.notIsInChat()){
-			chatSystem.setInChat(true);
-		}
-
-		if(chatSystem.notIsInChat()) {
-			player.checkInputs();
-			camera.move();
-			picker.update();
-		}
+	public void update() {
+		player.checkInputs();
+		camera.move();
+		picker.update();
 
 		player.move();
 		camera.update();
 
-		Vector3f pos = new Vector3f(worldCenter);
-		pos.y += 20;
-		particleSystem.generateParticles(pos);
-		ParticleMaster.update(camera);
-
-		if(Keyboard.isKeyDown(GLFW.GLFW_KEY_ESCAPE)){
-			game.setCurrentScene(prevScene);
+		try {
+			Vector3f pos = new Vector3f(worldCenter);
+			pos.y += 20;
+			//particleSystem.generateParticles(pos);
+		} catch (Exception e){
+			Game.logger.info("AHHHHh");
 		}
+
 	}
 
 	@Override
-	public void doGui() {
+	public void initDebug() {
 
 	}
 

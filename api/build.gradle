@@ -40,8 +40,11 @@ javadoc {
     include "net/ddns/minersonline/HistorySurvival/api/**/*.java"
 }
 
-project.ext.gson_version = "2.9.0"
-project.ext.commoms_codec_version = "1.15"
+ext {
+    gson_version = "2.9.0"
+    commoms_codec_version = "1.15"
+    imguiVersion = '1.86.4'
+}
 
 dependencies {
     implementation group: 'org.pf4j', name: 'pf4j', version: "${pf4j_version}"
@@ -54,6 +57,8 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.12.0'
     implementation "com.google.code.gson:gson:${gson_version}"
     implementation "commons-codec:commons-codec:${commoms_codec_version}"
+    implementation "io.github.spair:imgui-java-binding:$imguiVersion"
+    implementation "io.github.spair:imgui-java-lwjgl3:$imguiVersion"
 }
 
 configurations.all {

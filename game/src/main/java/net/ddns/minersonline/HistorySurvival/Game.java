@@ -33,6 +33,8 @@ import net.ddns.minersonline.HistorySurvival.engine.water.WaterFrameBuffers;
 import net.ddns.minersonline.HistorySurvival.engine.water.WaterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.water.WaterShader;
 import net.ddns.minersonline.HistorySurvival.gameplay.GamePlugin;
+import net.ddns.minersonline.HistorySurvival.scenes.ClientScene;
+import net.ddns.minersonline.HistorySurvival.scenes.MainScene;
 import net.ddns.minersonline.HistorySurvival.scenes.MenuScene;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
@@ -184,7 +186,8 @@ public class Game extends GameHook {
 		logger.info("LWJGL: " + Version.getVersion());
 		init();
 
-		currentScene = new MenuScene(this, modelLoader, masterRenderer, guiRenderer);
+		//currentScene = new MenuScene(this, modelLoader, masterRenderer, guiRenderer);
+		currentScene = new MainScene(null,this, modelLoader, masterRenderer, guiRenderer);
 		currentScene.init();
 		startScene = currentScene;
 
@@ -195,29 +198,29 @@ public class Game extends GameHook {
 		}
 
 		while (DisplayManager.shouldDisplayClose()) {
-			KeyEvent keyEvent = Keyboard.getKeyEvent();
+			//KeyEvent keyEvent = Keyboard.getKeyEvent();
 			Mouse.update();
 
-			Iterator<Map.Entry<DelayedTask, Integer>> taskIterator = tasks.entrySet().iterator();
-			while (taskIterator.hasNext()) {
-				Map.Entry<DelayedTask, Integer> pair = taskIterator.next();
-				DelayedTask task = pair.getKey();
-				int delay = pair.getValue();
-				if(delay == 0){
-					Executors.newSingleThreadExecutor().execute(task::execute);
-					taskIterator.remove();
-				}
-				pair.setValue(delay - 1);
-			}
-			try {
-				while (!queue.isEmpty())
-					queue.take().run();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+//			Iterator<Map.Entry<DelayedTask, Integer>> taskIterator = tasks.entrySet().iterator();
+//			while (taskIterator.hasNext()) {
+//				Map.Entry<DelayedTask, Integer> pair = taskIterator.next();
+//				DelayedTask task = pair.getKey();
+//				int delay = pair.getValue();
+//				if(delay == 0){
+//					Executors.newSingleThreadExecutor().execute(task::execute);
+//					taskIterator.remove();
+//				}
+//				pair.setValue(delay - 1);
+//			}
+//			try {
+//				while (!queue.isEmpty())
+//					queue.take().run();
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
 
 			try {
-				currentScene.update(keyEvent);
+				currentScene.update();
 			} catch (Exception e){
 				logger.error("An error occurred!", e);
 			}
@@ -229,6 +232,7 @@ public class Game extends GameHook {
 			List<Light> lights = currentScene.getLights();
 			Light sun = currentScene.getSun();
 
+			ParticleMaster.update(camera);
 
 			if(world != null) {
 				GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
@@ -262,6 +266,7 @@ public class Game extends GameHook {
 			}
 
 			DisplayManager.preUpdate();
+			currentScene.renderDebug();
 			ImGui.showDemoWindow();
 			DisplayManager.updateDisplay();
 		}
