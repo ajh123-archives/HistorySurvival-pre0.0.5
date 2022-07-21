@@ -69,6 +69,9 @@ task RunGame(type: JavaExec) {
         def access = properties.getProperty('access') //Player access token
         def user = properties.getProperty('user') //Player display name
         def uuid = properties.getProperty('uuid') //Player uuid name
+        if (properties.containsKey("auth")) {
+            environment "AUTH_URL", properties.getProperty('auth')
+        }
 
         args "--accessToken", access, "--username", user, "--uuid", uuid
     }
@@ -77,6 +80,15 @@ task RunGame(type: JavaExec) {
 task RunServer(type: JavaExec) {
     dependsOn ':gameplay:jar'
     classpath sourceSets.main.runtimeClasspath
+
+    if(project.rootProject.file('local.properties').exists()) {
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file('local.properties').newDataInputStream())
+        if (properties.containsKey("auth")) {
+            environment "AUTH_URL", properties.getProperty('auth')
+        }
+    }
+
     //jvmArgs "-Xms1024m -Xmx2048m"
     main = "net.ddns.minersonline.HistorySurvival.NettyServer"
 }

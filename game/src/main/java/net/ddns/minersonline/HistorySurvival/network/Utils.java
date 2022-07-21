@@ -5,13 +5,22 @@ import net.ddns.minersonline.HistorySurvival.api.util.Defaults;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
+
 public class Utils {
 	public static String GAME_ID = Defaults.DEFAULT_NAMESPACE;
 	public static String GAME = "History Survival";
 	public static String VERSION = "0.0.2";
 
-	public static String JOIN_URL = "https://minersonline.ddns.net/api/session/hs/join";
-	public static String HAS_JOINED_URL = "https://minersonline.ddns.net/api/session/hs/hasJoined";
+	public static String URL = "https://minersonline.ddns.net/api/";
+
+	static {
+		String auth = System.getenv("AUTH_URL");
+		if(auth != null){
+			URL = auth+"/";
+		}
+	}
+	public static String JOIN_URL = URL+"session/hs/join";
+	public static String HAS_JOINED_URL = URL+"session/hs/hasJoined";
 
 	/**
 	 * Encryption mode is used to identify what side of communications we are
