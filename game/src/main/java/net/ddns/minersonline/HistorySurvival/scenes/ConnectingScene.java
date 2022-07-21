@@ -110,6 +110,11 @@ public class ConnectingScene extends Scene {
 	}
 
 	@Override
+	public void doGui() {
+
+	}
+
+	@Override
 	public void stop() {
 		if(header != null) {
 			header.setVisible(false);

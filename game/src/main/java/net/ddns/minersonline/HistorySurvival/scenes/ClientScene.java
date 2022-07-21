@@ -123,6 +123,11 @@ public class ClientScene extends Scene {
 	}
 
 	@Override
+	public void doGui() {
+
+	}
+
+	@Override
 	public void stop() {
 		ParticleMaster.stop();
 		ParticleMaster.update(camera);

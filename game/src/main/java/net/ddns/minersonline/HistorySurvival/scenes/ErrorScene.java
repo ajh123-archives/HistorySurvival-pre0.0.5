@@ -121,6 +121,11 @@ public class ErrorScene extends Scene {
 	}
 
 	@Override
+	public void doGui() {
+
+	}
+
+	@Override
 	public void stop() {
 		if (this.header != null) {
 			header.setVisible(false);

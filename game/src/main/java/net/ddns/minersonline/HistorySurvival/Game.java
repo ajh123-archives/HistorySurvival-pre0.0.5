@@ -69,7 +69,6 @@ public class Game extends GameHook {
 
 	private Scene currentScene = null;
 	private static Scene startScene = null;
-	private final List<JSONTextComponent> debugString = new ArrayList<>();
 	private final Map<DelayedTask, Integer> tasks = new HashMap<>();
 	public static final BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
 
@@ -79,7 +78,6 @@ public class Game extends GameHook {
 	WaterRenderer waterRenderer;
 	MasterRenderer masterRenderer;
 	public static ModelLoader modelLoader;
-	FontGroup consolas;
 
 
 	private void helpCommand(CommandContext<Object> c) {
@@ -111,15 +109,8 @@ public class Game extends GameHook {
 
 	private void init(){
 		modelLoader = new ModelLoader();
-		TextMaster.init(modelLoader);
 		masterRenderer = new MasterRenderer();
 		ParticleMaster.init(modelLoader, masterRenderer.getProjectionMatrix());
-
-		FontType font = new FontType(modelLoader.loadTexture("font/consolas.png"), "font/consolas.fnt");
-		FontType font_bold = new FontType(modelLoader.loadTexture("font/consolas_bold.png"), "font/consolas_bold.fnt");
-		FontType font_bold_italic = new FontType(modelLoader.loadTexture("font/consolas_bold_italic.png"), "font/consolas_bold_italic.fnt");
-		FontType font_italic = new FontType(modelLoader.loadTexture("font/consolas_italic.png"), "font/consolas_italic.fnt");
-		consolas = new FontGroup(font, font_bold, font_bold_italic, font, font, font_italic, font, font);
 
 		guiRenderer = new GuiRenderer(modelLoader);
 		waterShader = new WaterShader();
@@ -184,7 +175,6 @@ public class Game extends GameHook {
 		}));
 
 
-
 		DisplayManager.createDisplay();
 		DisplayManager.setShowFPSTitle(false);
 
@@ -193,9 +183,6 @@ public class Game extends GameHook {
 		logger.info("OpenGL: " + DisplayManager.getOpenGlVersionMessage());
 		logger.info("LWJGL: " + Version.getVersion());
 		init();
-
-		GUIText debugText = null;
-		GUIText debugParent = new GUIText("", 1.3f, consolas, new Vector2f(0, 0), -1, false);
 
 		currentScene = new MenuScene(this, modelLoader, masterRenderer, guiRenderer);
 		currentScene.init();
@@ -268,56 +255,11 @@ public class Game extends GameHook {
 			ParticleMaster.renderParticles(camera);
 
 			guiRenderer.render(currentScene.getGUIs());
-			Terrain region = null;
-			if(world != null) {
-				region = world.getTerrain(player.getPosition().x, player.getPosition().z);
-			}
-
-			debugString.clear();
-			debugString.add(new JSONTextComponent(GAME+" "+VERSION+"\n"));
-			debugString.add(new JSONTextComponent("FPS: "+DisplayManager.getFPS()+"\n"));
-			debugString.add(new JSONTextComponent("P: "+ParticleMaster.getCount()+"\n"));
-			if(player!=null) {
-				debugString.add(new JSONTextComponent("PlayerPosition\n"));
-				debugString.add(new JSONTextComponent("X: "+player.getPosition().x+"\n"));
-				debugString.add(new JSONTextComponent("Y: "+player.getPosition().y+"\n"));
-				debugString.add(new JSONTextComponent("Z: "+player.getPosition().z+"\n"));
-			}
-			debugString.add(new JSONTextComponent("CameraPosition\n"));
-			debugString.add(new JSONTextComponent("X: "+camera.getPosition().x+"\n"));
-			debugString.add(new JSONTextComponent("Y: "+camera.getPosition().y+"\n"));
-			debugString.add(new JSONTextComponent("Z: "+camera.getPosition().z+"\n"));
-			if(region == null) {
-				debugString.add(new JSONTextComponent("Region\n"));
-				JSONTextComponent x = new JSONTextComponent("X: null\n");
-				x.setColor(ChatColor.RED.toString());
-				debugString.add(x);
-				JSONTextComponent z = new JSONTextComponent("Z: null\n");
-				z.setColor(ChatColor.GREEN.toString());
-				debugString.add(z);
-			}
-			if(region != null) {
-				debugString.add(new JSONTextComponent("Region\n"));
-				JSONTextComponent x = new JSONTextComponent("X: "+region.getX() / region.getSize()+"\n");
-				x.setColor(ChatColor.RED.toString());
-				debugString.add(x);
-				JSONTextComponent z = new JSONTextComponent("Z: "+region.getZ() / region.getSize()+"\n");
-				z.setColor(ChatColor.RED.toString());
-				debugString.add(z);
-			}
-
-			if (debugText != null) {
-				debugText.remove();
-			}
-			debugText = JSONTextBuilder.build_string_array(debugString, debugParent, debugText);
-
 			boolean debug = DisplayManager.getShowFPSTitle();
-			debugText.setVisible(debug);
 
 			if(Keyboard.isKeyPressed(GLFW.GLFW_KEY_F3)) {
 				DisplayManager.setShowFPSTitle(!debug);
 			}
-			TextMaster.render();
 
 			DisplayManager.preUpdate();
 			ImGui.showDemoWindow();

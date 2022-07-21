@@ -13,6 +13,8 @@ import java.util.List;
 public abstract class Scene {
 	public abstract void init();
 	public abstract void update(KeyEvent keyEvent);
+
+	public abstract void doGui();
 	public abstract void stop();
 
 	public abstract World getWorld();

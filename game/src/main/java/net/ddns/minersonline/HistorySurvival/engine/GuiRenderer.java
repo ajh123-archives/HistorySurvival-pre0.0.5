@@ -7,6 +7,7 @@ import imgui.flag.ImGuiConfigFlags;
 import imgui.flag.ImGuiViewportFlags;
 import imgui.type.ImInt;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -208,6 +209,12 @@ public class GuiRenderer {
      */
     public void updateFontsTexture() {
         glDeleteTextures(gFontTexture);
+
+        try {
+            byte[] data = this.getClass().getClassLoader().getResourceAsStream("font/Consolas.ttf").readAllBytes();
+            ImGui.getIO().getFonts().clearFonts();
+            ImGui.getIO().getFonts().addFontFromMemoryTTF(data, 32);
+        } catch (IOException ignored) {}
 
         final ImFontAtlas fontAtlas = ImGui.getIO().getFonts();
         final ImInt width = new ImInt();
