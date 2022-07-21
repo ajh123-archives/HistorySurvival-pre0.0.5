@@ -1,13 +1,11 @@
 package net.ddns.minersonline.HistorySurvival.engine;
 
-import net.ddns.minersonline.HistorySurvival.Game;
+import imgui.ImGui;
+import imgui.flag.ImGuiConfigFlags;
 import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
 import net.ddns.minersonline.HistorySurvival.engine.io.Mouse;
-import org.lwjgl.glfw.GLFWCharCallback;
-import org.lwjgl.glfw.GLFWVidMode;
-import org.lwjgl.glfw.GLFWWindowSizeCallback;
+import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.system.Configuration;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL.*;
@@ -26,6 +24,8 @@ public class DisplayManager {
 	private static double deltaInSeconds;
 	private static Keyboard keyboard;
 	private static Mouse mouse;
+	private static final GuiManager guiManager = new GuiManager();
+	private static final GuiRenderer guiRenderer = new GuiRenderer();
 
 	public static void createDisplay() {
 		if (!glfwInit()) {
@@ -51,20 +51,34 @@ public class DisplayManager {
 
 		glfwSetWindowPos(window, (vidMode.width() - WINDOW_WIDTH) / 2, (vidMode.height() - WINDOW_HEIGHT) / 2);
 
-		keyboard = new Keyboard();
-		mouse = new Mouse();
+		ImGui.createContext();
 
-		// register keyboard input callback
-		glfwSetKeyCallback(window, keyboard);
-		glfwSetCharCallback(window, GLFWCharCallback.create((window, codepoint) ->{
-			Keyboard.invoke2(codepoint);
-		}));
+		glfwMakeContextCurrent(window);
+		createCapabilities();
+
+		guiManager.init(window, false);
+		guiRenderer.init("#version 410 core");
+		keyboard = new Keyboard();
+		mouse = new Mouse(guiManager);
+
 		glfwSetCursorPosCallback(window, mouse.getMouseMoveCallback());
 		glfwSetMouseButtonCallback(window, mouse.getMouseButtonsCallback());
 		glfwSetScrollCallback(window, mouse.getMouseScrollCallback());
 
-		glfwMakeContextCurrent(window);
-		createCapabilities();
+		// register keyboard input callback
+		glfwSetKeyCallback(window, GLFWKeyCallback.create((window, key, scancode, action, mods)->{
+			keyboard.invoke(window, key, scancode, action, mods);
+			guiManager.keyCallback(window, key, scancode, action, mods);
+		}));
+		glfwSetCharCallback(window, GLFWCharCallback.create((window, codepoint) ->{
+			Keyboard.invoke2(codepoint);
+			guiManager.charCallback(window, codepoint);
+		}));
+
+		glfwSetWindowFocusCallback(window, guiManager::windowFocusCallback);
+		glfwSetCursorEnterCallback(window, guiManager::cursorEnterCallback);
+		glfwSetMonitorCallback(GLFWMonitorCallback.create(guiManager::monitorCallback));
+
 		glfwShowWindow(window);
 
 		// Setting the value to 1 should limit to 60 FPS
@@ -82,9 +96,23 @@ public class DisplayManager {
 		lastFrameTime = getCurrentTime();
 	}
 
+	public static void preUpdate() {
+		guiManager.newFrame();
+		ImGui.newFrame();
+	}
 	public static void updateDisplay() {
-		glfwPollEvents();
+		ImGui.render();
+		guiRenderer.renderDrawData(ImGui.getDrawData());
+
+		if (ImGui.getIO().hasConfigFlags(ImGuiConfigFlags.ViewportsEnable)) {
+			final long backupWindowPtr = GLFW.glfwGetCurrentContext();
+			ImGui.updatePlatformWindows();
+			ImGui.renderPlatformWindowsDefault();
+			GLFW.glfwMakeContextCurrent(backupWindowPtr);
+		}
+
 		glfwSwapBuffers(window);
+		glfwPollEvents();
 		getFrames();
 
 		if (showFPSTitle) {
@@ -98,7 +126,20 @@ public class DisplayManager {
 		lastFrameTime = currentFrameTime;
 	}
 
-	public static void closeDisplay() {
+	public static void dispose() {
+		guiRenderer.dispose();
+		guiManager.dispose();
+		ImGui.destroyContext();
+
+		glfwSetCursorPosCallback(window, null);
+		glfwSetMouseButtonCallback(window, null);
+		glfwSetScrollCallback(window, null);
+		glfwSetKeyCallback(window, null);
+		glfwSetCharCallback(window, null);
+		glfwSetWindowFocusCallback(window, null);
+		glfwSetCursorEnterCallback(window, null);
+		glfwSetMonitorCallback(null);
+
 		GL.setCapabilities(null);
 		glfwWindowShouldClose(window);
 		glfwDestroyWindow(window);
@@ -117,11 +158,6 @@ public class DisplayManager {
 
 	public static void setShowFPSTitle(boolean showFPSTitle) {
 		DisplayManager.showFPSTitle = showFPSTitle;
-
-		if (!showFPSTitle) {
-			frames = 0;
-			time = 0;
-		}
 	}
 
 	public static void getFrames() {

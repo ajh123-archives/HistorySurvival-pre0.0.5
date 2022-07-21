@@ -3,6 +3,7 @@ package net.ddns.minersonline.HistorySurvival;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.CommandNode;
+import imgui.ImGui;
 import net.ddns.minersonline.HistorySurvival.api.EventHandler;
 import net.ddns.minersonline.HistorySurvival.api.GameHook;
 import net.ddns.minersonline.HistorySurvival.api.commands.CommandSender;
@@ -223,7 +224,7 @@ public class Game extends GameHook {
 			}
 			try {
 				while (!queue.isEmpty())
-				queue.take().run();
+					queue.take().run();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -318,6 +319,8 @@ public class Game extends GameHook {
 			}
 			TextMaster.render();
 
+			DisplayManager.preUpdate();
+			ImGui.showDemoWindow();
 			DisplayManager.updateDisplay();
 		}
 
@@ -340,7 +343,7 @@ public class Game extends GameHook {
 		logger.info("Cleaned main renderer");
 		modelLoader.destroy();
 		logger.info("Cleaned model loader");
-		DisplayManager.closeDisplay();
+		DisplayManager.dispose();
 		logger.info("Closed display");
 		System.exit(0);
 	}

@@ -35,7 +35,7 @@ public class MasterRenderer {
 	private TerrainRenderer terrainRenderer;
 	private TerrainShader terrainShader;
 	private List<Terrain> terrainList;
-	List<ClientEntity> newEntityList = new ArrayList<>();
+	private List<ClientEntity> newEntityList = new ArrayList<>();
 
 	public MasterRenderer() {
 		enableCulling();
@@ -46,6 +46,7 @@ public class MasterRenderer {
 		entityRenderer = new EntityRenderer(staticShader, projectionMatrix);
 		terrainRenderer = new TerrainRenderer(terrainShader, projectionMatrix);
 		terrainList = new ArrayList<>();
+
 	}
 
 	public static void enableCulling() {

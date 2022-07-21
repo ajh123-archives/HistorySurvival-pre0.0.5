@@ -1,5 +1,6 @@
 package net.ddns.minersonline.HistorySurvival.engine.io;
 
+import net.ddns.minersonline.HistorySurvival.engine.GuiManager;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
 import org.lwjgl.glfw.GLFWScrollCallback;
@@ -14,7 +15,7 @@ public class Mouse {
 	private GLFWMouseButtonCallback mouseButtons;
 	private GLFWScrollCallback mouseScroll;
 
-	public Mouse() {
+	public Mouse(GuiManager renderer) {
 		buttons = new boolean[GLFW_MOUSE_BUTTON_LAST];
 
 		mouseMove = new GLFWCursorPosCallback() {
@@ -29,6 +30,7 @@ public class Mouse {
 			@Override
 			public void invoke(long window, int button, int action, int mods) {
 				buttons[button] = (action == GLFW_PRESS);
+				renderer.mouseButtonCallback(window, button, action, mods);
 			}
 		};
 
@@ -37,6 +39,7 @@ public class Mouse {
 			public void invoke(long window, double offsetX, double offsetY) {
 				mouseScrollX += offsetX;
 				mouseScrollY += offsetY;
+				renderer.scrollCallback(window, offsetX, offsetY);
 			}
 		};
 	}
