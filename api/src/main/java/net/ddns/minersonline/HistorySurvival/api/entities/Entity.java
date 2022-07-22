@@ -14,10 +14,10 @@ import java.util.List;
  * @since 0.0.2
  */
 public abstract class Entity implements CommandSender {
-	protected final ReplicableData entityData;
-	protected Vector3f position;
-	protected float rotationX, rotationY, rotationZ;
-	protected float scale;
+	private final ReplicableData entityData;
+	private Vector3f position;
+	private float rotationX, rotationY, rotationZ;
+	private float scale;
 	private final EntityType<?> type;
 	private int id;
 	public boolean updateMe = false;
@@ -137,5 +137,11 @@ public abstract class Entity implements CommandSender {
 
 	public boolean isUpdate() {
 		return updateMe;
+	}
+
+	@Override
+	public boolean equals(Object otherObject) {
+		// check for reference equality.
+		return this == otherObject;
 	}
 }

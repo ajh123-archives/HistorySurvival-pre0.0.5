@@ -11,34 +11,34 @@ public class ClientEntity<T extends Entity> {
 	public ClientEntity(T entity, TexturedModel texturedModel, Vector3f position, float rotationX, float rotationY, float rotationZ, float scale) {
 		this.texturedModel = texturedModel;
 		this.entity = entity;
-		this.entity.position = new Vector3f(position);
-		this.entity.rotationX = rotationX;
-		this.entity.rotationY = rotationY;
-		this.entity.rotationZ = rotationZ;
-		this.entity.scale = scale;
+		this.entity.setPosition(new Vector3f(position));
+		this.entity.setRotationX(rotationX);
+		this.entity.setRotationY(rotationY);
+		this.entity.setRotationZ(rotationZ);
+		this.entity.setScale(scale);
 	}
 
 	public ClientEntity(T entity, TexturedModel texturedModel, int textureAtlasIndex, Vector3f position, float rotationX, float rotationY, float rotationZ, float scale) {
 		this.entity = entity;
 		this.texturedModel = texturedModel;
-		this.entity.position = new Vector3f(position);
-		this.entity.rotationX = rotationX;
-		this.entity.rotationY = rotationY;
-		this.entity.rotationZ = rotationZ;
-		this.entity.scale = scale;
+		this.entity.setPosition(new Vector3f(position));
+		this.entity.setRotationX(rotationX);
+		this.entity.setRotationY(rotationY);
+		this.entity.setRotationZ(rotationZ);
+		this.entity.setScale(scale);
 		this.textureAtlasIndex = textureAtlasIndex;
 	}
 
 	public void increasePosition(float dx, float dy, float dz) {
-		this.entity.position.x += dx;
-		this.entity.position.y += dy;
-		this.entity.position.z += dz;
+		this.entity.getPosition().x += dx;
+		this.entity.getPosition().y += dy;
+		this.entity.getPosition().z += dz;
 	}
 
 	public void increaseRotation(float dx, float dy, float dz) {
-		this.entity.rotationX += dx;
-		this.entity.rotationY += dy;
-		this.entity.rotationZ += dz;
+		this.entity.setRotationX(this.entity.getRotationX() + dx);
+		this.entity.setRotationY(this.entity.getRotationY() + dy);
+		this.entity.setRotationZ(this.entity.getRotationZ() + dz);
 	}
 
 	public float getTextureAtlasXOffset() {
@@ -60,43 +60,43 @@ public class ClientEntity<T extends Entity> {
 	}
 
 	public Vector3f getPosition() {
-		return entity.position;
+		return entity.getPosition();
 	}
 
 	public void setPosition(Vector3f position) {
-		this.entity.position = position;
+		this.entity.setPosition(position);
 	}
 
 	public float getRotationX() {
-		return entity.rotationX;
+		return entity.getRotationX();
 	}
 
 	public void setRotationX(float rotationX) {
-		this.entity.rotationX = rotationX;
+		this.entity.setRotationX(rotationX);
 	}
 
 	public float getRotationY() {
-		return entity.rotationY;
+		return entity.getRotationY();
 	}
 
 	public void setRotationY(float rotationY) {
-		this.entity.rotationY = rotationY;
+		this.entity.setRotationY(rotationY);
 	}
 
 	public float getRotationZ() {
-		return entity.rotationZ;
+		return entity.getRotationZ();
 	}
 
 	public void setRotationZ(float rotationZ) {
-		this.entity.rotationZ = rotationZ;
+		this.entity.setRotationZ(rotationZ);
 	}
 
 	public float getScale() {
-		return entity.scale;
+		return entity.getScale();
 	}
 
 	public void setScale(float scale) {
-		this.entity.scale = scale;
+		this.entity.setScale(scale);
 	}
 
 	public T getEntity() {

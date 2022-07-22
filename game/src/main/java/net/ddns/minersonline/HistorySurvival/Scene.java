@@ -1,5 +1,7 @@
 package net.ddns.minersonline.HistorySurvival;
 
+import net.ddns.minersonline.HistorySurvival.api.entities.Entity;
+import net.ddns.minersonline.HistorySurvival.engine.EntityManager;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.api.entities.ClientEntity;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
@@ -21,7 +23,9 @@ public abstract class Scene {
 	public abstract ClientPlayer getPlayer();
 
 	public abstract List<GuiTexture> getGUIs();
-	public abstract List<ClientEntity> getEntities();
+	public List<ClientEntity<? extends Entity>> getEntities(){
+		return EntityManager.getClientEntities();
+	}
 	public abstract List<Light> getLights();
 	public abstract Light getSun();
 

@@ -156,11 +156,6 @@ public class ClientScene extends Scene {
 	}
 
 	@Override
-	public List<ClientEntity> getEntities() {
-		return entityList;
-	}
-
-	@Override
 	public List<Light> getLights() {
 		return lights;
 	}

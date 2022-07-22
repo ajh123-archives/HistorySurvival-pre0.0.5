@@ -1,5 +1,6 @@
 package net.ddns.minersonline.HistorySurvival.engine;
 
+import net.ddns.minersonline.HistorySurvival.api.entities.Entity;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.api.entities.ClientEntity;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
@@ -72,9 +73,9 @@ public class MasterRenderer {
 		entityList.add(entity);
 	}
 
-	public void renderScene(List<ClientEntity> entities, World world, List<Light> lights, Camera camera, Vector4f clipping_plane){
+	public void renderScene(List<ClientEntity<? extends Entity>> entities, World world, List<Light> lights, Camera camera, Vector4f clipping_plane){
 		processWorld(world);
-		for (ClientEntity entity : entities) {
+		for (ClientEntity<? extends Entity> entity : entities) {
 			processEntity(entity);
 		}
 		render(lights, camera, clipping_plane);

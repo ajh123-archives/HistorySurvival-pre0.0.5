@@ -168,10 +168,6 @@ public class ErrorScene extends Scene {
 		return null;
 	}
 
-	@Override
-	public List<ClientEntity> getEntities() {
-		return entityList;
-	}
 
 	@Override
 	public List<Light> getLights() {

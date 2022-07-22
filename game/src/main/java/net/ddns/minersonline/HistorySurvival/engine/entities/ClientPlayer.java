@@ -25,24 +25,24 @@ public class ClientPlayer extends ClientEntity<PlayerEntity> {
 	public ClientPlayer(World world, TexturedModel texturedModel, Vector3f position, float rotationX, float rotationY, float rotationZ, float scale) {
 		super(EntityType.PLAYER_ENTITY.create(), texturedModel, position, rotationX, rotationY, rotationZ, scale);
 		this.world = world;
-		this.getEntity().setJump(false);
-		this.getEntity().onChatMessage(ChatSystem::addChatMessage);
+		getEntity().setJump(false);
+		getEntity().onChatMessage(ChatSystem::addChatMessage);
 	}
 
 	public boolean isJump() {
-		return this.getEntity().isJump();
+		return getEntity().isJump();
 	}
 
 	public float getCurrentSpeed() {
-		return this.getEntity().getCurrentSpeed();
+		return getEntity().getCurrentSpeed();
 	}
 
 	public float getCurrentTurnSpeed() {
-		return this.getEntity().getCurrentTurnSpeed();
+		return getEntity().getCurrentTurnSpeed();
 	}
 
 	public float getUpwardsSpeed() {
-		return this.getEntity().getUpwardsSpeed();
+		return getEntity().getUpwardsSpeed();
 	}
 
 	public World getWorld() {
@@ -54,23 +54,23 @@ public class ClientPlayer extends ClientEntity<PlayerEntity> {
 		Terrain terrain = world.getTerrain(pos.x, pos.z);
 
 		// Calculate movement
-		super.increaseRotation(0, getCurrentTurnSpeed() * (float) DisplayManager.getDeltaInSeconds(), 0);
+		increaseRotation(0, getCurrentTurnSpeed() * (float) DisplayManager.getDeltaInSeconds(), 0);
 		float distance = getCurrentSpeed() * (float) DisplayManager.getDeltaInSeconds();
-		float dx = (float) (distance * Math.sin(Math.toRadians(super.getRotationY())));
-		float dz = (float) (distance * Math.cos(Math.toRadians(super.getRotationY())));
-		super.increasePosition(dx, 0, dz);
+		float dx = (float) (distance * Math.sin(Math.toRadians(getRotationY())));
+		float dz = (float) (distance * Math.cos(Math.toRadians(getRotationY())));
+		increasePosition(dx, 0, dz);
 
 		// Calculate jump
-		this.getEntity().setUpwardsSpeed((float) (getUpwardsSpeed() + GRAVITY * DisplayManager.getDeltaInSeconds()));
-		super.increasePosition(0, (float) (getUpwardsSpeed() * DisplayManager.getDeltaInSeconds()), 0);
+		getEntity().setUpwardsSpeed((float) (getUpwardsSpeed() + GRAVITY * DisplayManager.getDeltaInSeconds()));
+		increasePosition(0, (float) (getUpwardsSpeed() * DisplayManager.getDeltaInSeconds()), 0);
 
 		// Player terrain collision detection
 		if(terrain != null) {
-			float terrainHeight = terrain.getHeightOfTerrain(super.getPosition().x, super.getPosition().z);
-			if (super.getPosition().y < terrainHeight) {
-				this.getEntity().setUpwardsSpeed(0);
-				this.getEntity().setJump(false);
-				super.getPosition().y = terrainHeight;
+			float terrainHeight = terrain.getHeightOfTerrain(getPosition().x, getPosition().z);
+			if (getPosition().y < terrainHeight) {
+				getEntity().setUpwardsSpeed(0);
+				getEntity().setJump(false);
+				getPosition().y = terrainHeight;
 			}
 		}
 	}
@@ -106,21 +106,21 @@ public class ClientPlayer extends ClientEntity<PlayerEntity> {
 
 	public void setCurrentSpeed(Integer i) {
 		if (i > 0) {
-			this.getEntity().setCurrentSpeed(RUN_SPEED);
+			getEntity().setCurrentSpeed(RUN_SPEED);
 		} else if (i < 0) {
-			this.getEntity().setCurrentSpeed(-RUN_SPEED);
+			getEntity().setCurrentSpeed(-RUN_SPEED);
 		} else {
-			this.getEntity().setCurrentSpeed(0);
+			getEntity().setCurrentSpeed(0);
 		}
 	}
 
 	public void setCurrentTurnSpeed(Integer i) {
 		if (i > 0) {
-			this.getEntity().setCurrentTurnSpeed(TURN_SPEED);
+			getEntity().setCurrentTurnSpeed(TURN_SPEED);
 		} else if (i < 0) {
-			this.getEntity().setCurrentTurnSpeed(-TURN_SPEED);
+			getEntity().setCurrentTurnSpeed(-TURN_SPEED);
 		} else {
-			this.getEntity().setCurrentTurnSpeed(0);
+			getEntity().setCurrentTurnSpeed(0);
 		}
 	}
 

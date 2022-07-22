@@ -59,6 +59,7 @@ public class EntityType<T extends Entity> {
 		}
 	}
 
+	@FunctionalInterface
 	public interface EntityFactory<T extends Entity> {
 		T create(EntityType<T> type);//TODO: Add world parameter
 	}

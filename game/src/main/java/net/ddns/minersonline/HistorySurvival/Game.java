@@ -8,6 +8,7 @@ import net.ddns.minersonline.HistorySurvival.api.EventHandler;
 import net.ddns.minersonline.HistorySurvival.api.GameHook;
 import net.ddns.minersonline.HistorySurvival.api.commands.CommandSender;
 import net.ddns.minersonline.HistorySurvival.api.data.text.JSONTextComponent;
+import net.ddns.minersonline.HistorySurvival.api.entities.Entity;
 import net.ddns.minersonline.HistorySurvival.engine.MasterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.api.entities.ClientEntity;
@@ -201,23 +202,23 @@ public class Game extends GameHook {
 			//KeyEvent keyEvent = Keyboard.getKeyEvent();
 			Mouse.update();
 
-//			Iterator<Map.Entry<DelayedTask, Integer>> taskIterator = tasks.entrySet().iterator();
-//			while (taskIterator.hasNext()) {
-//				Map.Entry<DelayedTask, Integer> pair = taskIterator.next();
-//				DelayedTask task = pair.getKey();
-//				int delay = pair.getValue();
-//				if(delay == 0){
-//					Executors.newSingleThreadExecutor().execute(task::execute);
-//					taskIterator.remove();
-//				}
-//				pair.setValue(delay - 1);
-//			}
-//			try {
-//				while (!queue.isEmpty())
-//					queue.take().run();
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			}
+			Iterator<Map.Entry<DelayedTask, Integer>> taskIterator = tasks.entrySet().iterator();
+			while (taskIterator.hasNext()) {
+				Map.Entry<DelayedTask, Integer> pair = taskIterator.next();
+				DelayedTask task = pair.getKey();
+				int delay = pair.getValue();
+				if(delay == 0){
+					Executors.newSingleThreadExecutor().execute(task::execute);
+					taskIterator.remove();
+				}
+				pair.setValue(delay - 1);
+			}
+			try {
+				while (!queue.isEmpty())
+					queue.take().run();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 
 			try {
 				currentScene.update();
@@ -228,7 +229,7 @@ public class Game extends GameHook {
 			World world = currentScene.getWorld();
 			Camera camera = currentScene.getCamera();
 			ClientPlayer player = currentScene.getPlayer();
-			List<ClientEntity> entityList = currentScene.getEntities();
+			List<ClientEntity<? extends Entity>> entityList = currentScene.getEntities();
 			List<Light> lights = currentScene.getLights();
 			Light sun = currentScene.getSun();
 

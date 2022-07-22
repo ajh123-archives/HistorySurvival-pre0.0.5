@@ -3,8 +3,10 @@ package net.ddns.minersonline.HistorySurvival.scenes;
 import net.ddns.minersonline.HistorySurvival.Game;
 import net.ddns.minersonline.HistorySurvival.Scene;
 import net.ddns.minersonline.HistorySurvival.api.entities.ClientEntity;
+import net.ddns.minersonline.HistorySurvival.api.entities.Entity;
 import net.ddns.minersonline.HistorySurvival.api.entities.EntityType;
 import net.ddns.minersonline.HistorySurvival.commands.ChatSystem;
+import net.ddns.minersonline.HistorySurvival.engine.EntityManager;
 import net.ddns.minersonline.HistorySurvival.engine.MasterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
 import net.ddns.minersonline.HistorySurvival.engine.ObjLoader;
@@ -40,7 +42,6 @@ public class MainScene extends Scene {
 	private final MasterRenderer masterRenderer;
 	private final GuiRenderer guiRenderer;
 
-	List<ClientEntity> entityList = new ArrayList<>();
 	List<Light> lights = new ArrayList<>();
 	List<GuiTexture> guis = new ArrayList<>();
 
@@ -102,7 +103,8 @@ public class MainScene extends Scene {
 			float y = world.getHeightOfTerrain(x, z);
 
 			if (i % 20 == 0) {
-				entityList.add(new ClientEntity<>(EntityType.EMPTY_ENTITY.create(), lowPolyTreeModel, new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 1));
+				Entity entity = EntityManager.addEntity(EntityType.EMPTY_ENTITY.create());
+				EntityManager.addClientEntity(new ClientEntity<>(entity, lowPolyTreeModel, new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 1));
 			}
 
 			x = random.nextFloat() * 800 - 400;
@@ -110,7 +112,8 @@ public class MainScene extends Scene {
 			y = world.getHeightOfTerrain(x, z);
 
 			if (i % 20 == 0) {
-				entityList.add(new ClientEntity<>(EntityType.EMPTY_ENTITY.create(), treeModel, new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 5));
+				Entity entity = EntityManager.addEntity(EntityType.EMPTY_ENTITY.create());
+				EntityManager.addClientEntity(new ClientEntity<>(entity, treeModel, new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 5));
 			}
 
 			x = random.nextFloat() * 800 - 400;
@@ -119,11 +122,13 @@ public class MainScene extends Scene {
 
 			if (i % 10 == 0) {
 				// assigns a random texture for each fern from its texture atlas
-				entityList.add(new ClientEntity<>(EntityType.EMPTY_ENTITY.create(), fernModel, random.nextInt(4), new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 0.9f));
+				Entity entity = EntityManager.addEntity(EntityType.EMPTY_ENTITY.create());
+				EntityManager.addClientEntity(new ClientEntity<>(entity, fernModel, random.nextInt(4), new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 0.9f));
 			}
 
 			if (i % 5 == 0) {
-				entityList.add(new ClientEntity<>(EntityType.EMPTY_ENTITY.create(), grassModel, new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 1));
+				Entity entity = EntityManager.addEntity(EntityType.EMPTY_ENTITY.create());
+				EntityManager.addClientEntity(new ClientEntity<>(entity, grassModel, new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 1));
 			}
 		}
 
@@ -137,7 +142,8 @@ public class MainScene extends Scene {
 		worldCenter = world.getTerrainPoint(centerX, centerZ, 10);
 
 		player = new ClientPlayer(world, playerOBJ, new Vector3f(worldCenter), 0,0,0,0.6f);
-		entityList.add(player);
+		EntityManager.addEntity(player.getEntity());;
+		EntityManager.addClientEntity(player);
 		camera = new Camera(player);
 
 		GuiTexture gui = new GuiTexture(modelLoader.loadTexture("health.png"), new Vector2f(-0.75f, -0.85f), new Vector2f(0.25f, 0.15f));
@@ -207,8 +213,8 @@ public class MainScene extends Scene {
 	}
 
 	@Override
-	public List<ClientEntity> getEntities() {
-		return entityList;
+	public List<ClientEntity<? extends Entity>> getEntities() {
+		return EntityManager.getClientEntities();
 	}
 
 	@Override
