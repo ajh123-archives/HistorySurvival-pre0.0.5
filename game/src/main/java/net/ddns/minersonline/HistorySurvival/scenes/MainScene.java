@@ -3,6 +3,7 @@ package net.ddns.minersonline.HistorySurvival.scenes;
 import net.ddns.minersonline.HistorySurvival.Game;
 import net.ddns.minersonline.HistorySurvival.Scene;
 import net.ddns.minersonline.HistorySurvival.api.entities.ClientEntity;
+import net.ddns.minersonline.HistorySurvival.api.entities.EmptyEntity;
 import net.ddns.minersonline.HistorySurvival.api.entities.Entity;
 import net.ddns.minersonline.HistorySurvival.api.entities.EntityType;
 import net.ddns.minersonline.HistorySurvival.commands.ChatSystem;
@@ -103,7 +104,7 @@ public class MainScene extends Scene {
 			float y = world.getHeightOfTerrain(x, z);
 
 			if (i % 20 == 0) {
-				Entity entity = EntityManager.addEntity(EntityType.EMPTY_ENTITY.create());
+				Entity entity = EntityManager.addEntity(new EmptyEntity(EntityType.EMPTY_ENTITY));
 				EntityManager.addClientEntity(new ClientEntity<>(entity, lowPolyTreeModel, new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 1));
 			}
 
@@ -112,7 +113,7 @@ public class MainScene extends Scene {
 			y = world.getHeightOfTerrain(x, z);
 
 			if (i % 20 == 0) {
-				Entity entity = EntityManager.addEntity(EntityType.EMPTY_ENTITY.create());
+				Entity entity = EntityManager.addEntity(new EmptyEntity(EntityType.EMPTY_ENTITY));
 				EntityManager.addClientEntity(new ClientEntity<>(entity, treeModel, new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 5));
 			}
 
@@ -122,12 +123,12 @@ public class MainScene extends Scene {
 
 			if (i % 10 == 0) {
 				// assigns a random texture for each fern from its texture atlas
-				Entity entity = EntityManager.addEntity(EntityType.EMPTY_ENTITY.create());
+				Entity entity = EntityManager.addEntity(new EmptyEntity(EntityType.EMPTY_ENTITY));
 				EntityManager.addClientEntity(new ClientEntity<>(entity, fernModel, random.nextInt(4), new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 0.9f));
 			}
 
 			if (i % 5 == 0) {
-				Entity entity = EntityManager.addEntity(EntityType.EMPTY_ENTITY.create());
+				Entity entity = EntityManager.addEntity(new EmptyEntity(EntityType.EMPTY_ENTITY));
 				EntityManager.addClientEntity(new ClientEntity<>(entity, grassModel, new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 1));
 			}
 		}
