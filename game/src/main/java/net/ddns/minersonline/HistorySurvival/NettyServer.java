@@ -47,20 +47,20 @@ public class NettyServer {
 	public static void update(){
 		while (running) {
 			if (group != null) {
-				EntityManager.getEntities().forEach(((id, entity) -> {
-
-					group.forEach((channel -> {
-						if ((Integer) (channel.attr(AttributeKey.valueOf("state")).get()) == 3) {
-							ByteBuf buf = channel.alloc().buffer();
-							entity.save(buf);
-							ChannelFuture future = channel.writeAndFlush(new UpdateEntityPacket(entity, buf));
-							buf.release();
-						}
-					}));
-
-					entity.updateMe = false;
-
-				}));
+//				EntityManager.getClientEntities().forEach(((id, entity) -> {
+//
+//					group.forEach((channel -> {
+//						if ((Integer) (channel.attr(AttributeKey.valueOf("state")).get()) == 3) {
+//							ByteBuf buf = channel.alloc().buffer();
+//							entity.save(buf);
+//							ChannelFuture future = channel.writeAndFlush(new UpdateEntityPacket(entity, buf));
+//							buf.release();
+//						}
+//					}));
+//
+//					entity.updateMe = false;
+//
+//				}));
 			}
 		}
 	}

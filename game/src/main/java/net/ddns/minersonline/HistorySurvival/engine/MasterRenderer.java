@@ -1,5 +1,7 @@
 package net.ddns.minersonline.HistorySurvival.engine;
 
+import net.ddns.minersonline.HistorySurvival.api.ecs.GameObject;
+import net.ddns.minersonline.HistorySurvival.api.ecs.MeshComponent;
 import net.ddns.minersonline.HistorySurvival.api.entities.Entity;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.api.entities.ClientEntity;
@@ -31,12 +33,12 @@ public class MasterRenderer {
 
 	private StaticShader staticShader;
 	private EntityRenderer entityRenderer;
-	private Map<TexturedModel, List<ClientEntity>> entities;
+	private final Map<TexturedModel, List<GameObject>> entities;
 	private Matrix4f projectionMatrix;
 	private TerrainRenderer terrainRenderer;
 	private TerrainShader terrainShader;
 	private List<Terrain> terrainList;
-	private List<ClientEntity> newEntityList = new ArrayList<>();
+	private final List<GameObject> newEntityList = new ArrayList<>();
 
 	public MasterRenderer() {
 		enableCulling();
@@ -60,22 +62,25 @@ public class MasterRenderer {
 		glDisable(GL_CULL_FACE);
 	}
 
-	public void processEntity(ClientEntity entity) {
-		TexturedModel entityModel = entity.getTexturedModel();
-		List<ClientEntity> entityList = entities.get(entityModel);
+	public void processEntity(GameObject entity) {
+		MeshComponent meshComponent = entity.getComponent(MeshComponent.class);
+		if (meshComponent != null) {
+			TexturedModel entityModel = meshComponent.texturedModel;
+			List<GameObject> entityList = entities.get(entityModel);
 
-		if (entityList == null) {
-			newEntityList.add(entity);
-			entities.put(entityModel, newEntityList);
-			return;
+			if (entityList == null) {
+				newEntityList.add(entity);
+				entities.put(entityModel, newEntityList);
+				return;
+			}
+
+			entityList.add(entity);
 		}
-
-		entityList.add(entity);
 	}
 
-	public void renderScene(List<ClientEntity<? extends Entity>> entities, World world, List<Light> lights, Camera camera, Vector4f clipping_plane){
+	public void renderScene(World world, List<Light> lights, Camera camera, Vector4f clipping_plane){
 		processWorld(world);
-		for (ClientEntity<? extends Entity> entity : entities) {
+		for (GameObject entity : EntityManager.getClientEntities()) {
 			processEntity(entity);
 		}
 		render(lights, camera, clipping_plane);
@@ -109,7 +114,7 @@ public class MasterRenderer {
 		}
 	}
 
-	public void destory() {
+	public void destroy() {
 		staticShader.destroy();
 		terrainShader.destroy();
 	}
@@ -127,12 +132,12 @@ public class MasterRenderer {
 		float frustum_length = FAR_PLANE - NEAR_PLANE;
 
 		projectionMatrix = new Matrix4f();
-		projectionMatrix.m00(xScale);
-		projectionMatrix.m11(yScale);
-		projectionMatrix.m22(-((FAR_PLANE + NEAR_PLANE) / frustum_length));
-		projectionMatrix.m23(-1);
-		projectionMatrix.m32(-((2 * NEAR_PLANE * FAR_PLANE) / frustum_length));
-		projectionMatrix.m33(0);
+		projectionMatrix = projectionMatrix.m00(xScale);
+		projectionMatrix = projectionMatrix.m11(yScale);
+		projectionMatrix = projectionMatrix.m22(-((FAR_PLANE + NEAR_PLANE) / frustum_length));
+		projectionMatrix = projectionMatrix.m23(-1);
+		projectionMatrix = projectionMatrix.m32(-((2 * NEAR_PLANE * FAR_PLANE) / frustum_length));
+		projectionMatrix = projectionMatrix.m33(0);
 	}
 
 	public Matrix4f getProjectionMatrix() {

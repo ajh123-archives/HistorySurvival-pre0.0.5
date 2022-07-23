@@ -3,6 +3,7 @@ package net.ddns.minersonline.HistorySurvival.scenes;
 import net.ddns.minersonline.HistorySurvival.Game;
 import net.ddns.minersonline.HistorySurvival.Scene;
 import net.ddns.minersonline.HistorySurvival.api.data.text.JSONTextComponent;
+import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
 import net.ddns.minersonline.HistorySurvival.engine.MasterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
@@ -85,7 +86,7 @@ public class ConnectingScene extends Scene {
 	}
 
 	@Override
-	public void update() {
+	public void update(float deltaTime) {
 		camera.update();
 
 		if(header != null && headerParent != null) {
@@ -153,7 +154,7 @@ public class ConnectingScene extends Scene {
 	}
 
 	@Override
-	public ClientPlayer getPlayer() {
+	public TransformComponent getPlayer() {
 		return null;
 	}
 

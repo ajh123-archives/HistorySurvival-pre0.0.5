@@ -28,7 +28,7 @@ public class DisconnectPacket extends Packet {
 		this.title = title;
 		this.reason = reason;
 		if(entity != null) {
-			EntityManager.getEntities().remove(entity.getId());
+			EntityManager.getClientEntities().remove(entity.getId());
 			logger.info("Disconnected "+entity.getProfile().getName()+" with "+this.title+":"+this.reason);
 		}
 	}

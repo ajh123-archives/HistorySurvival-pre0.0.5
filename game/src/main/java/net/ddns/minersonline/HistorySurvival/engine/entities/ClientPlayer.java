@@ -22,8 +22,8 @@ public class ClientPlayer extends ClientEntity<PlayerEntity> {
 
 	private final World world;
 
-	public ClientPlayer(World world, TexturedModel texturedModel, Vector3f position, float rotationX, float rotationY, float rotationZ, float scale) {
-		super(EntityType.PLAYER_ENTITY.create(), texturedModel, position, rotationX, rotationY, rotationZ, scale);
+	public ClientPlayer(PlayerEntity entity, World world, TexturedModel texturedModel, Vector3f position, float rotationX, float rotationY, float rotationZ, float scale) {
+		super(entity, texturedModel, position, rotationX, rotationY, rotationZ, scale);
 		this.world = world;
 		getEntity().setJump(false);
 		getEntity().onChatMessage(ChatSystem::addChatMessage);
@@ -49,20 +49,20 @@ public class ClientPlayer extends ClientEntity<PlayerEntity> {
 		return world;
 	}
 
-	public void move() {
+	public void move(float deltaTime) {
 		Vector3f pos = getPosition();
 		Terrain terrain = world.getTerrain(pos.x, pos.z);
 
 		// Calculate movement
-		increaseRotation(0, getCurrentTurnSpeed() * (float) DisplayManager.getDeltaInSeconds(), 0);
-		float distance = getCurrentSpeed() * (float) DisplayManager.getDeltaInSeconds();
+		increaseRotation(0, getCurrentTurnSpeed() * deltaTime, 0);
+		float distance = getCurrentSpeed() * deltaTime;
 		float dx = (float) (distance * Math.sin(Math.toRadians(getRotationY())));
 		float dz = (float) (distance * Math.cos(Math.toRadians(getRotationY())));
 		increasePosition(dx, 0, dz);
 
 		// Calculate jump
-		getEntity().setUpwardsSpeed((float) (getUpwardsSpeed() + GRAVITY * DisplayManager.getDeltaInSeconds()));
-		increasePosition(0, (float) (getUpwardsSpeed() * DisplayManager.getDeltaInSeconds()), 0);
+		getEntity().setUpwardsSpeed(getUpwardsSpeed() + GRAVITY * deltaTime);
+		increasePosition(0, getUpwardsSpeed() * deltaTime, 0);
 
 		// Player terrain collision detection
 		if(terrain != null) {

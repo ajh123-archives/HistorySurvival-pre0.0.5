@@ -146,9 +146,9 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 								String remote = ((InetSocketAddress)ctx.channel().remoteAddress()).getAddress().getHostAddress();
 								int port = ((InetSocketAddress)ctx.channel().remoteAddress()).getPort();
 								PlayerEntity player = EntityType.PLAYER_ENTITY.create();
-								EntityManager.addEntity(player);
-								player.setProfile(profile);
-								EntityManager.addPlayer(player);
+//								EntityManager.addEntity(player);
+//								player.setProfile(profile);
+//								EntityManager.addPlayer(player);
 								logger.info(profile.getName()+"[/"+remote+":"+port+"] logged in with entity id "+player.getId()+" at "+player.getPosition());
 								ctx.channel().attr(AttributeKey.valueOf("entityId")).set(player.getId());
 

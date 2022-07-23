@@ -18,7 +18,7 @@ public abstract class Entity implements CommandSender {
 	private Vector3f position;
 	private float rotationX, rotationY, rotationZ;
 	private float scale;
-	private final EntityType<?> type;
+	//private final EntityType<?> type;
 	private int id;
 	public boolean updateMe = false;
 
@@ -27,22 +27,22 @@ public abstract class Entity implements CommandSender {
 	 * Every {@link EntityType} are registered in the {@link EntityType} class using {@link Registry}'s
 	 * @since 0.0.2
 	 */
-	protected Entity(EntityType<?> type) {
+	protected Entity() {//(EntityType<?> type
 		this.entityData = new ReplicableData(this);
 		this.position = new Vector3f(0, 0, 0);
 		this.defineSyncedData();
-		this.type = type;
+		//this.type = type;
 	}
 
 	protected abstract void defineSyncedData();
 
-	public ReplicableData getEntityData() {
+	public final ReplicableData getEntityData() {
 		return this.entityData;
 	}
 
 	public void onSyncedDataUpdated(ReplicableDataAccessor<?> accessor){}
 
-	public void save(ByteBuf buf){
+	public final void save(ByteBuf buf){
 		buf.writeInt(id);
 		buf.writeFloat(position.x);
 		buf.writeFloat(position.y);
@@ -59,7 +59,7 @@ public abstract class Entity implements CommandSender {
 
 	protected abstract void saveAdditional(ByteBuf buf);
 
-	public void load(ByteBuf buf){
+	public final void load(ByteBuf buf){
 		id = buf.readInt();
 		position.x = buf.readFloat();
 		position.y = buf.readFloat();
@@ -77,65 +77,65 @@ public abstract class Entity implements CommandSender {
 
 	protected abstract void readAdditional(ByteBuf buf);
 
-	public EntityType<?> getType() {
-		return type;
-	}
+	//public EntityType<?> getType() {
+	//	return type;
+	//}
 
-	public void setId(int id) {
+	public final void setId(int id) {
 		this.id = id;
 		updateMe = true;
 	}
 
-	public int getId() {
+	public final int getId() {
 		return id;
 	}
 
-	public Vector3f getPosition() {
+	public final Vector3f getPosition() {
 		return position;
 	}
 
-	public void setPosition(Vector3f position) {
+	public final void setPosition(Vector3f position) {
 		this.position = position;
 		updateMe = true;
 	}
 
-	public float getRotationX() {
+	public final float getRotationX() {
 		return rotationX;
 	}
 
-	public void setRotationX(float rotationX) {
+	public final void setRotationX(float rotationX) {
 		this.rotationX = rotationX;
 		updateMe = true;
 	}
 
-	public float getRotationY() {
+	public final float getRotationY() {
 		return rotationY;
 	}
 
-	public void setRotationY(float rotationY) {
+	public final void setRotationY(float rotationY) {
 		this.rotationY = rotationY;
 		updateMe = true;
 	}
 
-	public float getRotationZ() {
+	public final float getRotationZ() {
 		return rotationZ;
 	}
 
-	public void setRotationZ(float rotationZ) {
+	public final void setRotationZ(float rotationZ) {
 		this.rotationZ = rotationZ;
 		updateMe = true;
 	}
 
-	public float getScale() {
+	public final float getScale() {
 		return scale;
 	}
 
-	public void setScale(float scale) {
+	public final void setScale(float scale) {
 		this.scale = scale;
 		updateMe = true;
 	}
 
-	public boolean isUpdate() {
+	public final boolean isUpdate() {
 		return updateMe;
 	}
 

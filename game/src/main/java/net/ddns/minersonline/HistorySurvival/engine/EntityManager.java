@@ -1,53 +1,44 @@
 package net.ddns.minersonline.HistorySurvival.engine;
 
+import net.ddns.minersonline.HistorySurvival.api.ecs.GameObject;
 import net.ddns.minersonline.HistorySurvival.api.entities.ClientEntity;
 import net.ddns.minersonline.HistorySurvival.api.entities.Entity;
 import net.ddns.minersonline.HistorySurvival.api.entities.PlayerEntity;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class EntityManager {
-	private static final Map<Integer, Entity> entities = new HashMap<>();
-	private static final List<ClientEntity<? extends Entity>> clientEntities = new ArrayList<>();
+	private static final Map<Integer, GameObject> entities = new HashMap<>();
 	private static int lastId = -1;
 	public static EntityHandler entityHandler;
 
-	public static Entity addEntity(Entity entity){
+	public static void reset(){
+		entities.clear();
+	}
+
+	public static GameObject addEntity(GameObject entity){
 		lastId += 1;
 		entity.setId(lastId);
 		entities.put(lastId, entity);
 		return entity;
 	}
 
-	public static void addClientEntity(ClientEntity<? extends Entity> entity){
-		clientEntities.add(entity);
+	public static Collection<GameObject> getClientEntities(){
+		return entities.values();
 	}
 
-	public static Map<Integer, Entity> getEntities(){
-		return entities;
-	}
-	public static List<ClientEntity<? extends Entity>> getClientEntities(){
-		return clientEntities;
-	}
-
-	public static void addPlayer(PlayerEntity entity){
-		entities.put(entity.getId(), entity);
-	}
-
-	private static void updateEntity(Entity entity){
+	private static void updateEntity(GameObject entity, float deltaTime){
+		entity.update(deltaTime);
 		if(entityHandler != null){
 			entityHandler.run(entity);
 		}
 	}
 
-	public static void update(){
-		entities.forEach((key, value) -> updateEntity(value));
+	public static void update(float deltaTime ){
+		entities.forEach((key, value) -> updateEntity(value, deltaTime));
 	}
 
 	public interface EntityHandler {
-		void run(Entity entity);
+		void run(GameObject entity);
 	}
 }

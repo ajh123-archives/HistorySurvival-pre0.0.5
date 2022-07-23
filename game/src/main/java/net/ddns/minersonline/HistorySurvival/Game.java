@@ -8,25 +8,17 @@ import net.ddns.minersonline.HistorySurvival.api.EventHandler;
 import net.ddns.minersonline.HistorySurvival.api.GameHook;
 import net.ddns.minersonline.HistorySurvival.api.commands.CommandSender;
 import net.ddns.minersonline.HistorySurvival.api.data.text.JSONTextComponent;
-import net.ddns.minersonline.HistorySurvival.api.entities.Entity;
+import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
+import net.ddns.minersonline.HistorySurvival.engine.EntityManager;
 import net.ddns.minersonline.HistorySurvival.engine.MasterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
-import net.ddns.minersonline.HistorySurvival.api.entities.ClientEntity;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
-import net.ddns.minersonline.HistorySurvival.engine.entities.ClientPlayer;
-import net.ddns.minersonline.HistorySurvival.engine.io.KeyEvent;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleMaster;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.World;
 import net.ddns.minersonline.HistorySurvival.api.data.text.ChatColor;
-import net.ddns.minersonline.HistorySurvival.engine.text.JSONTextBuilder;
-import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontGroup;
-import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontType;
-import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.GUIText;
-import net.ddns.minersonline.HistorySurvival.engine.text.fontRendering.TextMaster;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
 import net.ddns.minersonline.HistorySurvival.engine.io.Mouse;
-import net.ddns.minersonline.HistorySurvival.engine.terrains.Terrain;
 import net.ddns.minersonline.HistorySurvival.engine.DisplayManager;
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
 import net.ddns.minersonline.HistorySurvival.engine.utils.ClassUtils;
@@ -34,10 +26,7 @@ import net.ddns.minersonline.HistorySurvival.engine.water.WaterFrameBuffers;
 import net.ddns.minersonline.HistorySurvival.engine.water.WaterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.water.WaterShader;
 import net.ddns.minersonline.HistorySurvival.gameplay.GamePlugin;
-import net.ddns.minersonline.HistorySurvival.scenes.ClientScene;
 import net.ddns.minersonline.HistorySurvival.scenes.MainScene;
-import net.ddns.minersonline.HistorySurvival.scenes.MenuScene;
-import org.joml.Vector2f;
 import org.joml.Vector4f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
@@ -63,7 +52,6 @@ import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
 import static com.mojang.brigadier.arguments.StringArgumentType.string;
 import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
-import static net.ddns.minersonline.HistorySurvival.network.Utils.GAME;
 import static net.ddns.minersonline.HistorySurvival.network.Utils.VERSION;
 
 public class Game extends GameHook {
@@ -190,6 +178,7 @@ public class Game extends GameHook {
 		//currentScene = new MenuScene(this, modelLoader, masterRenderer, guiRenderer);
 		currentScene = new MainScene(null,this, modelLoader, masterRenderer, guiRenderer);
 		currentScene.init();
+		currentScene.start();
 		startScene = currentScene;
 
 		for (EventHandler handler : eventHandlers) {
@@ -199,7 +188,9 @@ public class Game extends GameHook {
 		}
 
 		while (DisplayManager.shouldDisplayClose()) {
+			float deltaTime = (float) DisplayManager.getDeltaInSeconds();
 			//KeyEvent keyEvent = Keyboard.getKeyEvent();
+			EntityManager.update(deltaTime);
 			Mouse.update();
 
 			Iterator<Map.Entry<DelayedTask, Integer>> taskIterator = tasks.entrySet().iterator();
@@ -221,15 +212,14 @@ public class Game extends GameHook {
 			}
 
 			try {
-				currentScene.update();
+				currentScene.update(deltaTime);
 			} catch (Exception e){
 				logger.error("An error occurred!", e);
 			}
 
 			World world = currentScene.getWorld();
 			Camera camera = currentScene.getCamera();
-			ClientPlayer player = currentScene.getPlayer();
-			List<ClientEntity<? extends Entity>> entityList = currentScene.getEntities();
+			TransformComponent player = currentScene.getPlayer();
 			List<Light> lights = currentScene.getLights();
 			Light sun = currentScene.getSun();
 
@@ -238,23 +228,23 @@ public class Game extends GameHook {
 			if(world != null) {
 				GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
 				wfbos.bindReflectionFrameBuffer();
-				float waterHeight = world.getHeightOfWater(player.getPosition().x, player.getPosition().z);
+				float waterHeight = world.getHeightOfWater(player.position.x, player.position.z);
 				float distance = 2 * (camera.getPosition().y - waterHeight);
 				camera.getPosition().y -= distance;
 				camera.invertPitch();
-				masterRenderer.renderScene(entityList, world, lights, camera, new Vector4f(0, 1, 0, -waterHeight+1f));
+				masterRenderer.renderScene(world, lights, camera, new Vector4f(0, 1, 0, -waterHeight+1f));
 				camera.getPosition().y += distance;
 				camera.invertPitch();
 
 				wfbos.bindRefractionFrameBuffer();
-				masterRenderer.renderScene(entityList, world, lights, camera, new Vector4f(0, -1, 0, waterHeight+1f));
+				masterRenderer.renderScene(world, lights, camera, new Vector4f(0, -1, 0, waterHeight+1f));
 				wfbos.unbindCurrentFrameBuffer();
 
-				masterRenderer.renderScene(entityList, world, lights, camera, new Vector4f(0, -1, 0, 999999999));
+				masterRenderer.renderScene(world, lights, camera, new Vector4f(0, -1, 0, 999999999));
 				waterRenderer.render(world.getWaterTiles(), camera, sun);
 				GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
 			} else {
-				masterRenderer.renderScene(entityList, null, lights, camera, new Vector4f(0, -1, 0, 999999999));
+				masterRenderer.renderScene(null, lights, camera, new Vector4f(0, -1, 0, 999999999));
 			}
 
 			ParticleMaster.renderParticles(camera);
@@ -273,21 +263,22 @@ public class Game extends GameHook {
 		}
 
 		currentScene.stop();
+		EntityManager.reset();
 		logger.info("Stopping!");
 		pluginManager.stopPlugins();
 		logger.info("Plugins stopped");
 		currentScene.stop();
 		ParticleMaster.cleanUp();
 		logger.info("Cleaned particles");
-		TextMaster.cleanUp();
-		logger.info("Cleaned text");
+		//TextMaster.cleanUp();
+		//logger.info("Cleaned text");
 		wfbos.cleanUp();
 		logger.info("Cleaned water buffers");
 		waterShader.destroy();
 		logger.info("Cleaned water shaders");
 		guiRenderer.cleanUp();
 		logger.info("Cleaned gui");
-		masterRenderer.destory();
+		masterRenderer.destroy();
 		logger.info("Cleaned main renderer");
 		modelLoader.destroy();
 		logger.info("Cleaned model loader");
@@ -372,17 +363,19 @@ public class Game extends GameHook {
 
 	public void setCurrentScene(Scene currentScene) {
 		this.currentScene.stop();
+		EntityManager.reset();
 		String sceneName = this.currentScene.toString();
 		this.currentScene = null;
 		wfbos.cleanUp();
 		waterShader.destroy();
 		guiRenderer.cleanUp();
-		masterRenderer.destory();
+		masterRenderer.destroy();
 		modelLoader.destroy();
 		logger.info("Left Scene "+ sceneName);
 		init();
 		try {
 			currentScene.init();
+			currentScene.start();
 		} catch (Exception e){
 			e.printStackTrace();
 		}

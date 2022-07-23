@@ -12,8 +12,8 @@ public class PlayerEntity extends Entity{
 	private ChatHandler messageHandler;
 	private GameProfile profile;
 
-	protected PlayerEntity(EntityType<?> type) {
-		super(type);
+	public PlayerEntity() {
+		super();
 	}
 
 	@Override

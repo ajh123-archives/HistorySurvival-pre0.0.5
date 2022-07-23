@@ -4,7 +4,9 @@ import net.ddns.minersonline.HistorySurvival.Game;
 import net.ddns.minersonline.HistorySurvival.Scene;
 import net.ddns.minersonline.HistorySurvival.api.data.models.ModelTexture;
 import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
+import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
 import net.ddns.minersonline.HistorySurvival.api.entities.ClientEntity;
+import net.ddns.minersonline.HistorySurvival.api.entities.PlayerEntity;
 import net.ddns.minersonline.HistorySurvival.commands.ChatSystem;
 import net.ddns.minersonline.HistorySurvival.engine.EntityManager;
 import net.ddns.minersonline.HistorySurvival.engine.MasterRenderer;
@@ -83,11 +85,12 @@ public class ClientScene extends Scene {
 		world = new VoidWorld();
 
 		TexturedModel playerOBJ = new TexturedModel(ObjLoader.loadObjModel("person.obj", modelLoader), new ModelTexture(modelLoader.loadTexture("playerTexture.png")));
-		player = new ClientPlayer(world, playerOBJ, new Vector3f(0, 0, 0), 0,0,0,0.6f);
+		player = new ClientPlayer(new PlayerEntity(), world, playerOBJ, new Vector3f(0, 0, 0), 0,0,0,0.6f);
 		player.getEntity().setId(network.entityId);
-		EntityManager.addPlayer(player.getEntity());
+		//EntityManager.addPlayer(player.getEntity());
+		//EntityManager.addClientEntity(player);
 		entityList.add(player);
-		camera = new Camera(player);
+		//camera = new Camera(player);
 
 		GuiTexture gui = new GuiTexture(modelLoader.loadTexture("health.png"), new Vector2f(-0.75f, -0.85f), new Vector2f(0.25f, 0.15f));
 		guis.add(gui);
@@ -98,7 +101,7 @@ public class ClientScene extends Scene {
 	}
 
 	@Override
-	public void update() {
+	public void update(float deltaTime) {
 		//chatSystem.update(keyEvent);
 
 		if(Keyboard.isKeyPressed(GLFW.GLFW_KEY_T) && chatSystem.notIsInChat()){
@@ -111,7 +114,7 @@ public class ClientScene extends Scene {
 			picker.update();
 		}
 
-		player.move();
+		player.move(deltaTime);
 		camera.update();
 
 		ParticleMaster.update(camera);
@@ -151,8 +154,8 @@ public class ClientScene extends Scene {
 	}
 
 	@Override
-	public ClientPlayer getPlayer() {
-		return player;
+	public TransformComponent getPlayer() {
+		return null;
 	}
 
 	@Override

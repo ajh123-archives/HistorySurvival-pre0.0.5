@@ -2,10 +2,10 @@ package net.ddns.minersonline.HistorySurvival.scenes;
 
 import net.ddns.minersonline.HistorySurvival.Game;
 import net.ddns.minersonline.HistorySurvival.Scene;
-import net.ddns.minersonline.HistorySurvival.api.entities.ClientEntity;
-import net.ddns.minersonline.HistorySurvival.api.entities.EmptyEntity;
-import net.ddns.minersonline.HistorySurvival.api.entities.Entity;
-import net.ddns.minersonline.HistorySurvival.api.entities.EntityType;
+import net.ddns.minersonline.HistorySurvival.engine.entities.ControllableComponent;
+import net.ddns.minersonline.HistorySurvival.api.ecs.GameObject;
+import net.ddns.minersonline.HistorySurvival.api.ecs.MeshComponent;
+import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
 import net.ddns.minersonline.HistorySurvival.commands.ChatSystem;
 import net.ddns.minersonline.HistorySurvival.engine.EntityManager;
 import net.ddns.minersonline.HistorySurvival.engine.MasterRenderer;
@@ -14,22 +14,16 @@ import net.ddns.minersonline.HistorySurvival.engine.ObjLoader;
 import net.ddns.minersonline.HistorySurvival.engine.entities.*;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
-import net.ddns.minersonline.HistorySurvival.engine.io.KeyEvent;
-import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
 import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleMaster;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleSystem;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleTexture;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.TestWorld;
-import net.ddns.minersonline.HistorySurvival.engine.terrains.VoidWorld;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.World;
-import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontGroup;
-import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontType;
 import net.ddns.minersonline.HistorySurvival.api.data.models.ModelTexture;
 import net.ddns.minersonline.HistorySurvival.engine.utils.MousePicker;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +46,7 @@ public class MainScene extends Scene {
 	ModelTexture fernTextureAtlas;
 	TexturedModel fernModel;
 
-	ClientPlayer player;
+	GameObject player;
 	Camera camera;
 	ChatSystem chatSystem;
 	MousePicker picker;
@@ -104,8 +98,10 @@ public class MainScene extends Scene {
 			float y = world.getHeightOfTerrain(x, z);
 
 			if (i % 20 == 0) {
-				Entity entity = EntityManager.addEntity(new EmptyEntity(EntityType.EMPTY_ENTITY));
-				EntityManager.addClientEntity(new ClientEntity<>(entity, lowPolyTreeModel, new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 1));
+				GameObject tree = new GameObject();
+				tree.addComponent(new MeshComponent(lowPolyTreeModel));
+				tree.addComponent(new TransformComponent(new Vector3f(x, y, z), new Vector3f(0, random.nextFloat() * 360, 0), 1));
+				addGameObject(tree);
 			}
 
 			x = random.nextFloat() * 800 - 400;
@@ -113,8 +109,10 @@ public class MainScene extends Scene {
 			y = world.getHeightOfTerrain(x, z);
 
 			if (i % 20 == 0) {
-				Entity entity = EntityManager.addEntity(new EmptyEntity(EntityType.EMPTY_ENTITY));
-				EntityManager.addClientEntity(new ClientEntity<>(entity, treeModel, new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 5));
+				GameObject tree = new GameObject();
+				tree.addComponent(new MeshComponent(treeModel));
+				tree.addComponent(new TransformComponent(new Vector3f(x, y, z), new Vector3f(0, random.nextFloat() * 360, 0), 5));
+				addGameObject(tree);
 			}
 
 			x = random.nextFloat() * 800 - 400;
@@ -123,13 +121,17 @@ public class MainScene extends Scene {
 
 			if (i % 10 == 0) {
 				// assigns a random texture for each fern from its texture atlas
-				Entity entity = EntityManager.addEntity(new EmptyEntity(EntityType.EMPTY_ENTITY));
-				EntityManager.addClientEntity(new ClientEntity<>(entity, fernModel, random.nextInt(4), new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 0.9f));
+				GameObject fern = new GameObject();
+				fern.addComponent(new MeshComponent(fernModel, random.nextInt(4)));
+				fern.addComponent(new TransformComponent(new Vector3f(x, y, z), new Vector3f(0, random.nextFloat() * 360, 0), .9f));
+				addGameObject(fern);
 			}
 
 			if (i % 5 == 0) {
-				Entity entity = EntityManager.addEntity(new EmptyEntity(EntityType.EMPTY_ENTITY));
-				EntityManager.addClientEntity(new ClientEntity<>(entity, grassModel, new Vector3f(x, y, z), 0, random.nextFloat() * 360, 0, 1));
+				GameObject grass = new GameObject();
+				grass.addComponent(new MeshComponent(grassModel));
+				grass.addComponent(new TransformComponent(new Vector3f(x, y, z), new Vector3f(0, random.nextFloat() * 360, 0), 1));
+				addGameObject(grass);
 			}
 		}
 
@@ -142,10 +144,13 @@ public class MainScene extends Scene {
 		float centerZ = world.getZSize()/2;
 		worldCenter = world.getTerrainPoint(centerX, centerZ, 10);
 
-		player = new ClientPlayer(world, playerOBJ, new Vector3f(worldCenter), 0,0,0,0.6f);
-		EntityManager.addEntity(player.getEntity());;
-		EntityManager.addClientEntity(player);
-		camera = new Camera(player);
+		player = new GameObject();
+		player.addComponent(new ControllableComponent(world));
+		player.addComponent(new MeshComponent(playerOBJ));
+		player.addComponent(new TransformComponent(new Vector3f(worldCenter), new Vector3f(0, 0, 0), .6f));
+		addGameObject(player);
+
+		camera = new Camera(player.getComponent(TransformComponent.class));
 
 		GuiTexture gui = new GuiTexture(modelLoader.loadTexture("health.png"), new Vector2f(-0.75f, -0.85f), new Vector2f(0.25f, 0.15f));
 		guis.add(gui);
@@ -162,12 +167,9 @@ public class MainScene extends Scene {
 	}
 
 	@Override
-	public void update() {
-		player.checkInputs();
+	public void update(float deltaTime) {
 		camera.move();
 		picker.update();
-
-		player.move();
 		camera.update();
 
 		try {
@@ -189,8 +191,8 @@ public class MainScene extends Scene {
 	public void stop() {
 		ParticleMaster.stop();
 		ParticleMaster.update(camera);
-		chatSystem.setInChat(false);
-		chatSystem.cleanUp();
+//		chatSystem.setInChat(false);
+//		chatSystem.cleanUp();
 	}
 
 	@Override
@@ -209,13 +211,8 @@ public class MainScene extends Scene {
 	}
 
 	@Override
-	public ClientPlayer getPlayer() {
-		return player;
-	}
-
-	@Override
-	public List<ClientEntity<? extends Entity>> getEntities() {
-		return EntityManager.getClientEntities();
+	public TransformComponent getPlayer() {
+		return player.getComponent(TransformComponent.class);
 	}
 
 	@Override

@@ -213,7 +213,7 @@ public class GuiRenderer {
         try {
             byte[] data = this.getClass().getClassLoader().getResourceAsStream("font/Consolas.ttf").readAllBytes();
             ImGui.getIO().getFonts().clearFonts();
-            ImGui.getIO().getFonts().addFontFromMemoryTTF(data, 32);
+            ImGui.getIO().getFonts().addFontFromMemoryTTF(data, 16);
         } catch (IOException ignored) {}
 
         final ImFontAtlas fontAtlas = ImGui.getIO().getFonts();

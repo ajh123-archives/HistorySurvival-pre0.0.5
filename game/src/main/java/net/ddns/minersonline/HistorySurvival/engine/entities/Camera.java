@@ -1,5 +1,6 @@
 package net.ddns.minersonline.HistorySurvival.engine.entities;
 
+import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
 import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
 import net.ddns.minersonline.HistorySurvival.engine.io.Mouse;
 import org.joml.Vector3f;
@@ -11,7 +12,7 @@ public class Camera {
 	private float pitch;
 	private float yaw;
 	private float roll;
-	private ClientPlayer player;
+	private TransformComponent player;
 	private float distanceFromPlayer;
 	private float angleAroundPLayer;
 
@@ -22,7 +23,7 @@ public class Camera {
 	private final float MIN_PITCH = -90;
 	private final float MAX_PITCH = 90;
 
-	public Camera(ClientPlayer player) {
+	public Camera(TransformComponent player) {
 		this.player = player;
 		position = new Vector3f(0, 0, 0);
 		distanceFromPlayer = 50;
@@ -40,7 +41,7 @@ public class Camera {
 			float horizontalDistance = calculateHorizontalDistance();
 			float verticalDistance = calculateVerticalDistance();
 			calculateCameraPosition(horizontalDistance, verticalDistance);
-			yaw = 180 - (player.getRotationY() + angleAroundPLayer);
+			yaw = 180 - (player.rotation.y + angleAroundPLayer);
 		}
 	}
 
@@ -121,11 +122,11 @@ public class Camera {
 	}
 
 	private void calculateCameraPosition(float horizontalDistanceFromPlayer, float verticalDistanceFromPlayer) {
-		float theta = player.getRotationY() + angleAroundPLayer;
+		float theta = player.rotation.y + angleAroundPLayer;
 		float offsetXOfCameraFromPlayer = (float) (horizontalDistanceFromPlayer * Math.sin(Math.toRadians(theta)));
 		float offsetZOfCameraFromPlayer = (float) (horizontalDistanceFromPlayer * Math.cos(Math.toRadians(theta)));
-		position.x = player.getPosition().x - offsetXOfCameraFromPlayer;
-		position.z = player.getPosition().z - offsetZOfCameraFromPlayer;
-		position.y = player.getPosition().y + verticalDistanceFromPlayer + CAMERA_Y_OFFSET;
+		position.x = player.position.x - offsetXOfCameraFromPlayer;
+		position.z = player.position.z - offsetZOfCameraFromPlayer;
+		position.y = player.position.y + verticalDistanceFromPlayer + CAMERA_Y_OFFSET;
 	}
 }

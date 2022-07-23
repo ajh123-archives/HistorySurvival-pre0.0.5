@@ -4,8 +4,8 @@ import io.netty.buffer.ByteBuf;
 import net.ddns.minersonline.HistorySurvival.api.data.text.JSONTextComponent;
 
 public class EmptyEntity extends Entity{
-	public EmptyEntity(EntityType<?> type) {
-		super(type);
+	public EmptyEntity() {
+		super();
 	}
 
 	@Override
