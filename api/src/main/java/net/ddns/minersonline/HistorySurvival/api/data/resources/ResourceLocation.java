@@ -17,8 +17,11 @@ public class ResourceLocation implements Comparable<ResourceLocation> {
 	private static final SimpleCommandExceptionType ERROR_INVALID = new SimpleCommandExceptionType(new JSONTextComponent("Invalid argument"));
 	public static final char NAMESPACE_SEPARATOR = ':';
 	public static final String DEFAULT_NAMESPACE = Defaults.DEFAULT_NAMESPACE;
-	protected final String namespace;
-	protected final String path;
+	protected String namespace;
+	protected String path;
+
+	public ResourceLocation() {
+	}
 
 	protected ResourceLocation(String[] location) {
 		this.namespace = StringUtils.isEmpty(location[0]) ? DEFAULT_NAMESPACE : location[0];

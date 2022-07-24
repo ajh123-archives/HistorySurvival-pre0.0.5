@@ -1,8 +1,7 @@
 package net.ddns.minersonline.HistorySurvival.api.registries;
 
-import net.ddns.minersonline.HistorySurvival.api.entities.Entity;
-import net.ddns.minersonline.HistorySurvival.api.entities.EntityType;
+import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
 
 public class Registries {
-	public static Registry<EntityType<? extends Entity>> ENTITY_REGISTRY = new Registry<>();
+	public static Registry<ModelType<? extends TexturedModel>> MODEL_REGISTRY = new Registry<>();
 }

@@ -9,7 +9,7 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestWorld implements World {
+public class TestWorld extends World {
 	float waterHeight;
 	float waterSize;
 	float terrainSize;
@@ -19,8 +19,9 @@ public class TestWorld implements World {
 
 	int terrainVertexCount;
 
-	List<Terrain> terrains = new ArrayList<>();
 	List<WaterTile> waterTiles = new ArrayList<>();
+
+	public TestWorld() {}
 
 	public TestWorld(ModelLoader loader, int xTiles, int zTiles, float terrainMaxHeight, int terrainVertexCount) {
 
@@ -35,8 +36,8 @@ public class TestWorld implements World {
 		TerrainTexture gTexture = new TerrainTexture(loader.loadTexture("grassFlowers.png"));
 		TerrainTexture bTexture = new TerrainTexture(loader.loadTexture("path.png"));
 
-		TerrainTexturePack texturePack = new TerrainTexturePack(backgroundTexture, rTexture, gTexture, bTexture);
-		TerrainTexture blendMap = new TerrainTexture(loader.loadTexture("blendMap.png"));
+		texturePack = new TerrainTexturePack(backgroundTexture, rTexture, gTexture, bTexture);
+		blendMap = new TerrainTexture(loader.loadTexture("blendMap.png"));
 
 		this.terrainSize = terrainSize;
 		this.terrainVertexCount = terrainVertexCount;
@@ -48,7 +49,7 @@ public class TestWorld implements World {
 
 		for (int x = 0; x < xTiles; x++) {
 			for (int z = 0; z < zTiles; z++) {
-				Terrain terrain = new Terrain(x, z, terrainSize, terrainMaxHeight, loader, texturePack, blendMap, "heightmap.png", terrainVertexCount, false);
+				Terrain terrain = new Terrain(this, x, z, terrainSize, terrainMaxHeight, loader, texturePack, blendMap, terrainVertexCount, "heightmap.png");
 				terrains.add(terrain);
 				// center the water tile on the terrain tile
 				waterHeight = terrain.getHeightOfWater();
@@ -84,20 +85,6 @@ public class TestWorld implements World {
 
 	public float getHeightOfWater(float worldX, float worldZ) {
 		return waterHeight;
-	}
-
-	public List<Terrain> getTerrains() {
-		return terrains;
-	}
-
-	public Terrain getTerrain(float worldX, float worldZ) {
-		// this could be optimized with a hash table
-		for (Terrain terrain : terrains) {
-			if (terrain.containsPosition(worldX, worldZ)) {
-				return terrain;
-			}
-		}
-		return null;
 	}
 
 	public List<WaterTile> getWaterTiles() {

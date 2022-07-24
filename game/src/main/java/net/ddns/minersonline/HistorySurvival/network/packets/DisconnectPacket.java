@@ -1,7 +1,7 @@
 package net.ddns.minersonline.HistorySurvival.network.packets;
 
 import net.ddns.minersonline.HistorySurvival.api.entities.PlayerEntity;
-import net.ddns.minersonline.HistorySurvival.engine.EntityManager;
+import net.ddns.minersonline.HistorySurvival.engine.GameObjectManager;
 import net.ddns.minersonline.HistorySurvival.network.Packet;
 import net.ddns.minersonline.HistorySurvival.network.Utils;
 import net.querz.nbt.tag.CompoundTag;
@@ -28,7 +28,7 @@ public class DisconnectPacket extends Packet {
 		this.title = title;
 		this.reason = reason;
 		if(entity != null) {
-			EntityManager.getClientEntities().remove(entity.getId());
+			GameObjectManager.getGameObjects().remove(entity.getId());
 			logger.info("Disconnected "+entity.getProfile().getName()+" with "+this.title+":"+this.reason);
 		}
 	}

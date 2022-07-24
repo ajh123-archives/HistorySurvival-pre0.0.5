@@ -17,17 +17,18 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class Terrain {
-	private static final Logger logger = LoggerFactory.getLogger(Terrain.class);
+	private transient static final Logger logger = LoggerFactory.getLogger(Terrain.class);
 
-	public static final int SIZE = 300;
+	public transient static final int SIZE = 800;
 
 	private float x;
 	private float z;
 	private float size;
 	private float maxHeight;
-	private RawModel model;
-	private TerrainTexturePack texturePack;
-	private TerrainTexture blendMap;
+	private transient RawModel model;
+	private transient TerrainTexturePack texturePack;
+	private transient TerrainTexture blendMap;
+	private transient HeightsGenerator generator = null;
 	private int vertexCount;
 	private int gridX;
 	private int gridZ;
@@ -36,12 +37,16 @@ public class Terrain {
 	private boolean isUsingHeightMap = false;
 
 	// hard coded seed to get the same result every time
-	private static final int SEED = 431; //new Random().nextInt(1000000000);
+	private transient static final int SEED = 431; //new Random().nextInt(1000000000);
 
-	private float[][] heights;
+	private float[][] heights = null;
 
-	public Terrain(int gridX, int gridZ, float size, float maxHeight, ModelLoader loader, TerrainTexturePack texturePack,
-				   TerrainTexture blendMap, String heightMap, int vertexCount, boolean isUsingHeightMap) {
+	private transient World world;
+
+	public Terrain() {}
+
+	private Terrain(World world, int gridX, int gridZ, float size, float maxHeight, ModelLoader loader, TerrainTexturePack texturePack,
+					TerrainTexture blendMap, String heightMap, int vertexCount, boolean isUsingHeightMap) {
 		this.texturePack = texturePack;
 		this.blendMap = blendMap;
 		this.size = size;
@@ -53,13 +58,25 @@ public class Terrain {
 		this.gridZ = gridZ;
 		this.waterHeight = 0;
 		this.isUsingHeightMap = isUsingHeightMap;
+		this.world = world;
 
 		long nanoTime1 = System.nanoTime();
-		this.model = generateTerrain(loader, heightMap, vertexCount, maxHeight);
+		generateTerrain(heightMap, vertexCount, maxHeight);
+		this.model = updateTerrain(loader, generator);
 		long nanoTime2 = System.nanoTime();
 		float delta = (nanoTime2 - nanoTime1) / 1e3f;
 
 		logger.info("Terrain: generateTerrain took " + delta + " microseconds");
+	}
+
+	public Terrain(World world, int gridX, int gridZ, float size, float maxHeight, ModelLoader loader, TerrainTexturePack texturePack,
+				   TerrainTexture blendMap, int vertexCount) {
+		this(world, gridX, gridZ, size, maxHeight, loader, texturePack, blendMap, null, vertexCount, false);
+	}
+
+	public Terrain(World world, int gridX, int gridZ, float size, float maxHeight, ModelLoader loader, TerrainTexturePack texturePack,
+				   TerrainTexture blendMap, int vertexCount, String heightMap) {
+		this(world, gridX, gridZ, size, maxHeight, loader, texturePack, blendMap, heightMap, vertexCount, true);
 	}
 
 	public float getX() {
@@ -136,10 +153,9 @@ public class Terrain {
 		return answer;
 	}
 
-	private RawModel generateTerrain(ModelLoader loader, String heightMap, int vertexCount, float maxHeight) {
+	private void generateTerrain(String heightMap, int vertexCount, float maxHeight) {
 
 		BufferedImage image = null;
-		HeightsGenerator generator = null;
 		ClassLoader classloader = Thread.currentThread().getContextClassLoader();
 		InputStream stream = classloader.getResourceAsStream(heightMap);
 
@@ -153,44 +169,55 @@ public class Terrain {
 		if(!isUsingHeightMap) {
 			generator = new NoiseGenerator(gridX, gridZ, vertexCount, SEED, maxHeight);
 		} else {
-			generator = new MapGenerator(gridX, gridZ, vertexCount, SEED, maxHeight);
+			assert image != null;
+			generator = new MapGenerator(image, gridX, gridZ, SEED, maxHeight);
 		}
 		this.waterHeight = generator.getWaterHeight();
 
-		//int VERTEX_COUNT = image.getHeight();
-		int VERTEX_COUNT = vertexCount;
+		this.vertexCount = generator.getVertxCount();
 
-		int count = VERTEX_COUNT * VERTEX_COUNT;
-		heights = new float[VERTEX_COUNT][VERTEX_COUNT];
+		heights = new float[this.vertexCount][this.vertexCount];
+
+		for (int i = 0; i < this.vertexCount; i++) {
+			for (int j = 0; j < this.vertexCount; j++) {
+				float height = generator.generateHeight(j, i);
+				heights[j][i] = height;
+			}
+		}
+
+		generator.getInfo();
+	}
+
+	public RawModel updateTerrain(ModelLoader loader, HeightsGenerator generator) {
+		int count = vertexCount * vertexCount;
 		float[] vertices = new float[count * 3];
 		float[] normals = new float[count * 3];
-		float[] textureCoords = new float[count * 2];
+		float[] textureCoOrds = new float[count * 2];
 
-		int[] indices = new int[6 * (VERTEX_COUNT - 1) * (VERTEX_COUNT - 1)];
+		int[] indices = new int[6 * (vertexCount - 1) * (vertexCount - 1)];
 
 		int vertexPointer = 0;
-		for (int i = 0; i < VERTEX_COUNT; i++) {
-			for (int j = 0; j < VERTEX_COUNT; j++) {
-				vertices[vertexPointer * 3] = (float) j / ((float) VERTEX_COUNT - 1) * size;
-				float height = getHeight(j, i, generator);
+		for (int i = 0; i < vertexCount; i++) {
+			for (int j = 0; j < vertexCount; j++) {
+				vertices[vertexPointer * 3] = (float) j / ((float) vertexCount - 1) * size;
+				float height = heights[j][i];
 				vertices[vertexPointer * 3 + 1] = height;
-				heights[j][i] = height;
-				vertices[vertexPointer * 3 + 2] = (float) i / ((float) VERTEX_COUNT - 1) * size;
-				Vector3f normal = calculateNormal(j, i, generator);
+				vertices[vertexPointer * 3 + 2] = (float) i / ((float) vertexCount - 1) * size;
+				Vector3f normal = calculateNormal(j, i);
 				normals[vertexPointer * 3] = normal.x;
 				normals[vertexPointer * 3 + 1] = normal.y;
 				normals[vertexPointer * 3 + 2] = normal.z;
-				textureCoords[vertexPointer * 2] = (float) j / ((float) VERTEX_COUNT - 1);
-				textureCoords[vertexPointer * 2 + 1] = (float) i / ((float) VERTEX_COUNT - 1);
+				textureCoOrds[vertexPointer * 2] = (float) j / ((float) vertexCount - 1);
+				textureCoOrds[vertexPointer * 2 + 1] = (float) i / ((float) vertexCount - 1);
 				vertexPointer++;
 			}
 		}
 		int pointer = 0;
-		for (int gz = 0; gz < VERTEX_COUNT - 1; gz++) {
-			for (int gx = 0; gx < VERTEX_COUNT - 1; gx++) {
-				int topLeft = (gz * VERTEX_COUNT) + gx;
+		for (int gz = 0; gz < vertexCount - 1; gz++) {
+			for (int gx = 0; gx < vertexCount - 1; gx++) {
+				int topLeft = (gz * vertexCount) + gx;
 				int topRight = topLeft + 1;
-				int bottomLeft = ((gz + 1) * VERTEX_COUNT) + gx;
+				int bottomLeft = ((gz + 1) * vertexCount) + gx;
 				int bottomRight = bottomLeft + 1;
 				indices[pointer++] = topLeft;
 				indices[pointer++] = bottomLeft;
@@ -201,22 +228,41 @@ public class Terrain {
 			}
 		}
 
-		generator.getInfo();
-
-		return loader.loadToVao(vertices, textureCoords, normals, indices);
+		return loader.loadToVao(vertices, textureCoOrds, normals, indices);
 	}
 
-	private Vector3f calculateNormal(int x, int z, HeightsGenerator generator) {
-		float heightL = getHeight(x-1, z, generator);
-		float heightR = getHeight(x+1, z, generator);
-		float heightD = getHeight(x, z-1, generator);
-		float heightU = getHeight(x, z+1, generator);
+	private Vector3f calculateNormal(int x, int z) {
+		float heightL = getHeight(x-1, z);
+		float heightR = getHeight(x+1, z);
+		float heightD = getHeight(x, z-1);
+		float heightU = getHeight(x, z+1);
 		Vector3f normal = new Vector3f(heightL - heightR, 2f, heightD - heightU);
 		normal.normalize();
 		return normal;
 	}
 
-	private float getHeight(int x, int z, HeightsGenerator generator) {
-		return generator.generateHeight(x, z);
+	private float getHeight(int x, int z) {
+		x = x-1;
+		z = z-1;
+		if(x<0 || x>=SIZE || z<0 || z>=SIZE){
+			return world.getHeightOfTerrain(x, z);
+		}
+		return heights[x][z];
+	}
+
+	public void setModel(RawModel model) {
+		this.model = model;
+	}
+
+	public void setWorld(World world) {
+		this.world = world;
+	}
+
+	public void setTexturePack(TerrainTexturePack texturePack) {
+		this.texturePack = texturePack;
+	}
+
+	public void setBlendMap(TerrainTexture blendMap) {
+		this.blendMap = blendMap;
 	}
 }

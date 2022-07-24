@@ -2,6 +2,7 @@ package net.ddns.minersonline.HistorySurvival.engine;
 
 import imgui.ImGui;
 import imgui.flag.ImGuiConfigFlags;
+import net.ddns.minersonline.HistorySurvival.Scene;
 import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
 import net.ddns.minersonline.HistorySurvival.engine.io.Mouse;
 import org.lwjgl.glfw.*;
@@ -24,8 +25,9 @@ public class DisplayManager {
 	private static double deltaInSeconds;
 	private static Keyboard keyboard;
 	private static Mouse mouse;
-	private static final GuiManager guiManager = new GuiManager();
+	public static final GuiManager guiManager = new GuiManager();
 	private static final GuiRenderer guiRenderer = new GuiRenderer();
+	private static Scene currentScene = null;
 
 	public static void createDisplay() {
 		if (!glfwInit()) {
@@ -66,14 +68,8 @@ public class DisplayManager {
 		glfwSetScrollCallback(window, mouse.getMouseScrollCallback());
 
 		// register keyboard input callback
-		glfwSetKeyCallback(window, GLFWKeyCallback.create((window, key, scancode, action, mods)->{
-			keyboard.invoke(window, key, scancode, action, mods);
-			guiManager.keyCallback(window, key, scancode, action, mods);
-		}));
-		glfwSetCharCallback(window, GLFWCharCallback.create((window, codepoint) ->{
-			Keyboard.invoke2(codepoint);
-			guiManager.charCallback(window, codepoint);
-		}));
+		glfwSetKeyCallback(window, keyboard);
+		glfwSetCharCallback(window, keyboard::invoke2);
 
 		glfwSetWindowFocusCallback(window, guiManager::windowFocusCallback);
 		glfwSetCursorEnterCallback(window, guiManager::cursorEnterCallback);
@@ -96,7 +92,8 @@ public class DisplayManager {
 		lastFrameTime = getCurrentTime();
 	}
 
-	public static void preUpdate() {
+	public static void preUpdate(Scene scene) {
+		DisplayManager.currentScene = scene;
 		guiManager.newFrame();
 		ImGui.newFrame();
 	}

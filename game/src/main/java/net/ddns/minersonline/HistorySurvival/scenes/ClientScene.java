@@ -8,7 +8,6 @@ import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
 import net.ddns.minersonline.HistorySurvival.api.entities.ClientEntity;
 import net.ddns.minersonline.HistorySurvival.api.entities.PlayerEntity;
 import net.ddns.minersonline.HistorySurvival.commands.ChatSystem;
-import net.ddns.minersonline.HistorySurvival.engine.EntityManager;
 import net.ddns.minersonline.HistorySurvival.engine.MasterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
 import net.ddns.minersonline.HistorySurvival.engine.ObjLoader;
@@ -17,7 +16,6 @@ import net.ddns.minersonline.HistorySurvival.engine.entities.ClientPlayer;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
-import net.ddns.minersonline.HistorySurvival.engine.io.KeyEvent;
 import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleMaster;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.VoidWorld;
@@ -126,7 +124,7 @@ public class ClientScene extends Scene {
 	}
 
 	@Override
-	public void initDebug() {
+	public void gui(boolean debugAllowed) {
 
 	}
 
@@ -138,10 +136,6 @@ public class ClientScene extends Scene {
 		chatSystem.cleanUp();
 	}
 
-	@Override
-	public World getWorld() {
-		return world;
-	}
 
 	@Override
 	public Camera getCamera() {

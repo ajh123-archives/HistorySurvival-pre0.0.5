@@ -9,10 +9,8 @@ import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.api.entities.ClientEntity;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
-import net.ddns.minersonline.HistorySurvival.engine.entities.ClientPlayer;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
-import net.ddns.minersonline.HistorySurvival.engine.io.KeyEvent;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.World;
 import net.ddns.minersonline.HistorySurvival.engine.text.JSONTextBuilder;
 import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontGroup;
@@ -111,7 +109,7 @@ public class ConnectingScene extends Scene {
 	}
 
 	@Override
-	public void initDebug() {
+	public void gui(boolean debugAllowed) {
 
 	}
 
@@ -138,10 +136,6 @@ public class ConnectingScene extends Scene {
 		}
 	}
 
-	@Override
-	public World getWorld() {
-		return null;
-	}
 
 	@Override
 	public Camera getCamera() {

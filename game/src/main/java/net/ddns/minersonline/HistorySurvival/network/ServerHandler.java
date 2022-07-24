@@ -4,15 +4,10 @@ import com.google.gson.Gson;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.group.ChannelGroup;
-import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
-import io.netty.util.concurrent.ScheduledFuture;
 import net.ddns.minersonline.HistorySurvival.BrokenHash;
 import net.ddns.minersonline.HistorySurvival.NettyServer;
 import net.ddns.minersonline.HistorySurvival.api.auth.GameProfile;
-import net.ddns.minersonline.HistorySurvival.api.entities.EntityType;
-import net.ddns.minersonline.HistorySurvival.api.entities.PlayerEntity;
-import net.ddns.minersonline.HistorySurvival.engine.EntityManager;
 import net.ddns.minersonline.HistorySurvival.network.packets.AlivePacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.DisconnectPacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.client.EncryptionResponsePacket;
@@ -20,7 +15,6 @@ import net.ddns.minersonline.HistorySurvival.network.packets.auth.client.Handsha
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.client.LoginStartPacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.server.EncryptionRequestPacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.server.LoginSuccessPacket;
-import net.ddns.minersonline.HistorySurvival.network.packets.server.JoinGamePacket;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -34,7 +28,6 @@ import javax.crypto.Cipher;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
 public class ServerHandler extends ChannelInboundHandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(ServerHandler.class);
@@ -145,16 +138,16 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 								logger.info("UUID of player "+profile.getName()+" is "+profile.getID());
 								String remote = ((InetSocketAddress)ctx.channel().remoteAddress()).getAddress().getHostAddress();
 								int port = ((InetSocketAddress)ctx.channel().remoteAddress()).getPort();
-								PlayerEntity player = EntityType.PLAYER_ENTITY.create();
+								//PlayerEntity player = EntityType.PLAYER_ENTITY.create();
 //								EntityManager.addEntity(player);
 //								player.setProfile(profile);
 //								EntityManager.addPlayer(player);
-								logger.info(profile.getName()+"[/"+remote+":"+port+"] logged in with entity id "+player.getId()+" at "+player.getPosition());
-								ctx.channel().attr(AttributeKey.valueOf("entityId")).set(player.getId());
-
-								ctx.writeAndFlush(new JoinGamePacket(
-										player
-								));
+//								logger.info(profile.getName()+"[/"+remote+":"+port+"] logged in with entity id "+player.getId()+" at "+player.getPosition());
+//								ctx.channel().attr(AttributeKey.valueOf("entityId")).set(player.getId());
+//
+//								ctx.writeAndFlush(new JoinGamePacket(
+//										player
+//								));
 								try {
 									Thread.sleep(10);
 								} catch (InterruptedException ignored) {}

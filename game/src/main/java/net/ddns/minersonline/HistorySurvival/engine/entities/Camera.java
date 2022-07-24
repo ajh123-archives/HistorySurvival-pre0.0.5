@@ -129,4 +129,8 @@ public class Camera {
 		position.z = player.position.z - offsetZOfCameraFromPlayer;
 		position.y = player.position.y + verticalDistanceFromPlayer + CAMERA_Y_OFFSET;
 	}
+
+	public void setPlayer(TransformComponent player) {
+		this.player = player;
+	}
 }

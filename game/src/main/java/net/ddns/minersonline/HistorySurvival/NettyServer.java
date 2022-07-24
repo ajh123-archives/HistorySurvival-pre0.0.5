@@ -1,21 +1,17 @@
 package net.ddns.minersonline.HistorySurvival;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import net.ddns.minersonline.HistorySurvival.engine.EntityManager;
 import net.ddns.minersonline.HistorySurvival.network.GenerateKeys;
 import net.ddns.minersonline.HistorySurvival.network.PacketDecoder;
 import net.ddns.minersonline.HistorySurvival.network.PacketEncoder;
 import net.ddns.minersonline.HistorySurvival.network.ServerHandler;
-import net.ddns.minersonline.HistorySurvival.network.packets.server.UpdateEntityPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,8 +19,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class NettyServer {
 	private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);

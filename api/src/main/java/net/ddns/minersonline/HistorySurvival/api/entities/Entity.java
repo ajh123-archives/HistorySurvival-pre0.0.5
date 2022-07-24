@@ -4,7 +4,6 @@ import io.netty.buffer.ByteBuf;
 import net.ddns.minersonline.HistorySurvival.api.commands.CommandSender;
 import net.ddns.minersonline.HistorySurvival.api.data.replicable.ReplicableDataAccessor;
 import net.ddns.minersonline.HistorySurvival.api.data.replicable.ReplicableData;
-import net.ddns.minersonline.HistorySurvival.api.registries.Registry;
 import org.joml.Vector3f;
 
 import java.util.List;

@@ -3,7 +3,7 @@ package net.ddns.minersonline.HistorySurvival.api.commands;
 import net.ddns.minersonline.HistorySurvival.api.data.text.JSONTextComponent;
 
 /**
- * An api used for commands to interface with the object that executes commands.
+ * An api used for commands to communicate with the object that executed the command.
  */
 public interface CommandSender {
 	/**

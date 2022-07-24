@@ -1,17 +1,13 @@
 package net.ddns.minersonline.HistorySurvival.engine.terrains;
 
-import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
-import net.ddns.minersonline.HistorySurvival.engine.textures.TerrainTexture;
-import net.ddns.minersonline.HistorySurvival.engine.textures.TerrainTexturePack;
 import net.ddns.minersonline.HistorySurvival.engine.water.WaterTile;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class VoidWorld implements World {
+public class VoidWorld extends World {
 
-	List<Terrain> terrains = new ArrayList<>();
 	List<WaterTile> waterTiles = new ArrayList<>();
 
 	public VoidWorld() {}
@@ -28,14 +24,6 @@ public class VoidWorld implements World {
 
 	public float getHeightOfWater(float worldX, float worldZ) {
 		return 0;
-	}
-
-	public List<Terrain> getTerrains() {
-		return terrains;
-	}
-
-	public Terrain getTerrain(float worldX, float worldZ) {
-		return null;
 	}
 
 	public List<WaterTile> getWaterTiles() {

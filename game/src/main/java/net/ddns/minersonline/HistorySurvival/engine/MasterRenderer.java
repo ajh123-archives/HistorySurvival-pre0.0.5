@@ -2,9 +2,7 @@ package net.ddns.minersonline.HistorySurvival.engine;
 
 import net.ddns.minersonline.HistorySurvival.api.ecs.GameObject;
 import net.ddns.minersonline.HistorySurvival.api.ecs.MeshComponent;
-import net.ddns.minersonline.HistorySurvival.api.entities.Entity;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
-import net.ddns.minersonline.HistorySurvival.api.entities.ClientEntity;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
 import net.ddns.minersonline.HistorySurvival.engine.shaders.StaticShader;
@@ -32,7 +30,7 @@ public class MasterRenderer {
 	private static float SKY_BLUE = 0.97f;
 
 	private StaticShader staticShader;
-	private EntityRenderer entityRenderer;
+	private GameObjectRenderer gameObjectRenderer;
 	private final Map<TexturedModel, List<GameObject>> entities;
 	private Matrix4f projectionMatrix;
 	private TerrainRenderer terrainRenderer;
@@ -46,7 +44,7 @@ public class MasterRenderer {
 		terrainShader = new TerrainShader();
 		entities = new HashMap<>();
 		createProjectionMatrix();
-		entityRenderer = new EntityRenderer(staticShader, projectionMatrix);
+		gameObjectRenderer = new GameObjectRenderer(staticShader, projectionMatrix);
 		terrainRenderer = new TerrainRenderer(terrainShader, projectionMatrix);
 		terrainList = new ArrayList<>();
 
@@ -80,7 +78,7 @@ public class MasterRenderer {
 
 	public void renderScene(World world, List<Light> lights, Camera camera, Vector4f clipping_plane){
 		processWorld(world);
-		for (GameObject entity : EntityManager.getClientEntities()) {
+		for (GameObject entity : GameObjectManager.getGameObjects()) {
 			processEntity(entity);
 		}
 		render(lights, camera, clipping_plane);
@@ -95,7 +93,7 @@ public class MasterRenderer {
 		staticShader.loadSkyColor(SKY_RED, SKY_GREEN, SKY_BLUE);
 		staticShader.loadDiffuseLights(lights);
 		staticShader.loadViewMatrix(camera);
-		entityRenderer.render(entities);
+		gameObjectRenderer.render(newEntityList);
 		staticShader.unbind();
 		terrainShader.bind();
 		terrainShader.loadClipPlane(clipping_plane);

@@ -10,7 +10,6 @@ import net.ddns.minersonline.HistorySurvival.api.data.models.ModelTexture;
 import net.ddns.minersonline.HistorySurvival.engine.utils.Maths;
 
 import java.util.List;
-import java.util.Map;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -19,10 +18,10 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
 
-public class EntityRenderer {
+public class GameObjectRenderer {
 	private StaticShader staticShader;
 
-	public EntityRenderer(StaticShader staticShader, Matrix4f projectionMatrix) {
+	public GameObjectRenderer(StaticShader staticShader, Matrix4f projectionMatrix) {
 		if (staticShader == null) {
 			throw new IllegalArgumentException("staticShader argument has not been initialized!");
 		}
@@ -36,20 +35,35 @@ public class EntityRenderer {
 		staticShader.loadProjectionMatrix(projectionMatrix);
 		staticShader.unbind();
 	}
+//TODO: This old render method will be fixed eventually!
+//
+//	public void render(Map<TexturedModel, List<GameObject>> entities) {
+//		for (TexturedModel texturedModel : entities.keySet()) {
+//			prepareTexturedModel(texturedModel);
+//			List<GameObject> entityList = entities.get(texturedModel);
+//
+//			for (GameObject gameObject : gameObjects) {
+//				if (entity.getComponent(TransformComponent.class) != null) {
+//					renderGameObject(entity);
+//					glDrawElements(GL_TRIANGLES, texturedModel.getRawModel().getVertexCount(), GL_UNSIGNED_INT, 0);    // Draw using index buffer and triangles
+//				}
+//			}
+//
+//			unbindTexturedModel();
+//		}
+//	}
 
-	public void render(Map<TexturedModel, List<GameObject>> entities) {
-		for (TexturedModel texturedModel : entities.keySet()) {
-			prepareTexturedModel(texturedModel);
-			List<GameObject> entityList = entities.get(texturedModel);
-
-			for (GameObject entity : entityList) {
-				if (entity.getComponent(TransformComponent.class) != null) {
-					prepareEntity(entity);
-					glDrawElements(GL_TRIANGLES, texturedModel.getRawModel().getVertexCount(), GL_UNSIGNED_INT, 0);    // Draw using index buffer and triangles
+	public void render(List<GameObject> gameObjects) {
+		for (GameObject gameObject : gameObjects) {
+			MeshComponent mesh = gameObject.getComponent(MeshComponent.class);
+			if (mesh != null) {
+				prepareTexturedModel(mesh.texturedModel);
+				if (gameObject.getComponent(TransformComponent.class) != null) {
+					renderGameObject(gameObject);
+					glDrawElements(GL_TRIANGLES, mesh.texturedModel.getRawModel().getVertexCount(), GL_UNSIGNED_INT, 0);    // Draw using index buffer and triangles
 				}
+				unbindTexturedModel();
 			}
-
-			unbindTexturedModel();
 		}
 	}
 
@@ -84,9 +98,11 @@ public class EntityRenderer {
 		glBindVertexArray(0);   // Unbind the VAO
 	}
 
-	private void prepareEntity(GameObject entity) {
+	private void renderGameObject(GameObject entity) {
 		TransformComponent transformComponent = entity.getComponent(TransformComponent.class);
 		MeshComponent meshComponent = entity.getComponent(MeshComponent.class);
+		assert transformComponent != null;
+		assert meshComponent != null;
 		Vector3f rotation = transformComponent.rotation;
 
 		Matrix4f transformationMatrix = Maths.createTransformationMatrix(transformComponent.position, rotation.x, rotation.y, rotation.z, transformComponent.scale);

@@ -19,6 +19,10 @@ public class Registry<T> {
 		return obj;
 	}
 
+	public T get(ResourceLocation registry_key) {
+		return (T) entries.get(registry_key).get();
+	}
+
 	public static <T> T register(Registry<T> registry, ResourceLocation registry_key, T obj) {
 		return registry.register(registry_key, obj);
 	}

@@ -64,7 +64,7 @@ public class NoiseGenerator implements HeightsGenerator {
 
 		float total = 0;
 		// added * 4 to make terrain flatter
-		float d = (float) Math.pow(2, octaves - 1); // * 4f;
+		float d = (float) Math.pow(2, octaves - 1) * 4f;
 
 		for (int i = 0; i < octaves; i++) {
 			float freq = (float) (Math.pow(2,  i) / d);
@@ -143,5 +143,10 @@ public class NoiseGenerator implements HeightsGenerator {
 
 		random.setSeed(x * 963L + (long) z * 13251 * seed * 31);
 		return random.nextFloat() * 2f - 1f;
+	}
+
+	@Override
+	public int getVertxCount() {
+		return vertexCount;
 	}
 }

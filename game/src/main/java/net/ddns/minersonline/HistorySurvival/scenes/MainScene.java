@@ -1,27 +1,27 @@
 package net.ddns.minersonline.HistorySurvival.scenes;
 
+import imgui.ImGui;
 import net.ddns.minersonline.HistorySurvival.Game;
 import net.ddns.minersonline.HistorySurvival.Scene;
+import net.ddns.minersonline.HistorySurvival.engine.GameObjectManager;
 import net.ddns.minersonline.HistorySurvival.engine.entities.ControllableComponent;
 import net.ddns.minersonline.HistorySurvival.api.ecs.GameObject;
 import net.ddns.minersonline.HistorySurvival.api.ecs.MeshComponent;
 import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
 import net.ddns.minersonline.HistorySurvival.commands.ChatSystem;
-import net.ddns.minersonline.HistorySurvival.engine.EntityManager;
 import net.ddns.minersonline.HistorySurvival.engine.MasterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
-import net.ddns.minersonline.HistorySurvival.engine.ObjLoader;
 import net.ddns.minersonline.HistorySurvival.engine.entities.*;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
-import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleMaster;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleSystem;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleTexture;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.TestWorld;
+import net.ddns.minersonline.HistorySurvival.engine.terrains.VoidWorld;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.World;
-import net.ddns.minersonline.HistorySurvival.api.data.models.ModelTexture;
 import net.ddns.minersonline.HistorySurvival.engine.utils.MousePicker;
+import net.ddns.minersonline.HistorySurvival.api.registries.ModelType;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.slf4j.Logger;
@@ -32,132 +32,141 @@ import java.util.List;
 import java.util.Random;
 
 public class MainScene extends Scene {
-	private static final Logger logger = LoggerFactory.getLogger(MainScene.class);
-	private final ModelLoader modelLoader;
-	private final MasterRenderer masterRenderer;
-	private final GuiRenderer guiRenderer;
+	private transient static final Logger logger = LoggerFactory.getLogger(MainScene.class);
+	private transient ModelLoader modelLoader;
+	private transient MasterRenderer masterRenderer;
+	private transient GuiRenderer guiRenderer;
 
-	List<Light> lights = new ArrayList<>();
-	List<GuiTexture> guis = new ArrayList<>();
+	private transient List<Light> lights = new ArrayList<>();
+	private transient List<GuiTexture> guis = new ArrayList<>();
 
-	TexturedModel treeModel;
-	TexturedModel lowPolyTreeModel;
-	TexturedModel grassModel;
-	ModelTexture fernTextureAtlas;
-	TexturedModel fernModel;
+	private transient GameObject player;
+	private transient Camera camera;
+	private transient ChatSystem chatSystem;
+	private transient MousePicker picker;
+	private transient Light sun;
 
-	GameObject player;
-	Camera camera;
-	ChatSystem chatSystem;
-	MousePicker picker;
-	Light sun;
+	private transient Vector3f worldCenter;
 
-	Vector3f worldCenter;
-	World world;
+	private transient ParticleSystem particleSystem;
+	private transient Game game;
 
-	ParticleSystem particleSystem;
-	Game game;
-	Scene prevScene;
+	public MainScene() {
+		levelLoaded = true;
+		isRunning = false;
+	}
+
+
+
+	public void setModelLoader(ModelLoader modelLoader) {
+		this.modelLoader = modelLoader;
+	}
+
+	public void setMasterRenderer(MasterRenderer masterRenderer) {
+		this.masterRenderer = masterRenderer;
+	}
+
+	public void setGuiRenderer(GuiRenderer guiRenderer) {
+		this.guiRenderer = guiRenderer;
+	}
+
+	public void setGame(Game game) {
+		this.game = game;
+	}
 
 	public MainScene(Scene prevScene, Game game, ModelLoader modelLoader, MasterRenderer masterRenderer, GuiRenderer guiRenderer) {
+		this();
+		levelLoaded = false;
 		this.masterRenderer = masterRenderer;
 		this.modelLoader = modelLoader;
 		this.guiRenderer = guiRenderer;
 		this.game = game;
 		this.prevScene = prevScene;
+	}
 
-		masterRenderer.setBackgroundColour(new Vector3f(0.65f, 0.9f, 0.97f));
-
-		// Tree entity
-		treeModel = new TexturedModel(ObjLoader.loadObjModel("tree.obj", modelLoader), new ModelTexture(modelLoader.loadTexture("tree.png")));
-
-		// Low poly tree entity
-		lowPolyTreeModel = new TexturedModel(ObjLoader.loadObjModel("lowPolyTree.obj", modelLoader), new ModelTexture(modelLoader.loadTexture("lowPolyTree.png")));
-
-		// Grass entity
-		grassModel = new TexturedModel(ObjLoader.loadObjModel("grassModel.obj", modelLoader), new ModelTexture(modelLoader.loadTexture("grassTexture.png")));
-		grassModel.getModelTexture().setHasTransparency(true);
-		grassModel.getModelTexture().setUseFakeLighting(true);
-
-		// Fern entity
-		fernTextureAtlas = new ModelTexture(modelLoader.loadTexture("fern.png"));
-		fernTextureAtlas.setNumberOfRowsInTextureAtlas(2);
-		fernModel = new TexturedModel(ObjLoader.loadObjModel("fern.obj", modelLoader), fernTextureAtlas);
-		fernModel.getModelTexture().setHasTransparency(true);
+	public void setPrevScene(Scene prevScene){
+		this.prevScene = prevScene;
 	}
 
 	@Override
 	public void init() {
-		world = new TestWorld(modelLoader, 3, 3, 15, 256);
-		//world = new VoidWorld();
-		Random random = new Random();
+		masterRenderer.setBackgroundColour(new Vector3f(0.65f, 0.9f, 0.97f));
+		loadingAllowed = true;
+		metaData.world = new TestWorld(modelLoader, 1, 1, 15, 256);
+		if(!levelLoaded) {
+			//world = new VoidWorld();
+			Random random = new Random();
 
-		for (int i = 0; i < 400; i++) {
-			float x = random.nextFloat() * 800 - 400;
-			float z = random.nextFloat() * -600;
-			float y = world.getHeightOfTerrain(x, z);
+			for (int i = 0; i < 400; i++) {
+				float x = random.nextFloat() * 800;
+				float z = random.nextFloat() * 800;
+				float y = metaData.world.getHeightOfTerrain(x, z);
 
-			if (i % 20 == 0) {
-				GameObject tree = new GameObject();
-				tree.addComponent(new MeshComponent(lowPolyTreeModel));
-				tree.addComponent(new TransformComponent(new Vector3f(x, y, z), new Vector3f(0, random.nextFloat() * 360, 0), 1));
-				addGameObject(tree);
-			}
+				if (i % 20 == 0) {
+					GameObject tree = new GameObject();
+					tree.addComponent(new MeshComponent(ModelType.LOW_POLY_TREE_MODEL.create()));
+					tree.addComponent(new TransformComponent(new Vector3f(x, y, z), new Vector3f(0, random.nextFloat() * 360, 0), 1));
+					addGameObject(tree);
+				}
 
-			x = random.nextFloat() * 800 - 400;
-			z = random.nextFloat() * -600;
-			y = world.getHeightOfTerrain(x, z);
+				x = random.nextFloat() * 800;
+				z = random.nextFloat() * 800;
+				y = metaData.world.getHeightOfTerrain(x, z);
 
-			if (i % 20 == 0) {
-				GameObject tree = new GameObject();
-				tree.addComponent(new MeshComponent(treeModel));
-				tree.addComponent(new TransformComponent(new Vector3f(x, y, z), new Vector3f(0, random.nextFloat() * 360, 0), 5));
-				addGameObject(tree);
-			}
+				if (i % 20 == 0) {
+					GameObject tree = new GameObject();
+					tree.addComponent(new MeshComponent(ModelType.TREE_MODEL.create()));
+					tree.addComponent(new TransformComponent(new Vector3f(x, y, z), new Vector3f(0, random.nextFloat() * 360, 0), 5));
+					addGameObject(tree);
+				}
 
-			x = random.nextFloat() * 800 - 400;
-			z = random.nextFloat() * -600;
-			y = world.getHeightOfTerrain(x, z);
+				x = random.nextFloat() * 800;
+				z = random.nextFloat() * 800;
+				y = metaData.world.getHeightOfTerrain(x, z);
 
-			if (i % 10 == 0) {
-				// assigns a random texture for each fern from its texture atlas
-				GameObject fern = new GameObject();
-				fern.addComponent(new MeshComponent(fernModel, random.nextInt(4)));
-				fern.addComponent(new TransformComponent(new Vector3f(x, y, z), new Vector3f(0, random.nextFloat() * 360, 0), .9f));
-				addGameObject(fern);
-			}
+				if (i % 10 == 0) {
+					// assigns a random texture for each fern from its texture atlas
+					GameObject fern = new GameObject();
+					fern.addComponent(new MeshComponent(ModelType.FERN_MODEL.create(), random.nextInt(4)));
+					fern.addComponent(new TransformComponent(new Vector3f(x, y, z), new Vector3f(0, random.nextFloat() * 360, 0), .9f));
+					addGameObject(fern);
+				}
 
-			if (i % 5 == 0) {
-				GameObject grass = new GameObject();
-				grass.addComponent(new MeshComponent(grassModel));
-				grass.addComponent(new TransformComponent(new Vector3f(x, y, z), new Vector3f(0, random.nextFloat() * 360, 0), 1));
-				addGameObject(grass);
+				if (i % 5 == 0) {
+					GameObject grass = new GameObject();
+					grass.addComponent(new MeshComponent(ModelType.GRASS_MODEL.create()));
+					grass.addComponent(new TransformComponent(new Vector3f(x, y, z), new Vector3f(0, random.nextFloat() * 360, 0), 1));
+					addGameObject(grass);
+				}
 			}
 		}
 
-		sun = new Light(new Vector3f(3000, 2000, 2000), new Vector3f(0.6f, 0.6f,0.6f));
+		sun = new Light(new Vector3f(3000, 2000, 2000), new Vector3f(0.6f, 0.6f, 0.6f));
 		lights.add(sun);
 
-		TexturedModel playerOBJ = new TexturedModel(ObjLoader.loadObjModel("person.obj", modelLoader), new ModelTexture(modelLoader.loadTexture("playerTexture.png")));
+		float centerX = metaData.world.getXSize()/2;
+		float centerZ = metaData.world.getZSize()/2;
+		worldCenter = metaData.world.getTerrainPoint(centerX, centerZ, 10);
 
-		float centerX = world.getXSize()/2;
-		float centerZ = world.getZSize()/2;
-		worldCenter = world.getTerrainPoint(centerX, centerZ, 10);
+		if(!levelLoaded) {
+			player = new GameObject();
+			player.addComponent(new ControllableComponent(metaData.world));
+			player.addComponent(new MeshComponent(ModelType.PLAYER_MODEL.create()));
+			player.addComponent(new TransformComponent(new Vector3f(worldCenter), new Vector3f(0, 0, 0), .6f));
+			addGameObject(player);
 
-		player = new GameObject();
-		player.addComponent(new ControllableComponent(world));
-		player.addComponent(new MeshComponent(playerOBJ));
-		player.addComponent(new TransformComponent(new Vector3f(worldCenter), new Vector3f(0, 0, 0), .6f));
-		addGameObject(player);
+			camera = new Camera(player.getComponent(TransformComponent.class));
+		} else {
+			camera = new Camera(getPlayer());
+		}
 
-		camera = new Camera(player.getComponent(TransformComponent.class));
 
 		GuiTexture gui = new GuiTexture(modelLoader.loadTexture("health.png"), new Vector2f(-0.75f, -0.85f), new Vector2f(0.25f, 0.15f));
 		guis.add(gui);
 
-		picker = new MousePicker(world, masterRenderer.getProjectionMatrix(), camera);
+		picker = new MousePicker(metaData.world, masterRenderer.getProjectionMatrix(), camera);
 
-		ParticleTexture particleTexture = new ParticleTexture(modelLoader.loadTexture("grass.png"),  1, false);
+		ParticleTexture particleTexture = new ParticleTexture(modelLoader.loadTexture("grass.png"), 1, false);
 		particleSystem = new ParticleSystem(particleTexture, 50, 0, 0.3f, 4, 2);
 		particleSystem.randomizeRotation();
 		particleSystem.setDirection(new Vector3f(0, 1, 0), 0.1f);
@@ -183,8 +192,11 @@ public class MainScene extends Scene {
 	}
 
 	@Override
-	public void initDebug() {
-
+	public void gui(boolean debugAllowed) {
+		if(debugAllowed) {
+			ImGui.begin("Hello?");
+			ImGui.end();
+		}
 	}
 
 	@Override
@@ -193,11 +205,6 @@ public class MainScene extends Scene {
 		ParticleMaster.update(camera);
 //		chatSystem.setInChat(false);
 //		chatSystem.cleanUp();
-	}
-
-	@Override
-	public World getWorld() {
-		return world;
 	}
 
 	@Override
@@ -212,6 +219,16 @@ public class MainScene extends Scene {
 
 	@Override
 	public TransformComponent getPlayer() {
+		GameObject player = GameObjectManager.getGameObjectByFirstComponent(ControllableComponent.class);
+		if(player == null){return new TransformComponent();}
+		ControllableComponent component = player.getComponent(ControllableComponent.class);
+		if (component != null) {
+			component.setWorld(metaData.world);
+		}
+		TransformComponent transformComponent = player.getComponent(TransformComponent.class);
+		if (camera != null && transformComponent != null) {
+			camera.setPlayer(transformComponent);
+		}
 		return player.getComponent(TransformComponent.class);
 	}
 

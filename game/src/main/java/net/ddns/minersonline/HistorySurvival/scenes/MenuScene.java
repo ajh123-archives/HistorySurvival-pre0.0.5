@@ -1,8 +1,11 @@
 package net.ddns.minersonline.HistorySurvival.scenes;
 
+import com.sun.tools.javac.Main;
+import imgui.ImGui;
+import imgui.extension.imguifiledialog.ImGuiFileDialog;
+import imgui.extension.imguifiledialog.flag.ImGuiFileDialogFlags;
 import net.ddns.minersonline.HistorySurvival.DelayedTask;
 import net.ddns.minersonline.HistorySurvival.Game;
-import net.ddns.minersonline.HistorySurvival.GameSettings;
 import net.ddns.minersonline.HistorySurvival.Scene;
 import net.ddns.minersonline.HistorySurvival.api.data.text.JSONTextComponent;
 import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
@@ -11,27 +14,17 @@ import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.api.entities.ClientEntity;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
-import net.ddns.minersonline.HistorySurvival.engine.entities.ClientPlayer;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiRenderer;
-import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTextBox;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
-import net.ddns.minersonline.HistorySurvival.engine.io.KeyEvent;
-import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
+import net.ddns.minersonline.HistorySurvival.engine.terrains.TestWorld;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.World;
-import net.ddns.minersonline.HistorySurvival.engine.text.JSONTextBuilder;
-import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontGroup;
-import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.FontType;
-import net.ddns.minersonline.HistorySurvival.engine.text.fontMeshCreator.GUIText;
-import net.ddns.minersonline.HistorySurvival.network.NettyClient;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.Map;
 
 public class MenuScene extends Scene {
 	private static final Logger logger = LoggerFactory.getLogger(MenuScene.class);
@@ -49,8 +42,6 @@ public class MenuScene extends Scene {
 	private final Game game;
 	private static final List<JSONTextComponent> intro = new ArrayList<>();
 	private static final List<JSONTextComponent> sub_intro = new ArrayList<>();
-	private boolean inMultiplayer = false;
-	private boolean ignoreIP = true;
 
 	public MenuScene(Game game, ModelLoader modelLoader, MasterRenderer masterRenderer, GuiRenderer guiRenderer) {
 		this.masterRenderer = masterRenderer;
@@ -84,8 +75,50 @@ public class MenuScene extends Scene {
 	}
 
 	@Override
-	public void initDebug() {
+	public void gui(boolean debugAllowed) {
+		ImGui.setNextWindowSize(500, 440);
+		ImGui.begin("Menu");
+		if(ImGui.button("New World")){
 
+			DelayedTask task = () -> {
+				MenuScene scene = this;
+				Game.queue.add(() -> Game.setCurrentScene(new MainScene(
+						scene,
+						game,
+						modelLoader,
+						masterRenderer,
+						guiRenderer
+				)));
+			};
+			Game.addTask(task);
+		}
+		if(ImGui.button("Single Player")){
+			ImGuiFileDialog.openModal("browse-save", "Choose World", "Json File (*.hsjs){.hsjs}", ".", callback, 150, 1, 1, ImGuiFileDialogFlags.HideColumnSize | ImGuiFileDialogFlags.HideColumnType);
+		}
+		ImGui.button("Multiplayer");
+		ImGui.button("Options");
+		ImGui.end();
+
+		if (ImGuiFileDialog.display("browse-save", ImGuiFileDialogFlags.None, 150, 400, 800, 600)) {
+			if (ImGuiFileDialog.isOk()) {
+				Map<String, String> selection = ImGuiFileDialog.getSelection();
+				long userData = ImGuiFileDialog.getUserDatas();
+				if(userData == 1) {
+					MainScene world = new MainScene();
+					world.setModelLoader(modelLoader);
+					world.setMasterRenderer(masterRenderer);
+					world.setGuiRenderer(guiRenderer);
+					world.setGame(game);
+					world.setPrevScene(this);
+					DelayedTask task = () -> Game.queue.add(() -> {
+						Game.setCurrentScene(world);
+						load(world, selection.values().stream().findFirst().get());
+					});
+					Game.addTask(task);
+				}
+			}
+			ImGuiFileDialog.close();
+		}
 	}
 
 	@Override
@@ -93,10 +126,6 @@ public class MenuScene extends Scene {
 
 	}
 
-	@Override
-	public World getWorld() {
-		return null;
-	}
 
 	@Override
 	public Camera getCamera() {
