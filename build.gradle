@@ -1,7 +1,3 @@
-plugins {
-    id 'pl.allegro.tech.build.axion-release' version '1.13.13'
-}
-
 tasks.findByPath(":game:javadoc").enabled = false
 tasks.findByPath(":gameplay:javadoc").enabled = false
 
