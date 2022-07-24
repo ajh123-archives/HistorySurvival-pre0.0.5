@@ -1,3 +1,7 @@
+plugins {
+    id 'net.researchgate.release' version '3.0.0'
+}
+
 tasks.findByPath(":game:javadoc").enabled = false
 tasks.findByPath(":gameplay:javadoc").enabled = false
 
