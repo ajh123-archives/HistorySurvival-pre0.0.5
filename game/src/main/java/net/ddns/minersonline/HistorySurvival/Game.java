@@ -238,7 +238,7 @@ public class Game extends GameHook {
 			List<Light> lights = currentScene.getLights();
 			Light sun = currentScene.getSun();
 
-			ParticleMaster.update(camera);
+			ParticleMaster.update(camera, deltaTime);
 
 			if(world != null) {
 				GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
@@ -256,7 +256,7 @@ public class Game extends GameHook {
 				wfbos.unbindCurrentFrameBuffer();
 
 				masterRenderer.renderScene(world, lights, camera, new Vector4f(0, -1, 0, 999999999));
-				waterRenderer.render(world.getWaterTiles(), camera, sun);
+				waterRenderer.render(world.getWaterTiles(), camera, sun, deltaTime);
 				GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
 			} else {
 				masterRenderer.renderScene(null, lights, camera, new Vector4f(0, -1, 0, 999999999));

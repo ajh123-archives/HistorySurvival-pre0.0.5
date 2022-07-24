@@ -4,6 +4,7 @@ import com.sun.tools.javac.Main;
 import imgui.ImGui;
 import imgui.extension.imguifiledialog.ImGuiFileDialog;
 import imgui.extension.imguifiledialog.flag.ImGuiFileDialogFlags;
+import imgui.type.ImBoolean;
 import net.ddns.minersonline.HistorySurvival.DelayedTask;
 import net.ddns.minersonline.HistorySurvival.Game;
 import net.ddns.minersonline.HistorySurvival.Scene;
@@ -75,7 +76,7 @@ public class MenuScene extends Scene {
 	}
 
 	@Override
-	public void gui(boolean debugAllowed) {
+	public void gui(ImBoolean debugAllowed) {
 		ImGui.setNextWindowSize(500, 440);
 		ImGui.begin("Menu");
 		if(ImGui.button("New World")){

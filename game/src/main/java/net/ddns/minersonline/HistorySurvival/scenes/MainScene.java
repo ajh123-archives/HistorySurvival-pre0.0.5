@@ -1,6 +1,7 @@
 package net.ddns.minersonline.HistorySurvival.scenes;
 
 import imgui.ImGui;
+import imgui.type.ImBoolean;
 import net.ddns.minersonline.HistorySurvival.Game;
 import net.ddns.minersonline.HistorySurvival.Scene;
 import net.ddns.minersonline.HistorySurvival.engine.GameObjectManager;
@@ -192,8 +193,8 @@ public class MainScene extends Scene {
 	}
 
 	@Override
-	public void gui(boolean debugAllowed) {
-		if(debugAllowed) {
+	public void gui(ImBoolean debugAllowed) {
+		if(debugAllowed.get()) {
 			ImGui.begin("Hello?");
 			ImGui.end();
 		}
@@ -202,7 +203,6 @@ public class MainScene extends Scene {
 	@Override
 	public void stop() {
 		ParticleMaster.stop();
-		ParticleMaster.update(camera);
 //		chatSystem.setInChat(false);
 //		chatSystem.cleanUp();
 	}

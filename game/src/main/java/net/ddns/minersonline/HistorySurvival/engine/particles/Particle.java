@@ -69,15 +69,15 @@ public class Particle {
 		return scale;
 	}
 
-	public boolean update(Camera camera) {
-		velocity.y += ClientPlayer.GRAVITY * gravityEffect * DisplayManager.getDeltaInSeconds();
+	public boolean update(Camera camera, float deltaTime) {
+		velocity.y += ClientPlayer.GRAVITY * gravityEffect * deltaTime;
 		Vector3f change = new Vector3f(velocity);
 		change.mul((float) DisplayManager.getDeltaInSeconds());
 		position.add(change);
 		Vector3f camPos = new Vector3f(camera.getPosition());
 		camPos.sub(position).lengthSquared();
 		updateTextureCoordInfo();
-		elapsedTime += DisplayManager.getDeltaInSeconds();
+		elapsedTime += deltaTime;
 		return elapsedTime < lifeLength;
 	}
 

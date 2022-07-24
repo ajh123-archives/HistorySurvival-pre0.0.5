@@ -124,8 +124,8 @@ public class DisplayManager {
 	}
 
 	public static void dispose() {
-		guiRenderer.dispose();
 		guiManager.dispose();
+		guiRenderer.dispose();
 		ImGui.destroyContext();
 
 		glfwSetCursorPosCallback(window, null);

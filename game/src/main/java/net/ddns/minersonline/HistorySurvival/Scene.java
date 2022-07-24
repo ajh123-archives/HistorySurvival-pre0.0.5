@@ -67,11 +67,11 @@ public abstract class Scene {
 
 	protected transient Scene prevScene = null;
 
-	public void gui(boolean debugAllowed){}
+	public void gui(ImBoolean debugAllowed){}
 
-	public static boolean ENABLE_SCENE_DEBUGGER = false;
-	public static boolean ENABLE_DEMO = false;
-	public static boolean ENABLE_FILE_DEMO = false;
+	public static ImBoolean ENABLE_SCENE_DEBUGGER = new ImBoolean(false);
+	public static ImBoolean ENABLE_DEMO = new ImBoolean(false);
+	public static ImBoolean ENABLE_FILE_DEMO = new ImBoolean(false);
 
 	private static Map<String, String> demo_selection = null;
 	private static long demo_userData = 0;
@@ -122,13 +122,13 @@ public abstract class Scene {
 			if (ImGui.beginMenu("Debug"))
 			{
 				if (ImGui.menuItem("Scene Debug", null, ENABLE_SCENE_DEBUGGER)){
-					ENABLE_SCENE_DEBUGGER = !ENABLE_SCENE_DEBUGGER;
+					ENABLE_SCENE_DEBUGGER.set(!ENABLE_SCENE_DEBUGGER.get());
 				}
 				if (ImGui.menuItem("Demo Window", null, ENABLE_DEMO)){
-					ENABLE_DEMO = !ENABLE_DEMO;
+					ENABLE_DEMO.set(!ENABLE_DEMO.get());
 				}
 				if (ImGui.menuItem("File Demo Window", null, ENABLE_FILE_DEMO)){
-					ENABLE_FILE_DEMO = !ENABLE_FILE_DEMO;
+					ENABLE_FILE_DEMO.set(!ENABLE_FILE_DEMO.get());
 				}
 				ImGui.endMenu();
 			}
@@ -137,14 +137,14 @@ public abstract class Scene {
 
 		gui(ENABLE_SCENE_DEBUGGER);
 
-		if(ENABLE_SCENE_DEBUGGER)
-		ShowInspector(new ImBoolean(true));
+		if(ENABLE_SCENE_DEBUGGER.get())
+		ShowInspector(ENABLE_SCENE_DEBUGGER);
 
-		if(ENABLE_DEMO)
-		ImGui.showDemoWindow(new ImBoolean(true));
+		if(ENABLE_DEMO.get())
+		ImGui.showDemoWindow(ENABLE_DEMO);
 
-		if(ENABLE_FILE_DEMO)
-		showFileDemo(new ImBoolean(true));
+		if(ENABLE_FILE_DEMO.get())
+		showFileDemo(ENABLE_FILE_DEMO);
 
 		if (ImGuiFileDialog.display("browse-save", ImGuiFileDialogFlags.None, 150, 400, 800, 600)) {
 			if (ImGuiFileDialog.isOk()) {

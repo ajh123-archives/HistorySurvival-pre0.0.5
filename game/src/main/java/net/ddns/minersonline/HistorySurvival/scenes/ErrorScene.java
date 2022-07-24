@@ -1,5 +1,6 @@
 package net.ddns.minersonline.HistorySurvival.scenes;
 
+import imgui.type.ImBoolean;
 import net.ddns.minersonline.HistorySurvival.Game;
 import net.ddns.minersonline.HistorySurvival.Scene;
 import net.ddns.minersonline.HistorySurvival.api.data.text.JSONTextComponent;
@@ -120,7 +121,7 @@ public class ErrorScene extends Scene {
 	}
 
 	@Override
-	public void gui(boolean debugAllowed) {
+	public void gui(ImBoolean debugAllowed) {
 
 	}
 

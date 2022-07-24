@@ -1,5 +1,6 @@
 package net.ddns.minersonline.HistorySurvival.scenes;
 
+import imgui.type.ImBoolean;
 import net.ddns.minersonline.HistorySurvival.Game;
 import net.ddns.minersonline.HistorySurvival.Scene;
 import net.ddns.minersonline.HistorySurvival.api.data.models.ModelTexture;
@@ -115,7 +116,6 @@ public class ClientScene extends Scene {
 		player.move(deltaTime);
 		camera.update();
 
-		ParticleMaster.update(camera);
 		logger.info("UPDATE");
 
 		if(Keyboard.isKeyDown(GLFW.GLFW_KEY_ESCAPE)){
@@ -124,14 +124,13 @@ public class ClientScene extends Scene {
 	}
 
 	@Override
-	public void gui(boolean debugAllowed) {
+	public void gui(ImBoolean debugAllowed) {
 
 	}
 
 	@Override
 	public void stop() {
 		ParticleMaster.stop();
-		ParticleMaster.update(camera);
 		chatSystem.setInChat(false);
 		chatSystem.cleanUp();
 	}

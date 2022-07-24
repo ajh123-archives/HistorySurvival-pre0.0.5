@@ -1,4 +1,5 @@
 # HistorySurvival
+[![CodeQL](https://github.com/ajh123-development/HistorySurvival/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/ajh123-development/HistorySurvival/actions/workflows/codeql-analysis.yml)
 
 This "game" has been made partly from the tutorial series "OpenGL 3D Game Tutorials" published on YouTube by ThinMatrix.
 https://youtu.be/VS8wlS9hF8E

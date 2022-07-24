@@ -21,14 +21,14 @@ public class ParticleMaster {
 		running = false;
 	}
 
-	public static void update(Camera camera) {
+	public static void update(Camera camera, float deltaTime) {
 		Iterator<Map.Entry<ParticleTexture, List<Particle>>> mapIterator = particles.entrySet().iterator();
 		while (mapIterator.hasNext()) {
 			List<Particle> list = mapIterator.next().getValue();
 			Iterator<Particle> iterator = list.iterator();
 			while (iterator.hasNext()) {
 				Particle p = iterator.next();
-				boolean stillActive = p.update(camera);
+				boolean stillActive = p.update(camera, deltaTime);
 				if (!stillActive || !running) {
 					count--;
 					iterator.remove();

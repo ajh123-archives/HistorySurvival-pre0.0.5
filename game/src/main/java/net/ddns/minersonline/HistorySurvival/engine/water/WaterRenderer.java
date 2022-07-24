@@ -41,8 +41,8 @@ public class WaterRenderer {
 		setUpVAO(loader);
 	}
 
-	public void render(List<WaterTile> water, Camera camera, Light sun) {
-		prepareRender(camera, sun);
+	public void render(List<WaterTile> water, Camera camera, Light sun, float deltaTime) {
+		prepareRender(camera, sun, deltaTime);
 		for (WaterTile tile : water) {
 			Matrix4f modelMatrix = Maths.createTransformationMatrix(
 					new Vector3f(tile.getX(), tile.getHeight(), tile.getZ()), 0, 0, 0,
@@ -53,10 +53,10 @@ public class WaterRenderer {
 		unbind();
 	}
 	
-	private void prepareRender(Camera camera, Light sun){
+	private void prepareRender(Camera camera, Light sun, float deltaTime){
 		shader.bind();
 		shader.loadViewMatrix(camera);
-		ripple_factor += WAVE_SPEED * DisplayManager.getDeltaInSeconds();
+		ripple_factor += WAVE_SPEED * deltaTime;
 		ripple_factor %=1;
 		shader.loadRippleFactor(ripple_factor);
 		shader.loadLight(sun);

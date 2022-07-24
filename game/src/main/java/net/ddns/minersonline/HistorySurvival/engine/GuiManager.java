@@ -300,6 +300,10 @@ public class GuiManager {
             mainViewport.setPlatformHandleRaw(GLFWNativeWin32.glfwGetWin32Window(windowId));
         }
 
+        io.addConfigFlags(ImGuiConfigFlags.NavEnableKeyboard);
+        io.addConfigFlags(ImGuiConfigFlags.ViewportsEnable);
+        io.addConfigFlags(ImGuiConfigFlags.DockingEnable);
+
         if (io.hasConfigFlags(ImGuiConfigFlags.ViewportsEnable)) {
             initPlatformInterface();
         }
