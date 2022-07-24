@@ -1,5 +1,5 @@
 plugins {
-    id 'net.researchgate.release' version '3.0.0'
+    id 'pl.allegro.tech.build.axion-release' version '1.13.13'
 }
 
 tasks.findByPath(":game:javadoc").enabled = false
