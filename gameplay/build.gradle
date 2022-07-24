@@ -1,7 +1,7 @@
 apply plugin: 'java'
 
 group 'net.ddns.minersonline.HistorySurvival'
-version '0.0.2'
+version rootProject.version
 
 targetCompatibility = 16
 sourceCompatibility = 16

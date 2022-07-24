@@ -6,7 +6,7 @@ apply plugin: 'application'
 apply plugin: 'java'
 
 group 'net.ddns.minersonline'
-version '0.0.2'
+version rootProject.version
 
 mkdocs.publish {
     docPath = '0.0.2'

@@ -6,7 +6,7 @@ apply plugin: 'java'
 apply plugin: 'java-library'
 
 group 'net.ddns.minersonline.HistorySurvival'
-version '0.0.2'
+version rootProject.version
 
 mkdocs.publish {
     docPath = '0.0.2'
