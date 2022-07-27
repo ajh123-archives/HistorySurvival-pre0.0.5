@@ -95,7 +95,7 @@ file_index = 0
 for file in files:
     if "natives" not in file:
         has_natives = False
-        split_name = re.search(r'(.*?)-(.*?).jar', file)
+        split_name = re.search(r'([ A-Za-z-]*?)-([0-9.]*?)([ A-Za-z-]*?).jar', file)
         lib = split_name.group(1)
         ver = split_name.group(2)
 
@@ -133,6 +133,7 @@ for file in files:
         natives[lib]["natives"][lib_os] = file
 
 for native in natives:
+    print(native, natives[native])
 
     linux = natives[native]["natives"]["linux"]
     macos = natives[native]["natives"]["macos"]
