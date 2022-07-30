@@ -28,7 +28,6 @@ import net.ddns.minersonline.HistorySurvival.engine.water.WaterFrameBuffers;
 import net.ddns.minersonline.HistorySurvival.engine.water.WaterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.water.WaterShader;
 import net.ddns.minersonline.HistorySurvival.gameplay.GamePlugin;
-import net.ddns.minersonline.HistorySurvival.scenes.MainScene;
 import net.ddns.minersonline.HistorySurvival.scenes.MenuScene;
 import org.joml.Vector4f;
 import org.lwjgl.Version;
@@ -412,5 +411,10 @@ public class Game extends GameHook {
 
 	public void addTask(DelayedTask task, int delay) {
 		tasks.put(task, delay);
+	}
+
+	@Override
+	public Logger getLogger() {
+		return logger;
 	}
 }

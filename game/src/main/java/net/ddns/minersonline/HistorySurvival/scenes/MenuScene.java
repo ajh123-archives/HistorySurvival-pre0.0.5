@@ -4,9 +4,12 @@ import com.sun.tools.javac.Main;
 import imgui.ImGui;
 import imgui.extension.imguifiledialog.ImGuiFileDialog;
 import imgui.extension.imguifiledialog.flag.ImGuiFileDialogFlags;
+import imgui.flag.ImGuiCond;
 import imgui.type.ImBoolean;
+import imgui.type.ImString;
 import net.ddns.minersonline.HistorySurvival.DelayedTask;
 import net.ddns.minersonline.HistorySurvival.Game;
+import net.ddns.minersonline.HistorySurvival.GameSettings;
 import net.ddns.minersonline.HistorySurvival.Scene;
 import net.ddns.minersonline.HistorySurvival.api.data.text.JSONTextComponent;
 import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
@@ -44,6 +47,10 @@ public class MenuScene extends Scene {
 	private static final List<JSONTextComponent> intro = new ArrayList<>();
 	private static final List<JSONTextComponent> sub_intro = new ArrayList<>();
 
+	public static ImBoolean ENABLE_MULTIPLAYER = new ImBoolean(false);
+	public static ImBoolean ENABLE_MULTIPLAYER_OPTIONS = new ImBoolean(false);
+	public static boolean ENABLE_MULTIPLAYER_OPTIONS_JOIN = false;
+
 	public MenuScene(Game game, ModelLoader modelLoader, MasterRenderer masterRenderer, GuiRenderer guiRenderer) {
 		this.masterRenderer = masterRenderer;
 		this.modelLoader = modelLoader;
@@ -79,8 +86,7 @@ public class MenuScene extends Scene {
 	public void gui(ImBoolean debugAllowed) {
 		ImGui.setNextWindowSize(500, 440);
 		ImGui.begin("Menu");
-		if(ImGui.button("New World")){
-
+		if (ImGui.button("New World")){
 			DelayedTask task = () -> {
 				MenuScene scene = this;
 				Game.queue.add(() -> Game.setCurrentScene(new MainScene(
@@ -93,10 +99,12 @@ public class MenuScene extends Scene {
 			};
 			Game.addTask(task);
 		}
-		if(ImGui.button("Single Player")){
+		if (ImGui.button("Single Player")){
 			ImGuiFileDialog.openModal("browse-save", "Choose World", "Json File (*.hsjs){.hsjs}", ".", callback, 150, 1, 1, ImGuiFileDialogFlags.HideColumnSize | ImGuiFileDialogFlags.HideColumnType);
 		}
-		ImGui.button("Multiplayer");
+		if (ImGui.button("Multiplayer")){
+			ENABLE_MULTIPLAYER.set(true);
+		}
 		ImGui.button("Options");
 		ImGui.end();
 
@@ -104,7 +112,7 @@ public class MenuScene extends Scene {
 			if (ImGuiFileDialog.isOk()) {
 				Map<String, String> selection = ImGuiFileDialog.getSelection();
 				long userData = ImGuiFileDialog.getUserDatas();
-				if(userData == 1) {
+				if (userData == 1) {
 					MainScene world = new MainScene();
 					world.setModelLoader(modelLoader);
 					world.setMasterRenderer(masterRenderer);
@@ -120,7 +128,88 @@ public class MenuScene extends Scene {
 			}
 			ImGuiFileDialog.close();
 		}
+
+		if (ENABLE_MULTIPLAYER.get()) {
+			ImGui.setNextWindowSize(600, 540);
+			ImGui.begin("Multiplayer", ENABLE_MULTIPLAYER);
+			ImGui.text("Logged in as: "+ GameSettings.username);
+			ImGui.sameLine();
+			ImGui.button("Change");
+			if (ImGui.button("Add server")){
+				ENABLE_MULTIPLAYER_OPTIONS.set(true);
+				ENABLE_MULTIPLAYER_OPTIONS_JOIN = false;
+			}
+			ImGui.sameLine();
+			if (ImGui.button("Direct Connect")){
+				ENABLE_MULTIPLAYER_OPTIONS.set(true);
+				ENABLE_MULTIPLAYER_OPTIONS_JOIN = true;
+			}
+			ImGui.separator();
+
+			ImGui.beginListBox("Servers", 600, ImGui.getContentRegionAvail().y);
+
+			ImGui.beginChild(1);
+			ImGui.columns(2, "Servers/list", false);
+			int id = Game.modelLoader.loadTexture("grass.png");
+			ImGui.setColumnWidth(ImGui.getColumnIndex(), 80);
+			ImGui.image(id, 64, 64);
+			ImGui.nextColumn();
+			ImGui.text("Server: ");
+			ImGui.text("MOTD: ");
+			ImGui.button("Join Server");
+			ImGui.sameLine();
+			if (ImGui.button("Edit Server")){
+				ENABLE_MULTIPLAYER_OPTIONS.set(true);
+			}
+			ImGui.sameLine();
+			ImGui.button("Delete Server");
+			ImGui.endChild();
+
+			ImGui.endListBox();
+
+			ImGui.end();
+		}
+
+		if (ENABLE_MULTIPLAYER_OPTIONS.get()){
+			openEditServer(ENABLE_MULTIPLAYER_OPTIONS, ENABLE_MULTIPLAYER_OPTIONS_JOIN);
+		}
 	}
+
+	public void openEditServer(ImBoolean pOpen, boolean join){
+		int height = 150;
+		if (join){height = 112;}
+		ImGui.setNextWindowSize(400, height);
+		ImGui.begin("Server", pOpen);
+
+		if (!join) {
+			ImString name = new ImString("");
+			ImGui.inputText("Name", name);
+			ImGui.spacing();
+		}
+		ImString ip = new ImString("");
+		ImGui.inputText("IP", ip);
+		ImGui.spacing();
+		ImString port = new ImString("36676");
+		ImGui.inputText("Port", port);
+		ImGui.spacing();
+		if (!join) {
+			ImGui.button("Accept");
+			ImGui.sameLine();
+		} else {
+			ImGui.button("Join");
+			ImGui.sameLine();
+		}
+
+		if (ImGui.button("Cancel")){
+			pOpen.set(false);
+		}
+		if (join) {
+			ImGui.button("Add to saves");
+		}
+
+		ImGui.end();
+	}
+
 
 	@Override
 	public void stop() {

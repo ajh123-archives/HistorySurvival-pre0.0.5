@@ -176,10 +176,10 @@ task copyToLib(type: Copy) {
 }
 
 task buildJsonDefs(type:Exec){
-    dependsOn 'game:jar'
+    dependsOn 'jar'
     dependsOn 'copyToLib'
     commandLine "python",
-            "../build_json_defs.py",
+            "../build_json_defs_v2.py",
             "$buildDir/${version}.json",
             "$buildDir/out_libs",
             "$project.name-${version}.jar",

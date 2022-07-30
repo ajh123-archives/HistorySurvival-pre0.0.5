@@ -5,7 +5,6 @@ import re
 import argparse
 import datetime
 
-
 parser = argparse.ArgumentParser()
 parser.add_argument("outFile", help="JSON output file")
 parser.add_argument("libDir", help="Directory for the libraries")
@@ -19,13 +18,16 @@ def sha1sum(filename):
     h = hashlib.sha1()
     b = bytearray(128 * 1024)
     mv = memoryview(b)
-    with open(filename, 'rb', buffering=0) as f:
-        for n in iter(lambda: f.readinto(mv), 0):
-            h.update(mv[:n])
-    return h.hexdigest()
+    try:
+        with open(filename, 'rb', buffering=0) as f:
+            for n in iter(lambda: f.readinto(mv), 0):
+                h.update(mv[:n])
+        return h.hexdigest()
+    except FileNotFoundError as e:
+        return 0
 
 
-lib_dir = args.libDir
+lib_dir = os.path.abspath(args.libDir)
 files = os.listdir(lib_dir)
 
 out = {
@@ -77,10 +79,10 @@ out = {
         "client": {
             "sha1": sha1sum(os.path.join(args.gameJarDir, args.gameJar)),
             "size": os.stat(os.path.join(args.gameJarDir, args.gameJar)).st_size,
-            "url": "https://minersonline.ddns.net/files/history_survival/packages/"+args.ver+"/"+args.gameJar
+            "url": "https://minersonline.ddns.net/files/history_survival/packages/" + args.ver + "/" + args.gameJar
         }
     },
-    "id": "hs-"+args.ver,
+    "id": "hs-" + args.ver,
     "javaVersion": {"component": "java-runtime-beta", "majorVersion": 17},
     "libraries": [None] * len(files),
     "mainClass": "net.ddns.minersonline.HistorySurvival.Game",
@@ -89,99 +91,119 @@ out = {
     "time": datetime.datetime.now().astimezone().replace(microsecond=0).isoformat(),
     "type": "release"
 }
+
+
+def build_os(lib_os, file, lib):
+    if "classifiers" not in lib:
+        lib["classifiers"] = {}
+
+    lib["classifiers"]["natives-"+lib_os] = {
+        "path": "HistorySurvival/" + file,
+        "sha1": sha1sum(os.path.join(lib_dir, file)),
+        "size": os.stat(os.path.join(lib_dir, file)).st_size,
+        "url": "https://minersonline.ddns.net/files/libs/" + file
+    }
+    if "natives" not in lib:
+        lib["natives"] = {}
+    lib["natives"][lib_os] = "natives-"+lib_os
+
+
+def build_lib(name: str, ver: str, linux: str, macos: str, windows: str, all: str):
+    if ver.endswith("."):
+        ver = ver[:-1]
+
+    lib = {
+        "downloads": {},
+        "name": "HistorySurvival:" + name + ":" + ver,
+    }
+    has_linux = bool(linux and linux.strip())
+    has_osx = bool(macos and macos.strip())
+    has_win = bool(windows and windows.strip())
+    has_all = bool(all and all.strip())
+
+    if has_all:
+        lib["downloads"]["artifact"] = {
+            "path": "HistorySurvival/" + all,
+            "sha1": sha1sum(os.path.join(lib_dir, all)),
+            "size": os.stat(os.path.join(lib_dir, all)).st_size,
+            "url": "https://minersonline.ddns.net/files/libs/" + all
+        }
+
+    if has_linux:
+        build_os("linux", linux, lib)
+
+    if has_win:
+        build_os("windows", windows, lib)
+
+    if has_osx:
+        build_os("macos", macos, lib)
+
+    return lib
+
+
 natives = {}
 
 file_index = 0
 for file in files:
-    if "natives" not in file:
-        has_natives = False
-        split_name = re.search(r'([ A-Za-z-]*?)-([0-9.]*?)([ A-Za-z-]*?).jar', file)
-        lib = split_name.group(1)
-        ver = split_name.group(2)
+    split_name = re.search(r'([ A-Za-z0-9-_]*?)-([0-9.]*)([ A-Za-z0-9-_]*?).jar', file)
 
-        if lib+"-"+ver+"-natives-linux.jar" in files:
-            has_natives = True
-        if lib+"-"+ver+"-natives-macos.jar" in files:
-            has_natives = True
-        if lib+"-"+ver+"-natives-windows.jar" in files:
-            has_natives = True
+    has_natives = False
+    lib = split_name.group(1)
+    ver = split_name.group(2)
 
-        if has_natives:
-            lib_os = "all"
-            natives[file.replace(".jar", "")]["natives"][lib_os] = file
-            continue
+    if "osx" in file:
+        has_natives = True
+        lib = lib.replace("-natives-osx", "")
+    if "macos" in file:
+        has_natives = True
+        lib = lib.replace("-natives-macos", "")
+    if "linux" in file:
+        has_natives = True
+        lib = lib.replace("-natives-linux", "")
+    if "windows" in file:
+        has_natives = True
+        lib = lib.replace("-natives-windows", "")
 
-        out["libraries"][file_index] = {
-            "downloads": {
-                "artifact": {
-                    "path": "HistorySurvival/" + file,
-                    "sha1": sha1sum(os.path.join(lib_dir, file)),
-                    "size": os.stat(os.path.join(lib_dir, file)).st_size,
-                    "url": "https://minersonline.ddns.net/files/libs/" + file
-                }
-            },
-            "name": "HistorySurvival:"+lib+":"+ver
-        }
-        file_index += 1
-    else:
-        native = file.split("-natives-")
-        lib_os = native[1].replace(".jar", "")
-        lib = native[0]
+    if has_natives:
+        lib_os = "all"  # native[1].replace(".jar", "").replace("-"+ver, "")
+        if "osx" in file:
+            lib_os = "macos"
+        if "macos" in file:
+            lib_os = "macos"
+        if "linux" in file:
+            lib_os = "linux"
+        if "windows" in file:
+            lib_os = "windows"
+
         if lib not in natives:
-            natives[lib] = {"natives": {}}
+            natives[lib] = {"natives": {"ver": ver, "files": {"linux": "", "macos": "", "windows": "", "all": ""}}}
 
-        natives[lib]["natives"][lib_os] = file
+        natives[lib]["natives"]["files"][lib_os] = file
+        continue
+    else:
+        out["libraries"][file_index] = build_lib(lib, ver, "", "", "", file)
+        file_index += 1
 
 for native in natives:
-    print(native, natives[native])
+    linux = natives[native]["natives"]["files"]["linux"]
+    macos = natives[native]["natives"]["files"]["macos"]
+    windows = natives[native]["natives"]["files"]["windows"]
+    lib_all = natives[native]["natives"]["files"]["all"]
+    ver = natives[native]["natives"]["ver"]
 
-    linux = natives[native]["natives"]["linux"]
-    macos = natives[native]["natives"]["macos"]
-    windows = natives[native]["natives"]["windows"]
-    lib_all = natives[native]["natives"]["all"]
+    for i in range(0, len(out["libraries"])):
+        if not i > len(out["libraries"])-1:
+            if out["libraries"][i] is not None and out["libraries"][i]["downloads"] != {}:
+                if "HistorySurvival:" + native + ":" + ver == out["libraries"][i]["name"]:
+                    lib_all = out["libraries"][i]["downloads"]["artifact"]["path"].replace("HistorySurvival/", "")
+                    out["libraries"].pop(i)
+                    i = i - 1
 
-    name, ver = native.rsplit('-', 1)
-
-    lib = {
-        "downloads": {
-            "artifact": {
-                "path": "HistorySurvival/"+lib_all,
-                "sha1": sha1sum(os.path.join(lib_dir, lib_all)),
-                "size": os.stat(os.path.join(lib_dir, lib_all)).st_size,
-                "url": "https://minersonline.ddns.net/files/libs/"+lib_all
-            },
-            "classifiers": {
-                "natives-linux": {
-                    "path": "HistorySurvival/"+linux,
-                    "sha1": sha1sum(os.path.join(lib_dir, linux)),
-                    "size": os.stat(os.path.join(lib_dir, linux)).st_size,
-                    "url": "https://minersonline.ddns.net/files/libs/"+linux
-                },
-                "natives-osx": {
-                    "path": "HistorySurvival/"+macos,
-                    "sha1": sha1sum(os.path.join(lib_dir, macos)),
-                    "size": os.stat(os.path.join(lib_dir, macos)).st_size,
-                    "url": "https://minersonline.ddns.net/files/libs/"+macos
-                },
-                "natives-windows": {
-                    "path": "HistorySurvival/"+windows,
-                    "sha1": sha1sum(os.path.join(lib_dir, windows)),
-                    "size": os.stat(os.path.join(lib_dir, windows)).st_size,
-                    "url": "https://minersonline.ddns.net/files/libs/"+windows
-                }
-            }
-        },
-        "name": "HistorySurvival:"+name+":"+ver,
-        "natives": {
-            "linux": "natives-linux",
-            "osx": "natives-osx",
-            "windows": "natives-windows"
-        }
-    }
+    lib = build_lib(native, ver, linux, macos, windows, lib_all)
     out["libraries"][file_index] = lib
     file_index += 1
 
 out["libraries"] = [x for x in out["libraries"] if x is not None]
 
-with open(args.outFile, "w") as outfile:
+with open(os.path.abspath(args.outFile), "w") as outfile:
     json.dump(out, outfile, indent=4)
