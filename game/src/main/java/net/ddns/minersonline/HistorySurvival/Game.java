@@ -69,7 +69,6 @@ public class Game extends GameHook {
 	private static Scene startScene = null;
 	private static final Map<DelayedTask, Integer> tasks = new HashMap<>();
 	public static final BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
-	public static Gson gson;
 
 	private static GuiRenderer guiRenderer;
 	private static WaterFrameBuffers wfbos;
@@ -109,13 +108,6 @@ public class Game extends GameHook {
 
 	private static void init(){
 		ModelType.init();
-		GsonBuilder gsonBuilder = new GsonBuilder();
-		gsonBuilder.setPrettyPrinting();
-		gsonBuilder.registerTypeAdapter(Component.class, new Component.JSON());
-		gsonBuilder.registerTypeAdapter(GameObject.class, new GameObject.JSON());
-		gsonBuilder.registerTypeAdapter(TexturedModel.class, new TexturedModel.JSON());
-		gsonBuilder.registerTypeAdapter(World.class, new World.JSON());
-		gson = gsonBuilder.create();
 
 		masterRenderer = new MasterRenderer();
 		modelLoader = new ModelLoader();
@@ -379,6 +371,7 @@ public class Game extends GameHook {
 	}
 
 	public static void setCurrentScene(Scene scene) {
+		if(scene.equals(currentScene)){return;}
 		currentScene.stop();
 		currentScene.exit();
 		String sceneName = currentScene.toString();

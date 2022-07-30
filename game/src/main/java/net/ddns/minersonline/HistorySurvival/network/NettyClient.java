@@ -36,8 +36,10 @@ public class NettyClient {
 							ch.pipeline().addLast(
 									new PacketEncoder(),
 									new PacketDecoder(),
-									new ClientHandler(host, port, state, handler)
+									new ClientHandler(host, port, state, handler),
+									new InterruptingExceptionHandler()
 							);
+							ch.pipeline().addFirst(new OutboundExceptionRouter());
 						}
 					});
 

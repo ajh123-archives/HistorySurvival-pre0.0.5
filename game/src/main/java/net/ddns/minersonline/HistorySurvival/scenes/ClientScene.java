@@ -1,6 +1,7 @@
 package net.ddns.minersonline.HistorySurvival.scenes;
 
 import imgui.type.ImBoolean;
+import net.ddns.minersonline.HistorySurvival.DelayedTask;
 import net.ddns.minersonline.HistorySurvival.Game;
 import net.ddns.minersonline.HistorySurvival.Scene;
 import net.ddns.minersonline.HistorySurvival.api.ecs.GameObject;
@@ -22,6 +23,8 @@ import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleTexture;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.TestWorld;
 import net.ddns.minersonline.HistorySurvival.engine.utils.MousePicker;
 import net.ddns.minersonline.HistorySurvival.network.ClientHandler;
+import net.ddns.minersonline.HistorySurvival.network.Packet;
+import net.ddns.minersonline.HistorySurvival.network.packets.server.UpdateEntityPacket;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.slf4j.Logger;
@@ -90,7 +93,7 @@ public class ClientScene extends Scene {
 			player.addComponent(new ControllableComponent(metaData.world));
 			player.addComponent(new MeshComponent(ModelType.PLAYER_MODEL.create()));
 			player.addComponent(new TransformComponent(new Vector3f(worldCenter), new Vector3f(0, 0, 0), .6f));
-			addGameObject(player);
+			putGameObject(network.entityId, player);
 
 			camera = new Camera(player.getComponent(TransformComponent.class));
 		} else {
@@ -111,6 +114,10 @@ public class ClientScene extends Scene {
 		particleSystem.setScaleError(0.8f);
 
 		network.state = 3;
+
+		network.setHandler((ctx, state, packet)->{
+
+		});
 	}
 
 	@Override
@@ -153,7 +160,7 @@ public class ClientScene extends Scene {
 
 	@Override
 	public TransformComponent getPlayer() {
-		GameObject player = GameObjectManager.getGameObjectByFirstComponent(ControllableComponent.class);
+		GameObject player = GameObjectManager.getGameObject(network.entityId);
 		if(player == null){return new TransformComponent();}
 		ControllableComponent component = player.getComponent(ControllableComponent.class);
 		if (component != null) {

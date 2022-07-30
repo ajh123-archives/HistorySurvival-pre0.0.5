@@ -10,7 +10,6 @@ import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
 import net.ddns.minersonline.HistorySurvival.engine.MasterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
-import net.ddns.minersonline.HistorySurvival.api.entities.ClientEntity;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
@@ -21,7 +20,10 @@ import org.joml.Vector3f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -32,26 +34,28 @@ public class MenuScene extends Scene {
 	private final MasterRenderer masterRenderer;
 	private final GuiRenderer guiRenderer;
 
-	private final List<ClientEntity> entityList = new ArrayList<>();
 	private final List<Light> lights = new ArrayList<>();
 	private final List<GuiTexture> guis = new ArrayList<>();
 
-	private Camera camera;
-	private Light sun;
+	private transient Camera camera;
+	private transient Light sun;
 
-	private final Game game;
-	private static final List<SavedServer> SAVED_SERVERS = new ArrayList<>();
-	private static SavedServer currentServer = null;
+	private transient final Game game;
+	private transient static final List<SavedServer> SAVED_SERVERS = new ArrayList<>();
+	private transient static SavedServer currentServer = null;
 
-	public static ImBoolean ENABLE_MULTIPLAYER = new ImBoolean(false);
-	public static ImBoolean ENABLE_MULTIPLAYER_OPTIONS = new ImBoolean(false);
-	public static boolean ENABLE_MULTIPLAYER_OPTIONS_JOIN = false;
+	public transient static ImBoolean ENABLE_MULTIPLAYER = new ImBoolean(false);
+	public transient static ImBoolean ENABLE_MULTIPLAYER_OPTIONS = new ImBoolean(false);
+	public transient static ImBoolean ENABLE_ERRORS = new ImBoolean(false);
+	public transient static boolean ENABLE_MULTIPLAYER_OPTIONS_JOIN = false;
 
-	private final ImString ip = new ImString();
-	private final ImString name = new ImString();
-	private final ImString port = new ImString();
-	private int iconId = -1;
-	public int refresh = 100;
+	private transient final ImString ip = new ImString();
+	private transient final ImString name = new ImString();
+	private transient final ImString port = new ImString();
+	private transient int iconId = -1;
+	public transient int refresh = 100;
+
+	public transient Throwable error = null;
 
 	public MenuScene(Game game, ModelLoader modelLoader, MasterRenderer masterRenderer, GuiRenderer guiRenderer) {
 		this.masterRenderer = masterRenderer;
@@ -191,6 +195,7 @@ public class MenuScene extends Scene {
 				ImGui.text("MOTD: "+server.motd);
 				if (ImGui.button("Join Server")){
 					DelayedTask task = () -> Game.queue.add(() -> {
+						ENABLE_ERRORS.set(true);
 						NettyClient client = new NettyClient(server.ip, Integer.parseInt(server.port));
 						try {
 							client.call(2, null);
@@ -226,6 +231,17 @@ public class MenuScene extends Scene {
 		if (ENABLE_MULTIPLAYER_OPTIONS.get()){
 			openEditServer(ENABLE_MULTIPLAYER_OPTIONS, ENABLE_MULTIPLAYER_OPTIONS_JOIN, currentServer);
 		}
+
+		if (ENABLE_ERRORS.get() && this.error != null){
+			ImGui.setNextWindowSize(400, 200);
+			ImGui.begin("An error occurred :(", ENABLE_ERRORS);
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			error.printStackTrace(pw);
+			String stackTrace = sw.toString();
+			ImGui.textWrapped(stackTrace);
+			ImGui.end();
+		}
 	}
 
 	public void openEditServer(ImBoolean pOpen, boolean join, SavedServer editMe){
@@ -259,6 +275,7 @@ public class MenuScene extends Scene {
 			if (ImGui.button("Join")){
 				DelayedTask task = () -> Game.queue.add(() -> {
 					NettyClient client = new NettyClient(ip.get(), Integer.parseInt(port.get()));
+					ENABLE_ERRORS.set(true);
 					try {
 						client.call(2, null);
 					} catch (Exception e) {

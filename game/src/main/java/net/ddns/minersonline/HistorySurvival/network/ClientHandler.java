@@ -204,11 +204,15 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 		if (state == 3){
 			if (packet.getId().equals("updateEntity")) {
 				logger.info("Received update");
-				//UpdateEntityPacket updateEntityPacket = Packet.cast(packet, UpdateEntityPacket.class);
-				//if (updateEntityPacket != null) {
-				//	logger.info("Update entity "+updateEntityPacket.getEntityId());
-				//}
+				UpdateEntityPacket updateEntityPacket = Packet.cast(packet, UpdateEntityPacket.class);
+				if (updateEntityPacket != null) {
+					logger.info("Update entity "+updateEntityPacket.getEntityId());
+				}
 			}
 		}
+	}
+
+	public void setHandler(NettyClient.PacketHandler handler) {
+		this.handler = handler;
 	}
 }

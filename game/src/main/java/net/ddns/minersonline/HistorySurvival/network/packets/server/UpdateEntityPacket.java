@@ -1,6 +1,7 @@
 package net.ddns.minersonline.HistorySurvival.network.packets.server;
 
 import io.netty.buffer.ByteBuf;
+import net.ddns.minersonline.HistorySurvival.api.ecs.GameObject;
 import net.ddns.minersonline.HistorySurvival.api.entities.Entity;
 import net.ddns.minersonline.HistorySurvival.api.entities.PlayerEntity;
 import net.ddns.minersonline.HistorySurvival.network.Packet;
@@ -13,24 +14,21 @@ public class UpdateEntityPacket extends Packet {
 	private int entityId;
 
 	@PacketValue
-	private byte[] entityData;
+	private String entityData;
 
-	public UpdateEntityPacket(Entity entity, ByteBuf buf) {
+	public UpdateEntityPacket(GameObject entity) {
 		super(Utils.GAME_ID, "updateEntity");
+		this.entityData = Utils.gson.toJson(entity);
+		this.entityId = entity.getId();
 		CompoundTag data = new CompoundTag();
 		data.putInt("entityId", entity.getId());
-		entity.save(buf);
-		byte[] bytes = new byte[buf.readableBytes()];
-		buf.readBytes(bytes);
-		data.putByteArray("entityData", bytes);
+		data.putString("entityData", this.entityData);
 		setValue(data);
-		this.entityData = bytes;
-		this.entityId = entity.getId();
 	}
 
 	private UpdateEntityPacket(){}
 
-	public byte[] getEntityData() {
+	public String getEntityData() {
 		return entityData;
 	}
 

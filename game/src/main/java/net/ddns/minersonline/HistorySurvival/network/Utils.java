@@ -1,6 +1,12 @@
 package net.ddns.minersonline.HistorySurvival.network;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
+import net.ddns.minersonline.HistorySurvival.api.ecs.Component;
+import net.ddns.minersonline.HistorySurvival.api.ecs.GameObject;
 import net.ddns.minersonline.HistorySurvival.api.util.Defaults;
+import net.ddns.minersonline.HistorySurvival.engine.terrains.World;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -10,6 +16,7 @@ public class Utils {
 	public static String GAME_ID = Defaults.DEFAULT_NAMESPACE;
 	public static String GAME = "History Survival";
 	public static String VERSION = "0.0.2";
+	public static Gson gson;
 
 	public static String URL = "https://minersonline.ddns.net/api/";
 
@@ -18,6 +25,14 @@ public class Utils {
 		if(auth != null){
 			URL = auth+"/";
 		}
+
+		GsonBuilder gsonBuilder = new GsonBuilder();
+		gsonBuilder.setPrettyPrinting();
+		gsonBuilder.registerTypeAdapter(Component.class, new Component.JSON());
+		gsonBuilder.registerTypeAdapter(GameObject.class, new GameObject.JSON());
+		gsonBuilder.registerTypeAdapter(TexturedModel.class, new TexturedModel.JSON());
+		gsonBuilder.registerTypeAdapter(World.class, new World.JSON());
+		gson = gsonBuilder.create();
 	}
 	public static String JOIN_URL = URL+"session/hs/join";
 	public static String HAS_JOINED_URL = URL+"session/hs/hasJoined";

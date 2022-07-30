@@ -8,15 +8,19 @@ import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import net.ddns.minersonline.HistorySurvival.api.GameHook;
 import net.ddns.minersonline.HistorySurvival.api.commands.CommandSender;
 import net.ddns.minersonline.HistorySurvival.api.data.resources.EmptyLoader;
+import net.ddns.minersonline.HistorySurvival.api.ecs.GameObject;
 import net.ddns.minersonline.HistorySurvival.api.registries.ModelType;
+import net.ddns.minersonline.HistorySurvival.engine.GameObjectManager;
 import net.ddns.minersonline.HistorySurvival.network.GenerateKeys;
 import net.ddns.minersonline.HistorySurvival.network.PacketDecoder;
 import net.ddns.minersonline.HistorySurvival.network.PacketEncoder;
 import net.ddns.minersonline.HistorySurvival.network.ServerHandler;
+import net.ddns.minersonline.HistorySurvival.network.packets.server.UpdateEntityPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +40,7 @@ public class NettyServer extends GameHook {
 	public static String verifyToken = "";
 	public static String serverId = "";
 	public static boolean running = true;
-	public static ChannelGroup group;
+	public static ChannelGroup group = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 	private static Thread logicThread = null;
 
 	public NettyServer(int port) {
@@ -48,20 +52,14 @@ public class NettyServer extends GameHook {
 	public static void update(){
 		while (running) {
 			if (group != null) {
-//				EntityManager.getClientEntities().forEach(((id, entity) -> {
-//
-//					group.forEach((channel -> {
-//						if ((Integer) (channel.attr(AttributeKey.valueOf("state")).get()) == 3) {
-//							ByteBuf buf = channel.alloc().buffer();
-//							entity.save(buf);
-//							ChannelFuture future = channel.writeAndFlush(new UpdateEntityPacket(entity, buf));
-//							buf.release();
-//						}
-//					}));
-//
-//					entity.updateMe = false;
-//
-//				}));
+				for (GameObject go: GameObjectManager.getGameObjects()){
+					group.forEach((channel -> {
+						logger.info("Update");
+						if ((Integer) (channel.attr(AttributeKey.valueOf("state")).get()) == 3) {
+							channel.writeAndFlush(new UpdateEntityPacket(go));
+						}
+					}));
+				}
 			}
 		}
 	}
@@ -88,7 +86,6 @@ public class NettyServer extends GameHook {
 
 		EventLoopGroup bossGroup = new NioEventLoopGroup();
 		EventLoopGroup workerGroup = new NioEventLoopGroup();
-		group = new DefaultChannelGroup("ClientList", GlobalEventExecutor.INSTANCE);
 		try {
 			ServerBootstrap b = new ServerBootstrap();
 			  logicThread = new Thread(() -> {

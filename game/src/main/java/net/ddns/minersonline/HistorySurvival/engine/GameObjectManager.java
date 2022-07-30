@@ -21,6 +21,16 @@ public class GameObjectManager {
 		game_objects.put(lastId, gameObject);
 	}
 
+	public static void putGameObject(int index, GameObject gameObject){
+		gameObject.setId(index);
+		game_objects.put(index, gameObject);
+		lastId = index +1;
+	}
+
+	public static void removeGameObject(GameObject gameObject){
+		game_objects.remove(gameObject.getId());
+	}
+
 	public static Collection<GameObject> getGameObjects(){
 		return game_objects.values();
 	}

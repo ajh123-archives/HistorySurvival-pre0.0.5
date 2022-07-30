@@ -26,6 +26,8 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
+import static net.ddns.minersonline.HistorySurvival.network.Utils.gson;
+
 public abstract class Scene {
 	protected boolean isRunning = false;
 	protected boolean ENABLE_FILES = false;
@@ -45,6 +47,16 @@ public abstract class Scene {
 
 	public final void addGameObject(GameObject go){
 		GameObjectManager.addGameObject(go);
+		if (!isRunning){
+			metaData.gameObjects.add(go);
+		} else {
+			metaData.gameObjects.add(go);
+			go.start();
+		}
+	}
+
+	public final void putGameObject(int index, GameObject go){
+		GameObjectManager.putGameObject(index, go);
 		if (!isRunning){
 			metaData.gameObjects.add(go);
 		} else {
@@ -208,7 +220,7 @@ public abstract class Scene {
 						serialise = !serialise;
 					}
 					if (serialise) {
-						String object = Game.gson.toJson(active);
+						String object = gson.toJson(active);
 						ImGui.begin("GameObject: "+selected+" serialised");
 						ImGui.text(object);
 						ImGui.end();
@@ -224,7 +236,7 @@ public abstract class Scene {
 		try {
 			String file = new String(Files.readAllBytes(Paths.get(path)));
 			if (!file.equals("")){
-				SceneMetaData scene = Game.gson.fromJson(file, SceneMetaData.class);
+				SceneMetaData scene = gson.fromJson(file, SceneMetaData.class);
 
 				from.metaData.world.setTerrains(scene.world.getTerrains());
 
@@ -252,7 +264,7 @@ public abstract class Scene {
 	public void save(String path){
 		try {
 			FileWriter writer = new FileWriter(path);
-			writer.write(Game.gson.toJson(this.metaData));
+			writer.write(gson.toJson(this.metaData));
 			writer.close();
 		} catch (IOException e){
 			Game.logger.info("An error occurred! :(", e);
@@ -304,5 +316,9 @@ public abstract class Scene {
 
 	public void setLevelLoaded(boolean levelLoaded) {
 		this.levelLoaded = levelLoaded;
+	}
+
+	public Scene getPrevScene() {
+		return prevScene;
 	}
 }

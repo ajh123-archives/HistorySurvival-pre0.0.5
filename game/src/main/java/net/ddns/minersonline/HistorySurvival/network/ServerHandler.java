@@ -14,6 +14,7 @@ import net.ddns.minersonline.HistorySurvival.api.ecs.MeshComponent;
 import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
 import net.ddns.minersonline.HistorySurvival.api.registries.ModelType;
 import net.ddns.minersonline.HistorySurvival.api.registries.Registries;
+import net.ddns.minersonline.HistorySurvival.engine.GameObjectManager;
 import net.ddns.minersonline.HistorySurvival.engine.entities.ControllableComponent;
 import net.ddns.minersonline.HistorySurvival.network.packets.AlivePacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.DisconnectPacket;
@@ -54,11 +55,17 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 		channelGroup.add(ctx.channel());
 		ctx.channel().attr(AttributeKey.valueOf("state")).set(-1);
 		ctx.channel().attr(AttributeKey.valueOf("userName")).set(null);
+		ctx.channel().attr(AttributeKey.valueOf("object")).set(null);
 	}
 
 	@Override
 	public void channelInactive(@NotNull ChannelHandlerContext ctx) {
 		channelGroup.remove(ctx.channel());
+		GameObject go = (GameObject) ctx.channel().attr(AttributeKey.valueOf("object")).get();
+		if (go != null) {
+			GameObjectManager.removeGameObject(go);
+		}
+		ctx.channel().attr(AttributeKey.valueOf("object")).set(null);
 	}
 
 	@Override
@@ -161,6 +168,8 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 								player.addComponent(new TransformComponent());
 								player.addComponent(new MeshComponent(ModelType.PLAYER_MODEL.create()));
 								player.addComponent(new ControllableComponent());
+								GameObjectManager.addGameObject(player);
+								ctx.channel().attr(AttributeKey.valueOf("object")).set(player);
 
 								TransformComponent pos = player.getComponent(TransformComponent.class);
 								if (pos != null) {
