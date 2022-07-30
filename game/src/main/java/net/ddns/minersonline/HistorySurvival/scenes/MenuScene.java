@@ -1,17 +1,11 @@
 package net.ddns.minersonline.HistorySurvival.scenes;
 
-import com.sun.tools.javac.Main;
 import imgui.ImGui;
 import imgui.extension.imguifiledialog.ImGuiFileDialog;
 import imgui.extension.imguifiledialog.flag.ImGuiFileDialogFlags;
-import imgui.flag.ImGuiCond;
 import imgui.type.ImBoolean;
 import imgui.type.ImString;
-import net.ddns.minersonline.HistorySurvival.DelayedTask;
-import net.ddns.minersonline.HistorySurvival.Game;
-import net.ddns.minersonline.HistorySurvival.GameSettings;
-import net.ddns.minersonline.HistorySurvival.Scene;
-import net.ddns.minersonline.HistorySurvival.api.data.text.JSONTextComponent;
+import net.ddns.minersonline.HistorySurvival.*;
 import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
 import net.ddns.minersonline.HistorySurvival.engine.MasterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
@@ -20,8 +14,9 @@ import net.ddns.minersonline.HistorySurvival.api.entities.ClientEntity;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
-import net.ddns.minersonline.HistorySurvival.engine.terrains.TestWorld;
-import net.ddns.minersonline.HistorySurvival.engine.terrains.World;
+import net.ddns.minersonline.HistorySurvival.network.NettyClient;
+import net.ddns.minersonline.HistorySurvival.network.Packet;
+import net.ddns.minersonline.HistorySurvival.network.packets.server.PingResponsePacket;
 import org.joml.Vector3f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class MenuScene extends Scene {
 	private static final Logger logger = LoggerFactory.getLogger(MenuScene.class);
@@ -44,12 +40,18 @@ public class MenuScene extends Scene {
 	private Light sun;
 
 	private final Game game;
-	private static final List<JSONTextComponent> intro = new ArrayList<>();
-	private static final List<JSONTextComponent> sub_intro = new ArrayList<>();
+	private static final List<SavedServer> SAVED_SERVERS = new ArrayList<>();
+	private static SavedServer currentServer = null;
 
 	public static ImBoolean ENABLE_MULTIPLAYER = new ImBoolean(false);
 	public static ImBoolean ENABLE_MULTIPLAYER_OPTIONS = new ImBoolean(false);
 	public static boolean ENABLE_MULTIPLAYER_OPTIONS_JOIN = false;
+
+	private final ImString ip = new ImString();
+	private final ImString name = new ImString();
+	private final ImString port = new ImString();
+	private int iconId = -1;
+	public int refresh = 100;
 
 	public MenuScene(Game game, ModelLoader modelLoader, MasterRenderer masterRenderer, GuiRenderer guiRenderer) {
 		this.masterRenderer = masterRenderer;
@@ -60,19 +62,11 @@ public class MenuScene extends Scene {
 
 	@Override
 	public void init() {
+		iconId = Game.modelLoader.loadTexture("grass.png");
+
 		masterRenderer.setBackgroundColour(new Vector3f(0.5f, 0.5f, 0.5f));
 		sun = new Light(new Vector3f(3000, 2000, 2000), new Vector3f(0.6f, 0.6f,0.6f));
 		lights.add(sun);
-
-		intro.clear();
-		intro.add(new JSONTextComponent("Welcome to History Survival!\n"));
-		intro.add(new JSONTextComponent("Press Enter to play.\n"));
-		intro.add(new JSONTextComponent("Press Space to play multiplayer.\n"));
-
-		sub_intro.clear();
-		sub_intro.add(new JSONTextComponent("Welcome to History Survival multiplayer!\n"));
-		sub_intro.add(new JSONTextComponent("Press Escape to go back.\n"));
-		sub_intro.add(new JSONTextComponent("Type the server IP below...\n"));
 
 		camera = new Camera(null);
 	}
@@ -138,32 +132,91 @@ public class MenuScene extends Scene {
 			if (ImGui.button("Add server")){
 				ENABLE_MULTIPLAYER_OPTIONS.set(true);
 				ENABLE_MULTIPLAYER_OPTIONS_JOIN = false;
+
+				currentServer = new SavedServer();
+				ip.set(currentServer.ip);
+				name.set(currentServer.name);
+				port.set(currentServer.port);
+				SAVED_SERVERS.add(currentServer);
 			}
 			ImGui.sameLine();
 			if (ImGui.button("Direct Connect")){
 				ENABLE_MULTIPLAYER_OPTIONS.set(true);
 				ENABLE_MULTIPLAYER_OPTIONS_JOIN = true;
+
+				currentServer = new SavedServer();
+				ip.set(currentServer.ip);
+				name.set(currentServer.name);
+				port.set(currentServer.port);
 			}
 			ImGui.separator();
 
-			ImGui.beginListBox("Servers", 600, ImGui.getContentRegionAvail().y);
+			ImGui.beginListBox("Servers", ImGui.getContentRegionAvail().x, ImGui.getContentRegionAvail().y);
+			for (int i=0; i<SAVED_SERVERS.size(); i++){
+				SavedServer server = SAVED_SERVERS.get(i);
 
-			ImGui.beginChild(1);
-			ImGui.columns(2, "Servers/list", false);
-			int id = Game.modelLoader.loadTexture("grass.png");
-			ImGui.setColumnWidth(ImGui.getColumnIndex(), 80);
-			ImGui.image(id, 64, 64);
-			ImGui.nextColumn();
-			ImGui.text("Server: ");
-			ImGui.text("MOTD: ");
-			ImGui.button("Join Server");
-			ImGui.sameLine();
-			if (ImGui.button("Edit Server")){
-				ENABLE_MULTIPLAYER_OPTIONS.set(true);
+				ImGui.beginChild("Servers/list/"+i+1, ImGui.getContentRegionAvail().x, 100);
+				ImGui.columns(2, "Servers/list", false);
+				ImGui.setColumnWidth(ImGui.getColumnIndex(), 80);
+
+
+				if (refresh == 0) {
+					DelayedTask pingTask = () -> Game.queue.add(() -> {
+						NettyClient client = new NettyClient(server.ip, Integer.parseInt(server.port));
+						try {
+							client.call(1, (ctx, state, packet) -> {
+								if (state == 1){
+									if (packet.getId().equals("pingResponse")) {
+										PingResponsePacket pingResponsePacket = Packet.cast(packet, PingResponsePacket.class);
+										if (pingResponsePacket != null) {
+											server.motd = pingResponsePacket.getJson();
+											logger.info(server.motd);
+										}
+										ctx.close();
+									}
+								}
+							});
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					});
+					Game.addTask(pingTask);
+					refresh = 300;
+				}
+				refresh -= 1;
+
+				ImGui.image(iconId, 64, 64);
+				ImGui.nextColumn();
+				ImGui.text("Server: "+server.name);
+				ImGui.text("MOTD: "+server.motd);
+				if (ImGui.button("Join Server")){
+					DelayedTask task = () -> Game.queue.add(() -> {
+						NettyClient client = new NettyClient(server.ip, Integer.parseInt(server.port));
+						try {
+							client.call(2, null);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					});
+					Game.addTask(task);
+				}
+
+				ImGui.sameLine();
+				if (ImGui.button("Edit Server")){
+					ENABLE_MULTIPLAYER_OPTIONS.set(true);
+					ENABLE_MULTIPLAYER_OPTIONS_JOIN = false;
+					ip.set(server.ip);
+					name.set(server.name);
+					port.set(server.port);
+					currentServer = server;
+				}
+				ImGui.sameLine();
+				if (ImGui.button("Delete Server")){
+					SAVED_SERVERS.remove(i);
+					currentServer = null;
+				}
+				ImGui.endChild();
 			}
-			ImGui.sameLine();
-			ImGui.button("Delete Server");
-			ImGui.endChild();
 
 			ImGui.endListBox();
 
@@ -171,40 +224,64 @@ public class MenuScene extends Scene {
 		}
 
 		if (ENABLE_MULTIPLAYER_OPTIONS.get()){
-			openEditServer(ENABLE_MULTIPLAYER_OPTIONS, ENABLE_MULTIPLAYER_OPTIONS_JOIN);
+			openEditServer(ENABLE_MULTIPLAYER_OPTIONS, ENABLE_MULTIPLAYER_OPTIONS_JOIN, currentServer);
 		}
 	}
 
-	public void openEditServer(ImBoolean pOpen, boolean join){
+	public void openEditServer(ImBoolean pOpen, boolean join, SavedServer editMe){
 		int height = 150;
-		if (join){height = 112;}
+		if (join){height = 120;}
 		ImGui.setNextWindowSize(400, height);
-		ImGui.begin("Server", pOpen);
+
+		String title = "Edit Server";
+		if (join){title = "Direct Connect";}
+
+		ImGui.begin(title, pOpen);
 
 		if (!join) {
-			ImString name = new ImString("");
-			ImGui.inputText("Name", name);
+			if (ImGui.inputText("Name", name)){editMe.name = name.get();}
 			ImGui.spacing();
 		}
-		ImString ip = new ImString("");
-		ImGui.inputText("IP", ip);
+
+		if (ImGui.inputText("IP", ip)){editMe.ip = ip.get();}
+
 		ImGui.spacing();
-		ImString port = new ImString("36676");
-		ImGui.inputText("Port", port);
+		if (ImGui.inputText("Port", port)){editMe.port = port.get();}
+
 		ImGui.spacing();
 		if (!join) {
-			ImGui.button("Accept");
+			if (ImGui.button("Accept")){
+				pOpen.set(false);
+				currentServer = null;
+			}
 			ImGui.sameLine();
 		} else {
-			ImGui.button("Join");
+			if (ImGui.button("Join")){
+				DelayedTask task = () -> Game.queue.add(() -> {
+					NettyClient client = new NettyClient(ip.get(), Integer.parseInt(port.get()));
+					try {
+						client.call(2, null);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				});
+				Game.addTask(task);
+			}
 			ImGui.sameLine();
 		}
 
 		if (ImGui.button("Cancel")){
 			pOpen.set(false);
+			currentServer = null;
 		}
 		if (join) {
-			ImGui.button("Add to saves");
+			ImGui.sameLine();
+			if (ImGui.button("Add to saves")){
+				SavedServer server = new SavedServer();
+				server.port = port.get();
+				server.ip = ip.get();
+				SAVED_SERVERS.add(server);
+			}
 		}
 
 		ImGui.end();

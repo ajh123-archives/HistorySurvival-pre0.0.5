@@ -1,5 +1,7 @@
 package net.ddns.minersonline.HistorySurvival.engine.terrains;
 
+import net.ddns.minersonline.HistorySurvival.Game;
+import net.ddns.minersonline.HistorySurvival.api.GameHook;
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
 import net.ddns.minersonline.HistorySurvival.engine.textures.TerrainTexture;
 import net.ddns.minersonline.HistorySurvival.engine.textures.TerrainTexturePack;
@@ -21,9 +23,18 @@ public class TestWorld extends World {
 
 	List<WaterTile> waterTiles = new ArrayList<>();
 
-	public TestWorld() {}
+	public TestWorld() {
+		TerrainTexture backgroundTexture = new TerrainTexture(GameHook.getLoader().loadTexture("grassy2.png"));
+		TerrainTexture rTexture = new TerrainTexture(GameHook.getLoader().loadTexture("mud.png"));
+		TerrainTexture gTexture = new TerrainTexture(GameHook.getLoader().loadTexture("grassFlowers.png"));
+		TerrainTexture bTexture = new TerrainTexture(GameHook.getLoader().loadTexture("path.png"));
+
+		texturePack = new TerrainTexturePack(backgroundTexture, rTexture, gTexture, bTexture);
+		blendMap = new TerrainTexture(GameHook.getLoader().loadTexture("blendMap.png"));
+	}
 
 	public TestWorld(ModelLoader loader, int xTiles, int zTiles, float terrainMaxHeight, int terrainVertexCount) {
+		this();
 
 		// *********TERRAIN TEXTURE STUFF**********
 		float terrainSize = Terrain.SIZE;
@@ -31,13 +42,6 @@ public class TestWorld extends World {
 		xSize = terrainSize * xTiles;
 		zSize = terrainSize * zTiles;
 
-		TerrainTexture backgroundTexture = new TerrainTexture(loader.loadTexture("grassy2.png"));
-		TerrainTexture rTexture = new TerrainTexture(loader.loadTexture("mud.png"));
-		TerrainTexture gTexture = new TerrainTexture(loader.loadTexture("grassFlowers.png"));
-		TerrainTexture bTexture = new TerrainTexture(loader.loadTexture("path.png"));
-
-		texturePack = new TerrainTexturePack(backgroundTexture, rTexture, gTexture, bTexture);
-		blendMap = new TerrainTexture(loader.loadTexture("blendMap.png"));
 
 		this.terrainSize = terrainSize;
 		this.terrainVertexCount = terrainVertexCount;

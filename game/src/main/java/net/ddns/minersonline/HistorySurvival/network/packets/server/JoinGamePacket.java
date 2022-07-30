@@ -1,5 +1,6 @@
 package net.ddns.minersonline.HistorySurvival.network.packets.server;
 
+import net.ddns.minersonline.HistorySurvival.api.ecs.GameObject;
 import net.ddns.minersonline.HistorySurvival.api.entities.PlayerEntity;
 import net.ddns.minersonline.HistorySurvival.network.Packet;
 import net.ddns.minersonline.HistorySurvival.network.Utils;
@@ -10,7 +11,7 @@ public class JoinGamePacket extends Packet {
 	@PacketValue
 	private int entityId;
 
-	public JoinGamePacket(PlayerEntity entity) {
+	public JoinGamePacket(GameObject entity) {
 		super(Utils.GAME_ID, "joinGame");
 		CompoundTag data = new CompoundTag();
 		data.putInt("entityId", entity.getId());

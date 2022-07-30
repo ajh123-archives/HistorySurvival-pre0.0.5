@@ -1,5 +1,8 @@
 package net.ddns.minersonline.HistorySurvival.gameplay;
 
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.ddns.minersonline.HistorySurvival.api.GameHook;
 import net.ddns.minersonline.HistorySurvival.api.commands.CommandSender;
@@ -23,9 +26,9 @@ public class GamePlugin extends Plugin {
     @Override
     public void start() {
         logger.info("History Survival gameplay started!");
-        GameHook.getInstance().getDispatcher().register(literal("foo")
+        GameHook.getInstance().getDispatcher().register(LiteralArgumentBuilder.<CommandSender>literal("foo")
         .then(
-            argument("bar", integer())
+            RequiredArgumentBuilder.<CommandSender, Integer>argument("bar", IntegerArgumentType.integer())
             .executes(c -> {
                 fooBar(c);
                 return 1;
@@ -39,7 +42,7 @@ public class GamePlugin extends Plugin {
         logger.info("Commands registered");
     }
 
-    private void fooBar(CommandContext<Object> c) {
+    private void fooBar(CommandContext<CommandSender> c) {
         CommandContext<CommandSender> context = (CommandContext<CommandSender>) (CommandContext<? extends Object>) c;
         CommandSender sender = context.getSource();
         sender.sendMessage(new JSONTextComponent("Hello"));

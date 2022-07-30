@@ -15,8 +15,6 @@ import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.World;
-import net.ddns.minersonline.HistorySurvival.scenes.MainScene;
-import net.ddns.minersonline.HistorySurvival.scenes.MenuScene;
 import net.ddns.minersonline.HistorySurvival.scenes.SceneMetaData;
 import org.lwjgl.glfw.GLFW;
 
@@ -30,7 +28,7 @@ import java.util.Map;
 
 public abstract class Scene {
 	protected boolean isRunning = false;
-	protected boolean loadingAllowed = false;
+	protected boolean ENABLE_FILES = false;
 	protected boolean levelLoaded = false;
 	protected SceneMetaData metaData = new SceneMetaData();
 	public File savePath;
@@ -95,7 +93,7 @@ public abstract class Scene {
 		{
 			if (ImGui.beginMenu("File"))
 			{
-				if (loadingAllowed && ImGui.menuItem("Save", "Ctrl+S")) {
+				if (ENABLE_FILES && ImGui.menuItem("Save", "Ctrl+S")) {
 					//save();
 					if(savePath!=null) {
 						ImGuiFileDialog.openDialog("browse-save", "Save World As", "Json File (*.hsjs){.hsjs},Binary File (*.hsbs){.hsbs}", savePath.getParent(), savePath.getName(), 1, 2, ImGuiFileDialogFlags.HideColumnSize | ImGuiFileDialogFlags.HideColumnType | ImGuiFileDialogFlags.ConfirmOverwrite);
@@ -103,7 +101,7 @@ public abstract class Scene {
 						ImGuiFileDialog.openDialog("browse-save", "Save World As", "Json File (*.hsjs){.hsjs},Binary File (*.hsbs){.hsbs}", ".", "", 1, 2, ImGuiFileDialogFlags.HideColumnSize | ImGuiFileDialogFlags.HideColumnType | ImGuiFileDialogFlags.ConfirmOverwrite);
 					}
 				}
-				if (loadingAllowed && ImGui.menuItem("Open", "Ctrl+O")) {
+				if (ENABLE_FILES && ImGui.menuItem("Open", "Ctrl+O")) {
 					//load();
 					ImGuiFileDialog.openModal("browse-save", "Choose World", "Json File (*.hsjs){.hsjs}", ".", callback, 150, 1, 1, ImGuiFileDialogFlags.HideColumnSize | ImGuiFileDialogFlags.HideColumnType);
 				}

@@ -12,7 +12,9 @@ import net.ddns.minersonline.HistorySurvival.network.packets.auth.client.Handsha
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.client.LoginStartPacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.server.EncryptionRequestPacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.server.LoginSuccessPacket;
+import net.ddns.minersonline.HistorySurvival.network.packets.client.StartPingPacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.server.JoinGamePacket;
+import net.ddns.minersonline.HistorySurvival.network.packets.server.PingResponsePacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.server.UpdateEntityPacket;
 import net.ddns.minersonline.HistorySurvival.scenes.ClientScene;
 import net.ddns.minersonline.HistorySurvival.scenes.ErrorScene;
@@ -36,24 +38,30 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 
 	public final String serverAddress;
 	public final int serverPort;
-	public int state = 0;
+	public int state;
 	RandomString session = new RandomString();
 	public final String secret = session.nextString();
 	public GameProfile profile;
 	public int entityId = -1;
 	public ChannelHandlerContext ctx;
+	public NettyClient.PacketHandler handler;
 
-	public ClientHandler(String serverAddress, Integer serverPort) {
+	public ClientHandler(String serverAddress, Integer serverPort, int state, NettyClient.PacketHandler handler) {
 		this.serverAddress = serverAddress;
 		this.serverPort = serverPort;
 		Utils.ENCRYPTION_MODE = Utils.EncryptionMode.NONE;
+		this.state = state;
+		this.handler = handler;
 	}
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) {
-		ctx.writeAndFlush(new HandshakePacket(serverAddress, serverPort, 2));
-		ctx.writeAndFlush(new LoginStartPacket(GameSettings.username));
-		state = 2;
+		ctx.writeAndFlush(new HandshakePacket(serverAddress, serverPort, state));
+		if (state == 2) {
+			ctx.writeAndFlush(new LoginStartPacket(GameSettings.username));
+		} else {
+			ctx.writeAndFlush(new StartPingPacket());
+		}
 		this.ctx = ctx;
 	}
 
@@ -68,19 +76,22 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 		Packet packet = (Packet) msg;
 		MenuScene menu = (MenuScene) Game.getStartSceneScene();
 
+		if (handler != null){
+			handler.run(ctx, state, packet);
+		}
+
 		if((menu.getGame().getCurrentScene() instanceof ClientScene)){
 			ctx.close();
 			return;
 		}
 
 		if (packet.getOwner().equals(Utils.GAME_ID)) {
-			if(state == 2) {
+			if (state == 2) {
 				if (packet.getId().equals("loginSuccess")) {
 					LoginSuccessPacket loginSuccessPacket = Packet.cast(packet, LoginSuccessPacket.class);
-					if(loginSuccessPacket != null){
+					if (loginSuccessPacket != null){
 						profile = new GameProfile(loginSuccessPacket.getUuid(), loginSuccessPacket.getName());
-						logger.info("Logged in as "+profile.getName()+":"+profile.getRawId()
-						);
+						logger.info("Logged in as "+profile.getName()+":"+profile.getRawId());
 					}
 				}
 				if (packet.getId().equals("encryptionRequest")) {
@@ -138,20 +149,24 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 				logger.debug(packet.getData().valueToString());
 			}
 			if (packet.getId().equals("joinGame")) {
+				Game.logger.info("Joined game!");
 				JoinGamePacket joinGamePacket = Packet.cast(packet, JoinGamePacket.class);
 				if(joinGamePacket != null){
 					entityId = joinGamePacket.getEntityId();
-
-					DelayedTask task = () -> Game.queue.add(() -> menu.getGame().setCurrentScene(new ClientScene(this, menu,
+					ClientScene scene = new ClientScene(
+							this,
+							menu,
 							menu.getGame(),
 							menu.getModelLoader(),
 							menu.getMasterRenderer(),
 							menu.getGuiRenderer()
-					)));
-					menu.getGame().addTask(task, 4);
+					);
+
+					DelayedTask task = () -> Game.queue.add(() -> Game.setCurrentScene(scene));
+					Game.addTask(task);
 				} else {
 					ctx.close();
-					DelayedTask task = () -> Game.queue.add(() -> menu.getGame().setCurrentScene(new ErrorScene(menu,
+					DelayedTask task = () -> Game.queue.add(() -> Game.setCurrentScene(new ErrorScene(menu,
 							"Malformed packet",
 							"Join game packet is empty",
 							menu.getGame(),
@@ -159,7 +174,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 							menu.getMasterRenderer(),
 							menu.getGuiRenderer()
 					)));
-					menu.getGame().addTask(task, 4);
+					Game.addTask(task);
 				}
 			}
 			if (packet.getId().equals("alive")) {
@@ -173,7 +188,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 				DisconnectPacket disconnectPacket = Packet.cast(packet, DisconnectPacket.class);
 				DelayedTask task = () -> Game.queue.add(() -> {
 					if (disconnectPacket != null) {
-						menu.getGame().setCurrentScene(new ErrorScene(menu,
+						Game.setCurrentScene(new ErrorScene(menu,
 								disconnectPacket.getTitle(),
 								disconnectPacket.getReason(),
 								menu.getGame(),
@@ -183,7 +198,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 						));
 					}
 				});
-				menu.getGame().addTask(task, 4);
+				Game.addTask(task, 4);
 			}
 		}
 		if (state == 3){

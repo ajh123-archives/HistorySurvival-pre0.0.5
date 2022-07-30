@@ -3,6 +3,10 @@ package net.ddns.minersonline.HistorySurvival;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.CommandNode;
 import net.ddns.minersonline.HistorySurvival.api.EventHandler;
@@ -45,6 +49,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Predicate;
@@ -58,7 +63,7 @@ import static net.ddns.minersonline.HistorySurvival.network.Utils.VERSION;
 
 public class Game extends GameHook {
 	public static final Logger logger = LoggerFactory.getLogger(Game.class);
-	private final CommandDispatcher<Object> dispatcher = new CommandDispatcher<>();
+	private final CommandDispatcher<CommandSender> dispatcher = new CommandDispatcher<>();
 
 	public static Scene currentScene = null;
 	private static Scene startScene = null;
@@ -72,9 +77,10 @@ public class Game extends GameHook {
 	private static WaterRenderer waterRenderer;
 	private static MasterRenderer masterRenderer;
 	public static ModelLoader modelLoader = new ModelLoader();
+	public static final ExecutorService executor = Executors.newCachedThreadPool();
 
 
-	private void helpCommand(CommandContext<Object> c) {
+	private void helpCommand(CommandContext<CommandSender> c) {
 		CommandContext<CommandSender> context = (CommandContext<CommandSender>) (CommandContext<? extends Object>) c;
 		CommandSender sender = context.getSource();
 		Collection<CommandNode<CommandSender>> commands = context.getRootNode().getChildren();
@@ -158,16 +164,16 @@ public class Game extends GameHook {
 		pluginManager.loadPlugins();
 		pluginManager.startPlugins();
 
-		this.dispatcher.register(literal("help")
+		this.dispatcher.register(LiteralArgumentBuilder.<CommandSender>literal("help")
 		.then(
-			argument("page", integer())
+			RequiredArgumentBuilder.<CommandSender, Integer>argument("page", IntegerArgumentType.integer())
 			.executes(c -> {
 				helpCommand(c);
 				return 1;
 			})
 		)
 		.then(
-			argument("comm", string())
+			RequiredArgumentBuilder.<CommandSender, String>argument("comm", StringArgumentType.string())
 			.executes(c -> {
 				helpCommand(c);
 				return 1;
@@ -202,7 +208,6 @@ public class Game extends GameHook {
 
 		while (DisplayManager.shouldDisplayClose()) {
 			float deltaTime = (float) DisplayManager.getDeltaInSeconds();
-			//KeyEvent keyEvent = Keyboard.getKeyEvent();
 			Mouse.update();
 
 			Iterator<Map.Entry<DelayedTask, Integer>> taskIterator = tasks.entrySet().iterator();
@@ -224,12 +229,9 @@ public class Game extends GameHook {
 			}
 
 			DisplayManager.preUpdate(currentScene);
-			try {
-				GameObjectManager.update(deltaTime);
-				currentScene.update(deltaTime);
-			} catch (Exception e){
-				logger.error("An error occurred!", e);
-			}
+
+			GameObjectManager.update(deltaTime);
+			currentScene.update(deltaTime);
 
 			World world = currentScene.getWorld();
 			Camera camera = currentScene.getCamera();
@@ -276,6 +278,7 @@ public class Game extends GameHook {
 			DisplayManager.updateDisplay();
 		}
 
+		executor.shutdown();
 		currentScene.stop();
 		GameObjectManager.reset();
 		logger.info("Stopping!");
@@ -366,7 +369,7 @@ public class Game extends GameHook {
 	}
 
 	@Override
-	public CommandDispatcher<Object> getDispatcher() {
+	public CommandDispatcher<CommandSender> getDispatcher() {
 		return dispatcher;
 	}
 
@@ -409,7 +412,7 @@ public class Game extends GameHook {
 		tasks.put(task, 2);
 	}
 
-	public void addTask(DelayedTask task, int delay) {
+	public static void addTask(DelayedTask task, int delay) {
 		tasks.put(task, delay);
 	}
 

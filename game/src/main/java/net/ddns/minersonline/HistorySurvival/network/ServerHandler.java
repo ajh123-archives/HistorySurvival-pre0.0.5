@@ -6,8 +6,15 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.util.AttributeKey;
 import net.ddns.minersonline.HistorySurvival.BrokenHash;
+import net.ddns.minersonline.HistorySurvival.Game;
 import net.ddns.minersonline.HistorySurvival.NettyServer;
 import net.ddns.minersonline.HistorySurvival.api.auth.GameProfile;
+import net.ddns.minersonline.HistorySurvival.api.ecs.GameObject;
+import net.ddns.minersonline.HistorySurvival.api.ecs.MeshComponent;
+import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
+import net.ddns.minersonline.HistorySurvival.api.registries.ModelType;
+import net.ddns.minersonline.HistorySurvival.api.registries.Registries;
+import net.ddns.minersonline.HistorySurvival.engine.entities.ControllableComponent;
 import net.ddns.minersonline.HistorySurvival.network.packets.AlivePacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.DisconnectPacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.client.EncryptionResponsePacket;
@@ -15,6 +22,9 @@ import net.ddns.minersonline.HistorySurvival.network.packets.auth.client.Handsha
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.client.LoginStartPacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.server.EncryptionRequestPacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.server.LoginSuccessPacket;
+import net.ddns.minersonline.HistorySurvival.network.packets.client.StartPingPacket;
+import net.ddns.minersonline.HistorySurvival.network.packets.server.JoinGamePacket;
+import net.ddns.minersonline.HistorySurvival.network.packets.server.PingResponsePacket;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -70,6 +80,14 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 			if(requestData.getId().equals("alive")) {
 				Packet responseData = new AlivePacket();
 				ctx.writeAndFlush(responseData);
+			}
+			if (((Integer)ctx.channel().attr(AttributeKey.valueOf("state")).get()) == 1){
+				if (requestData.getId().equals("startPing")) {
+					ctx.writeAndFlush(new PingResponsePacket(
+						"Placing pickles on the sea floor!"
+					));
+					ctx.close();
+				}
 			}
 			if(((Integer)ctx.channel().attr(AttributeKey.valueOf("state")).get()) == 2){
 				if(requestData.getId().equals("loginStart")) {
@@ -138,16 +156,29 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 								logger.info("UUID of player "+profile.getName()+" is "+profile.getID());
 								String remote = ((InetSocketAddress)ctx.channel().remoteAddress()).getAddress().getHostAddress();
 								int port = ((InetSocketAddress)ctx.channel().remoteAddress()).getPort();
-								//PlayerEntity player = EntityType.PLAYER_ENTITY.create();
-//								EntityManager.addEntity(player);
-//								player.setProfile(profile);
-//								EntityManager.addPlayer(player);
-//								logger.info(profile.getName()+"[/"+remote+":"+port+"] logged in with entity id "+player.getId()+" at "+player.getPosition());
-//								ctx.channel().attr(AttributeKey.valueOf("entityId")).set(player.getId());
-//
-//								ctx.writeAndFlush(new JoinGamePacket(
-//										player
-//								));
+
+								GameObject player = new GameObject();
+								player.addComponent(new TransformComponent());
+								player.addComponent(new MeshComponent(ModelType.PLAYER_MODEL.create()));
+								player.addComponent(new ControllableComponent());
+
+								TransformComponent pos = player.getComponent(TransformComponent.class);
+								if (pos != null) {
+									logger.info(profile.getName()+"[/"+remote+":"+port+"] logged in with entity id "+player.getId()+" at "+pos.position);
+									ctx.channel().attr(AttributeKey.valueOf("entityId")).set(player.getId());
+
+									ctx.writeAndFlush(new JoinGamePacket(
+											player
+									));
+								} else {
+									ctx.writeAndFlush(new DisconnectPacket(
+											"Incorrect GameObject",
+											"NullPointerException: player.pos is null",
+											null
+									));
+									ctx.close();
+								}
+
 								try {
 									Thread.sleep(10);
 								} catch (InterruptedException ignored) {}

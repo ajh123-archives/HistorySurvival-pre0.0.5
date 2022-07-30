@@ -1,5 +1,6 @@
 package net.ddns.minersonline.HistorySurvival;
 
+import com.mojang.brigadier.CommandDispatcher;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.group.ChannelGroup;
@@ -8,6 +9,10 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import net.ddns.minersonline.HistorySurvival.api.GameHook;
+import net.ddns.minersonline.HistorySurvival.api.commands.CommandSender;
+import net.ddns.minersonline.HistorySurvival.api.data.resources.EmptyLoader;
+import net.ddns.minersonline.HistorySurvival.api.registries.ModelType;
 import net.ddns.minersonline.HistorySurvival.network.GenerateKeys;
 import net.ddns.minersonline.HistorySurvival.network.PacketDecoder;
 import net.ddns.minersonline.HistorySurvival.network.PacketEncoder;
@@ -20,7 +25,7 @@ import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
-public class NettyServer {
+public class NettyServer extends GameHook {
 	private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
 	private final int port;
 
@@ -36,6 +41,8 @@ public class NettyServer {
 
 	public NettyServer(int port) {
 		this.port = port;
+		LOADER = new EmptyLoader();
+		ModelType.init();
 	}
 
 	public static void update(){
@@ -134,5 +141,22 @@ public class NettyServer {
 			workerGroup.shutdownGracefully();
 			bossGroup.shutdownGracefully();
 		}
+	}
+
+
+
+	@Override
+	public Logger getLogger() {
+		return logger;
+	}
+
+	@Override
+	public CommandDispatcher<CommandSender> getDispatcher() {
+		return null;
+	}
+
+	@Override
+	public void hello() {
+
 	}
 }

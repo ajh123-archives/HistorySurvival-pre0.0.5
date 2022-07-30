@@ -19,8 +19,6 @@ import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleMaster;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleSystem;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleTexture;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.TestWorld;
-import net.ddns.minersonline.HistorySurvival.engine.terrains.VoidWorld;
-import net.ddns.minersonline.HistorySurvival.engine.terrains.World;
 import net.ddns.minersonline.HistorySurvival.engine.utils.MousePicker;
 import net.ddns.minersonline.HistorySurvival.api.registries.ModelType;
 import org.joml.Vector2f;
@@ -92,7 +90,7 @@ public class MainScene extends Scene {
 	@Override
 	public void init() {
 		masterRenderer.setBackgroundColour(new Vector3f(0.65f, 0.9f, 0.97f));
-		loadingAllowed = true;
+		ENABLE_FILES = true;
 		metaData.world = new TestWorld(modelLoader, 1, 1, 15, 256);
 		if(!levelLoaded) {
 			//world = new VoidWorld();

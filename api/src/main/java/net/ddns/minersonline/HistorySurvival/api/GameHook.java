@@ -28,7 +28,7 @@ public abstract class GameHook {
 	/**
 	 * A function that used to get the CommandDispatcher for registering commands
 	 */
-	public abstract CommandDispatcher<Object> getDispatcher();
+	public abstract CommandDispatcher<CommandSender> getDispatcher();
 
 	public static ResourceLoader getLoader() {
 		return LOADER;
