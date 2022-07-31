@@ -83,10 +83,6 @@ public class MainScene extends Scene {
 		this.prevScene = prevScene;
 	}
 
-	public void setPrevScene(Scene prevScene){
-		this.prevScene = prevScene;
-	}
-
 	@Override
 	public void init() {
 		masterRenderer.setBackgroundColour(new Vector3f(0.65f, 0.9f, 0.97f));

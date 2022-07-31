@@ -1,6 +1,7 @@
 package net.ddns.minersonline.HistorySurvival;
 
 import imgui.ImGui;
+import imgui.ImVec2;
 import imgui.extension.imguifiledialog.ImGuiFileDialog;
 import imgui.extension.imguifiledialog.callback.ImGuiFileDialogPaneFun;
 import imgui.extension.imguifiledialog.flag.ImGuiFileDialogFlags;
@@ -32,6 +33,8 @@ public abstract class Scene {
 	protected boolean isRunning = false;
 	protected boolean ENABLE_FILES = false;
 	protected boolean levelLoaded = false;
+	protected static ImVec2 barSize;
+	protected static ImVec2 barPos;
 	protected SceneMetaData metaData = new SceneMetaData();
 	public File savePath;
 
@@ -100,6 +103,10 @@ public abstract class Scene {
 		}
 	};
 
+	public void setPrevScene(Scene prevScene){
+		this.prevScene = prevScene;
+	}
+
 	public final void renderDebug(){
 		if (ImGui.beginMainMenuBar())
 		{
@@ -142,6 +149,8 @@ public abstract class Scene {
 				}
 				ImGui.endMenu();
 			}
+			barSize = ImGui.getWindowSize();
+			barPos = ImGui.getWindowPos();
 			ImGui.endMainMenuBar();
 		}
 

@@ -103,6 +103,15 @@ public class MenuScene extends Scene {
 		if (ImGui.button("Multiplayer")){
 			ENABLE_MULTIPLAYER.set(true);
 		}
+		if (ImGui.button("Editor")){
+			DelayedTask task = () -> Game.queue.add(() -> {
+				ENABLE_ERRORS.set(true);
+				EditorScene scene = new EditorScene(game, modelLoader, masterRenderer, guiRenderer);
+				scene.setPrevScene(this);
+				Game.setCurrentScene(scene);
+			});
+			Game.addTask(task);
+		}
 		ImGui.button("Options");
 		ImGui.end();
 
