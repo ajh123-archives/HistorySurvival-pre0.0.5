@@ -9,7 +9,7 @@ group 'net.ddns.minersonline.HistorySurvival'
 version rootProject.version
 
 mkdocs.publish {
-    docPath = '0.0.2'
+    docPath = '0.0.3'
     rootRedirect = true
 }
 

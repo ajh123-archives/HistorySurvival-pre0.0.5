@@ -14,6 +14,7 @@ public class InterruptingExceptionHandler extends ChannelInboundHandlerAdapter {
 			Scene scene = Game.currentScene;
 			MenuScene menuScene = (MenuScene) scene.getPrevScene();
 			menuScene.error = cause;
+			MenuScene.ENABLE_ERRORS.set(true);
 			Game.setCurrentScene(scene.getPrevScene());
 		});
 		Game.addTask(task);

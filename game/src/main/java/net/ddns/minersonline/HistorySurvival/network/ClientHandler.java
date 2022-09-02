@@ -4,7 +4,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import net.ddns.minersonline.HistorySurvival.*;
 import net.ddns.minersonline.HistorySurvival.api.auth.GameProfile;
-import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
 import net.ddns.minersonline.HistorySurvival.network.packets.AlivePacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.DisconnectPacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.client.EncryptionResponsePacket;
@@ -14,10 +13,8 @@ import net.ddns.minersonline.HistorySurvival.network.packets.auth.server.Encrypt
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.server.LoginSuccessPacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.client.StartPingPacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.server.JoinGamePacket;
-import net.ddns.minersonline.HistorySurvival.network.packets.server.PingResponsePacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.server.UpdateEntityPacket;
 import net.ddns.minersonline.HistorySurvival.scenes.ClientScene;
-import net.ddns.minersonline.HistorySurvival.scenes.ErrorScene;
 import net.ddns.minersonline.HistorySurvival.scenes.MenuScene;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -69,6 +66,14 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 	public void channelInactive(@NotNull ChannelHandlerContext ctx) throws Exception {
 		state = 0;
 		Utils.ENCRYPTION_MODE = Utils.EncryptionMode.NONE;
+		DelayedTask task = () -> Game.queue.add(() -> {
+			Scene scene = Game.currentScene;
+			MenuScene menuScene = (MenuScene) scene.getPrevScene();
+			menuScene.error = new Exception("Server closed the connection");
+			MenuScene.ENABLE_ERRORS.set(true);
+			Game.setCurrentScene(scene.getPrevScene());
+		});
+		Game.addTask(task);
 	}
 
 	@Override
@@ -164,16 +169,15 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 
 					DelayedTask task = () -> Game.queue.add(() -> Game.setCurrentScene(scene));
 					Game.addTask(task);
+					ctx.writeAndFlush(new AlivePacket());
 				} else {
 					ctx.close();
-					DelayedTask task = () -> Game.queue.add(() -> Game.setCurrentScene(new ErrorScene(menu,
-							"Malformed packet",
-							"Join game packet is empty",
-							menu.getGame(),
-							menu.getModelLoader(),
-							menu.getMasterRenderer(),
-							menu.getGuiRenderer()
-					)));
+					DelayedTask task = () -> Game.queue.add(() -> {
+						Scene scene = Game.currentScene;
+						MenuScene menuScene = (MenuScene) scene.getPrevScene();
+						menuScene.error = new Exception("Malformed Join Game Packet");
+						Game.setCurrentScene(scene.getPrevScene());
+					});
 					Game.addTask(task);
 				}
 			}
@@ -188,14 +192,13 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 				DisconnectPacket disconnectPacket = Packet.cast(packet, DisconnectPacket.class);
 				DelayedTask task = () -> Game.queue.add(() -> {
 					if (disconnectPacket != null) {
-						Game.setCurrentScene(new ErrorScene(menu,
-								disconnectPacket.getTitle(),
-								disconnectPacket.getReason(),
-								menu.getGame(),
-								menu.getModelLoader(),
-								menu.getMasterRenderer(),
-								menu.getGuiRenderer()
-						));
+						DelayedTask task2 = () -> Game.queue.add(() -> {
+							Scene scene = Game.currentScene;
+							MenuScene menuScene = (MenuScene) scene.getPrevScene();
+							menuScene.error = new Exception("Malformed Disconnect Packet");
+							Game.setCurrentScene(scene.getPrevScene());
+						});
+						Game.addTask(task2);
 					}
 				});
 				Game.addTask(task, 4);

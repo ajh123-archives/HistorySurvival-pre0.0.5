@@ -203,13 +203,15 @@ public class MenuScene extends Scene {
 				ImGui.text("Server: "+server.name);
 				ImGui.text("MOTD: "+server.motd);
 				if (ImGui.button("Join Server")){
+					ENABLE_ERRORS.set(false);
 					DelayedTask task = () -> Game.queue.add(() -> {
-						ENABLE_ERRORS.set(true);
 						NettyClient client = new NettyClient(server.ip, Integer.parseInt(server.port));
 						try {
 							client.call(2, null);
 						} catch (Exception e) {
+							ENABLE_ERRORS.set(true);
 							e.printStackTrace();
+							error = e;
 						}
 					});
 					Game.addTask(task);
@@ -282,13 +284,16 @@ public class MenuScene extends Scene {
 			ImGui.sameLine();
 		} else {
 			if (ImGui.button("Join")){
+				ENABLE_ERRORS.set(false);
 				DelayedTask task = () -> Game.queue.add(() -> {
 					NettyClient client = new NettyClient(ip.get(), Integer.parseInt(port.get()));
-					ENABLE_ERRORS.set(true);
 					try {
 						client.call(2, null);
+
 					} catch (Exception e) {
+						ENABLE_ERRORS.set(true);
 						e.printStackTrace();
+						error = e;
 					}
 				});
 				Game.addTask(task);

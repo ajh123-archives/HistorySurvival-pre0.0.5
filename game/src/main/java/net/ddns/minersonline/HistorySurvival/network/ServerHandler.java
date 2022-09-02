@@ -56,6 +56,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 		ctx.channel().attr(AttributeKey.valueOf("state")).set(-1);
 		ctx.channel().attr(AttributeKey.valueOf("userName")).set(null);
 		ctx.channel().attr(AttributeKey.valueOf("object")).set(null);
+		ctx.channel().attr(AttributeKey.valueOf("profile")).set(null);
 	}
 
 	@Override
@@ -66,6 +67,11 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 			GameObjectManager.removeGameObject(go);
 		}
 		ctx.channel().attr(AttributeKey.valueOf("object")).set(null);
+		Object obj = ctx.channel().attr(AttributeKey.valueOf("profile")).get();
+		if (obj instanceof GameProfile) {
+			GameProfile profile = (GameProfile) obj;
+			logger.info(profile.getName()+" has left the game");
+		}
 	}
 
 	@Override
@@ -160,6 +166,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 							} catch (Exception ignored) {}
 
 							if(loggedIn && profile != null) {
+								ctx.channel().attr(AttributeKey.valueOf("profile")).set(profile);
 								logger.info("UUID of player "+profile.getName()+" is "+profile.getID());
 								String remote = ((InetSocketAddress)ctx.channel().remoteAddress()).getAddress().getHostAddress();
 								int port = ((InetSocketAddress)ctx.channel().remoteAddress()).getPort();
