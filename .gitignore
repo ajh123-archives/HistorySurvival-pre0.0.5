@@ -1,5 +1,9 @@
 # VS Code Editor
 /.vscode
+# VS Code Java
+/api/bin
+/game/bin
+/gameplay/bin
 
 # Gradle
 target/
