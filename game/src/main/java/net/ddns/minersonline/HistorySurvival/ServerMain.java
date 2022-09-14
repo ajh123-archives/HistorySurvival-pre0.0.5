@@ -29,8 +29,8 @@ import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
-public class NettyServer extends GameHook {
-	private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
+public class ServerMain extends GameHook {
+	private static final Logger logger = LoggerFactory.getLogger(ServerMain.class);
 	private final int port;
 
 	private static GenerateKeys keys;
@@ -43,25 +43,25 @@ public class NettyServer extends GameHook {
 	public static ChannelGroup group = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 	private static Thread logicThread = null;
 
-	public NettyServer(int port) {
+	public ServerMain(int port) {
 		this.port = port;
 		LOADER = new EmptyLoader();
 		ModelType.init();
 	}
 
 	public static void update(){
-		while (running) {
-			if (group != null) {
-				for (GameObject go: GameObjectManager.getGameObjects()){
-					group.forEach((channel -> {
-						logger.info("Update");
-						if ((Integer) (channel.attr(AttributeKey.valueOf("state")).get()) == 3) {
-							channel.writeAndFlush(new UpdateEntityPacket(go));
-						}
-					}));
-				}
-			}
-		}
+//		while (running) {
+//			if (group != null) {
+//				for (GameObject go: GameObjectManager.getGameObjects()){
+//					group.forEach((channel -> {
+//						logger.info("Update");
+//						if ((Integer) (channel.attr(AttributeKey.valueOf("state")).get()) == 3) {
+//							channel.writeAndFlush(new UpdateEntityPacket(go));
+//						}
+//					}));
+//				}
+//			}
+//		}
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -76,7 +76,7 @@ public class NettyServer extends GameHook {
 		publicKey = keys.getPublicKey();
 		privateKey = keys.getPrivateKey();
 
-		new NettyServer(port).run();
+		new ServerMain(port).run();
 	}
 
 	public void run() throws Exception {

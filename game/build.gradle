@@ -92,7 +92,7 @@ task RunServer(type: JavaExec) {
     }
 
     //jvmArgs "-Xms1024m -Xmx2048m"
-    main = "net.ddns.minersonline.HistorySurvival.NettyServer"
+    main = "net.ddns.minersonline.HistorySurvival.ServerMain"
 }
 
 sourceSets {

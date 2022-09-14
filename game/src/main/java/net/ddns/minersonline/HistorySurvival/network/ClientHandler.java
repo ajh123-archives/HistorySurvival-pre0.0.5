@@ -41,9 +41,9 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 	public GameProfile profile;
 	public int entityId = -1;
 	public ChannelHandlerContext ctx;
-	public NettyClient.PacketHandler handler;
+	public ClientMain.PacketHandler handler;
 
-	public ClientHandler(String serverAddress, Integer serverPort, int state, NettyClient.PacketHandler handler) {
+	public ClientHandler(String serverAddress, Integer serverPort, int state, ClientMain.PacketHandler handler) {
 		this.serverAddress = serverAddress;
 		this.serverPort = serverPort;
 		Utils.ENCRYPTION_MODE = Utils.EncryptionMode.NONE;
@@ -64,23 +64,24 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void channelInactive(@NotNull ChannelHandlerContext ctx) throws Exception {
+		if (state == 2 || state == 3) {
+			Utils.ENCRYPTION_MODE = Utils.EncryptionMode.NONE;
+			DelayedTask task = () -> Game.queue.add(() -> {
+				MenuScene menuScene = (MenuScene) Game.getStartSceneScene();
+				menuScene.error = new Exception("Server closed the connection");
+				MenuScene.ENABLE_ERRORS.set(true);
+				Game.setCurrentScene(menuScene);
+			});
+			Game.addTask(task);
+		}
 		state = 0;
-		Utils.ENCRYPTION_MODE = Utils.EncryptionMode.NONE;
-		DelayedTask task = () -> Game.queue.add(() -> {
-			Scene scene = Game.currentScene;
-			MenuScene menuScene = (MenuScene) scene.getPrevScene();
-			menuScene.error = new Exception("Server closed the connection");
-			MenuScene.ENABLE_ERRORS.set(true);
-			Game.setCurrentScene(scene.getPrevScene());
-		});
-		Game.addTask(task);
 	}
 
 	@Override
 	public void channelRead(@NotNull ChannelHandlerContext ctx, @NotNull Object msg) {
 		Packet packet = (Packet) msg;
 		MenuScene menu = (MenuScene) Game.getStartSceneScene();
-
+		logger.debug("Got "+packet.getId());
 		if (handler != null){
 			handler.run(ctx, state, packet);
 		}
@@ -169,7 +170,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 
 					DelayedTask task = () -> Game.queue.add(() -> Game.setCurrentScene(scene));
 					Game.addTask(task);
-					ctx.writeAndFlush(new AlivePacket());
+//					ctx.writeAndFlush(new AlivePacket());
 				} else {
 					ctx.close();
 					DelayedTask task = () -> Game.queue.add(() -> {
@@ -181,12 +182,11 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 					Game.addTask(task);
 				}
 			}
+		}
+		if (state == 1 || state == 2 || state == 3){
 			if (packet.getId().equals("alive")) {
 				ctx.writeAndFlush(new AlivePacket());
 			}
-
-		}
-		if (state == 2 || state == 3){
 			if (packet.getId().equals("disconnect")) {
 				ctx.close();
 				DisconnectPacket disconnectPacket = Packet.cast(packet, DisconnectPacket.class);
@@ -215,7 +215,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 		}
 	}
 
-	public void setHandler(NettyClient.PacketHandler handler) {
+	public void setHandler(ClientMain.PacketHandler handler) {
 		this.handler = handler;
 	}
 }

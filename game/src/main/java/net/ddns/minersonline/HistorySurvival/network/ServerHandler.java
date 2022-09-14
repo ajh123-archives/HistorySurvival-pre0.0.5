@@ -6,14 +6,12 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.util.AttributeKey;
 import net.ddns.minersonline.HistorySurvival.BrokenHash;
-import net.ddns.minersonline.HistorySurvival.Game;
-import net.ddns.minersonline.HistorySurvival.NettyServer;
+import net.ddns.minersonline.HistorySurvival.ServerMain;
 import net.ddns.minersonline.HistorySurvival.api.auth.GameProfile;
 import net.ddns.minersonline.HistorySurvival.api.ecs.GameObject;
 import net.ddns.minersonline.HistorySurvival.api.ecs.MeshComponent;
 import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
 import net.ddns.minersonline.HistorySurvival.api.registries.ModelType;
-import net.ddns.minersonline.HistorySurvival.api.registries.Registries;
 import net.ddns.minersonline.HistorySurvival.engine.GameObjectManager;
 import net.ddns.minersonline.HistorySurvival.engine.entities.ControllableComponent;
 import net.ddns.minersonline.HistorySurvival.network.packets.AlivePacket;
@@ -23,7 +21,6 @@ import net.ddns.minersonline.HistorySurvival.network.packets.auth.client.Handsha
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.client.LoginStartPacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.server.EncryptionRequestPacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.server.LoginSuccessPacket;
-import net.ddns.minersonline.HistorySurvival.network.packets.client.StartPingPacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.server.JoinGamePacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.server.PingResponsePacket;
 import org.apache.http.HttpResponse;
@@ -77,22 +74,22 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 	@Override
 	public void channelRead(@NotNull ChannelHandlerContext ctx, @NotNull Object msg){
 		Packet requestData = (Packet) msg;
-
-		if(requestData.getOwner().equals(Utils.GAME_ID)) {
-			if(requestData.getId().equals("handshake")) {
+		logger.debug("Got "+requestData.getId());
+		if (requestData.getOwner().equals(Utils.GAME_ID)) {
+			if (requestData.getId().equals("handshake")) {
 				Packet responseData = new Packet(requestData);
 				HandshakePacket handshakePacket = Packet.cast(responseData, HandshakePacket.class);
 				if (handshakePacket != null) {
 					ctx.channel().attr(AttributeKey.valueOf("state")).set(handshakePacket.getNextState());
 				}
 			}
-			if(requestData.getId().equals("test")) {
+			if (requestData.getId().equals("test")) {
 				Packet responseData = new Packet(requestData);
 				ctx.writeAndFlush(responseData);
 			}
-			if(requestData.getId().equals("alive")) {
-				Packet responseData = new AlivePacket();
-				ctx.writeAndFlush(responseData);
+			if (requestData.getId().equals("alive")) {
+				//ctx.writeAndFlush(new AlivePacket());
+				//TODO: check frequency of alive packets then kick player if they don't send enough alive packets
 			}
 			if (((Integer)ctx.channel().attr(AttributeKey.valueOf("state")).get()) == 1){
 				if (requestData.getId().equals("startPing")) {
@@ -102,17 +99,17 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 					ctx.close();
 				}
 			}
-			if(((Integer)ctx.channel().attr(AttributeKey.valueOf("state")).get()) == 2){
-				if(requestData.getId().equals("loginStart")) {
+			if (((Integer)ctx.channel().attr(AttributeKey.valueOf("state")).get()) == 2){
+				if (requestData.getId().equals("loginStart")) {
 					Packet responseData = new Packet(requestData);
 					LoginStartPacket loginStartPacket = Packet.cast(responseData, LoginStartPacket.class);
 					if (loginStartPacket != null) {
 						ctx.channel().attr(AttributeKey.valueOf("userName")).set(loginStartPacket.getName());
 
 						ctx.writeAndFlush(new EncryptionRequestPacket(
-								NettyServer.serverId,
-								NettyServer.publicKey.getEncoded(),
-								NettyServer.verifyToken
+								ServerMain.serverId,
+								ServerMain.publicKey.getEncoded(),
+								ServerMain.verifyToken
 						));
 					}
 				}
@@ -120,19 +117,19 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 					Packet responseData = new Packet(requestData);
 					EncryptionResponsePacket encryptionResponsePacket = Packet.cast(responseData, EncryptionResponsePacket.class);
 					if (encryptionResponsePacket != null) {
-						if (encryptionResponsePacket.getVerifyToken().equals(NettyServer.verifyToken)) {
+						if (encryptionResponsePacket.getVerifyToken().equals(ServerMain.verifyToken)) {
 							HttpClient httpClient = HttpClientBuilder.create().build();
 							boolean loggedIn = false;
 							GameProfile profile = null;
 							try {
 								Cipher cipher = Cipher.getInstance(Utils.ENC_ALGO);
-								cipher.init(Cipher.DECRYPT_MODE, NettyServer.privateKey);
+								cipher.init(Cipher.DECRYPT_MODE, ServerMain.privateKey);
 								byte[] dec_secret = cipher.doFinal(encryptionResponsePacket.getSharedSecret());
 								String secret = new String(dec_secret, StandardCharsets.UTF_8);
 
-								String hash = BrokenHash.hash(NettyServer.serverId+
+								String hash = BrokenHash.hash(ServerMain.serverId+
 										secret+
-										Arrays.toString(NettyServer.publicKey.getEncoded())
+										Arrays.toString(ServerMain.publicKey.getEncoded())
 								);
 
 								String userName = (String) ctx.channel().attr(AttributeKey.valueOf("userName")).get();
@@ -146,8 +143,8 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 									Gson gson = new Gson();
 									profile = gson.fromJson(responseBody, GameProfile.class);
 									Utils.ENCRYPTION_MODE = Utils.EncryptionMode.SERVER;
-									Utils.ENC_PRIVATE = NettyServer.privateKey;
-									Utils.ENC_PUBLIC = NettyServer.publicKey;
+									Utils.ENC_PRIVATE = ServerMain.privateKey;
+									Utils.ENC_PUBLIC = ServerMain.publicKey;
 
 									ctx.writeAndFlush(new LoginSuccessPacket(
 											profile.getName(),
@@ -165,7 +162,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 
 							} catch (Exception ignored) {}
 
-							if(loggedIn && profile != null) {
+							if (loggedIn && profile != null) {
 								ctx.channel().attr(AttributeKey.valueOf("profile")).set(profile);
 								logger.info("UUID of player "+profile.getName()+" is "+profile.getID());
 								String remote = ((InetSocketAddress)ctx.channel().remoteAddress()).getAddress().getHostAddress();

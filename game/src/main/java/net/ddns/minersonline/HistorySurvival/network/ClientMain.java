@@ -6,13 +6,12 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import net.ddns.minersonline.HistorySurvival.Game;
-import net.ddns.minersonline.HistorySurvival.api.data.text.JSONTextComponent;
 
-public class NettyClient {
+public class ClientMain {
 	String host;
 	int port;
 
-	public NettyClient(String host, int port) {
+	public ClientMain(String host, int port) {
 		this.host = host;
 		this.port = port;
 	}

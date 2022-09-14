@@ -13,7 +13,7 @@ import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
-import net.ddns.minersonline.HistorySurvival.network.NettyClient;
+import net.ddns.minersonline.HistorySurvival.network.ClientMain;
 import net.ddns.minersonline.HistorySurvival.network.Packet;
 import net.ddns.minersonline.HistorySurvival.network.packets.server.PingResponsePacket;
 import org.joml.Vector3f;
@@ -23,10 +23,8 @@ import org.slf4j.LoggerFactory;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class MenuScene extends Scene {
 	private static final Logger logger = LoggerFactory.getLogger(MenuScene.class);
@@ -175,7 +173,7 @@ public class MenuScene extends Scene {
 
 				if (refresh == 0) {
 					DelayedTask pingTask = () -> Game.queue.add(() -> {
-						NettyClient client = new NettyClient(server.ip, Integer.parseInt(server.port));
+						ClientMain client = new ClientMain(server.ip, Integer.parseInt(server.port));
 						try {
 							client.call(1, (ctx, state, packet) -> {
 								if (state == 1){
@@ -205,7 +203,7 @@ public class MenuScene extends Scene {
 				if (ImGui.button("Join Server")){
 					ENABLE_ERRORS.set(false);
 					DelayedTask task = () -> Game.queue.add(() -> {
-						NettyClient client = new NettyClient(server.ip, Integer.parseInt(server.port));
+						ClientMain client = new ClientMain(server.ip, Integer.parseInt(server.port));
 						try {
 							client.call(2, null);
 						} catch (Exception e) {
@@ -286,7 +284,7 @@ public class MenuScene extends Scene {
 			if (ImGui.button("Join")){
 				ENABLE_ERRORS.set(false);
 				DelayedTask task = () -> Game.queue.add(() -> {
-					NettyClient client = new NettyClient(ip.get(), Integer.parseInt(port.get()));
+					ClientMain client = new ClientMain(ip.get(), Integer.parseInt(port.get()));
 					try {
 						client.call(2, null);
 
