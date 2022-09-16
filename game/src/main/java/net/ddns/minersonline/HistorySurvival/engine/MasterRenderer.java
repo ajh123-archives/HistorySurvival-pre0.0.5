@@ -9,6 +9,9 @@ import net.ddns.minersonline.HistorySurvival.engine.shaders.StaticShader;
 import net.ddns.minersonline.HistorySurvival.engine.shaders.TerrainShader;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.Terrain;
 import net.ddns.minersonline.HistorySurvival.engine.terrains.World;
+import net.ddns.minersonline.HistorySurvival.engine.voxel.Voxel;
+import net.ddns.minersonline.HistorySurvival.engine.voxel.VoxelRenderer;
+import net.ddns.minersonline.HistorySurvival.engine.voxel.VoxelShader;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -35,17 +38,23 @@ public class MasterRenderer {
 	private Matrix4f projectionMatrix;
 	private TerrainRenderer terrainRenderer;
 	private TerrainShader terrainShader;
+	private VoxelRenderer voxelRenderer;
+	private VoxelShader voxelShader;
 	private List<Terrain> terrainList;
 	private final List<GameObject> newEntityList = new ArrayList<>();
+	private final List<Voxel> voxels = new ArrayList<>();
 
-	public MasterRenderer() {
+	public MasterRenderer(ModelLoader loader) {
+		voxels.add(new Voxel(new Vector3f(0, 4, 0)));
 		enableCulling();
 		staticShader = new StaticShader();
 		terrainShader = new TerrainShader();
+		voxelShader = new VoxelShader();
 		entities = new HashMap<>();
 		createProjectionMatrix();
 		gameObjectRenderer = new GameObjectRenderer(staticShader, projectionMatrix);
 		terrainRenderer = new TerrainRenderer(terrainShader, projectionMatrix);
+		voxelRenderer = new VoxelRenderer(loader, voxelShader, projectionMatrix);
 		terrainList = new ArrayList<>();
 
 	}
@@ -76,18 +85,19 @@ public class MasterRenderer {
 		}
 	}
 
-	public void renderScene(World world, List<Light> lights, Camera camera, Vector4f clipping_plane){
+	public void renderScene(World world, List<Light> lights, Camera camera, Vector4f clipping_plane, float deltaTime){
 		processWorld(world);
 		for (GameObject entity : GameObjectManager.getGameObjects()) {
 			processEntity(entity);
 		}
-		render(lights, camera, clipping_plane);
+		render(lights, camera, clipping_plane, deltaTime);
 		newEntityList.clear();
 	}
 
 
-	public void render(List<Light> lights, Camera camera, Vector4f clipping_plane) {
+	public void render(List<Light> lights, Camera camera, Vector4f clipping_plane, float deltaTime) {
 		prepare();
+		voxelRenderer.render(voxels, camera, deltaTime);
 		staticShader.bind();
 		staticShader.loadClipPlane(clipping_plane);
 		staticShader.loadSkyColor(SKY_RED, SKY_GREEN, SKY_BLUE);

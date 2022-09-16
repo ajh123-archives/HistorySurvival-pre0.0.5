@@ -109,8 +109,8 @@ public class Game extends GameHook {
 	private static void init(){
 		ModelType.init();
 
-		masterRenderer = new MasterRenderer();
 		modelLoader = new ModelLoader();
+		masterRenderer = new MasterRenderer(modelLoader);
 		ParticleMaster.init(modelLoader, masterRenderer.getProjectionMatrix());
 
 		guiRenderer = new GuiRenderer(modelLoader);
@@ -240,19 +240,19 @@ public class Game extends GameHook {
 				float distance = 2 * (camera.getPosition().y - waterHeight);
 				camera.getPosition().y -= distance;
 				camera.invertPitch();
-				masterRenderer.renderScene(world, lights, camera, new Vector4f(0, 1, 0, -waterHeight+1f));
+				masterRenderer.renderScene(world, lights, camera, new Vector4f(0, 1, 0, -waterHeight+1f), deltaTime);
 				camera.getPosition().y += distance;
 				camera.invertPitch();
 
 				wfbos.bindRefractionFrameBuffer();
-				masterRenderer.renderScene(world, lights, camera, new Vector4f(0, -1, 0, waterHeight+1f));
+				masterRenderer.renderScene(world, lights, camera, new Vector4f(0, -1, 0, waterHeight+1f), deltaTime);
 				wfbos.unbindCurrentFrameBuffer();
 
-				masterRenderer.renderScene(world, lights, camera, new Vector4f(0, -1, 0, 999999999));
+				masterRenderer.renderScene(world, lights, camera, new Vector4f(0, -1, 0, 999999999), deltaTime);
 				waterRenderer.render(world.getWaterTiles(), camera, sun, deltaTime);
 				GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
 			} else {
-				masterRenderer.renderScene(null, lights, camera, new Vector4f(0, -1, 0, 999999999));
+				masterRenderer.renderScene(null, lights, camera, new Vector4f(0, -1, 0, 999999999), deltaTime);
 			}
 
 			ParticleMaster.renderParticles(camera);

@@ -51,20 +51,28 @@ public class ModelLoader {
 		vbos.add(new MeshData(vao, vboId, -Integer.MAX_VALUE));
 	}
 
-	public MeshData loadToVao(float[] positions, float[] textureCoords) {
+	public MeshData loadToVao(float[] positions, float[] textureCoOrds) {
 		int vaoId = createVao();
 		int vbo1 = storeDataInAttributeList(0, 2, positions);     // using VAO attribute 0. Could be any 0 thru 15
-		int vbo2 = storeDataInAttributeList(1, 2, textureCoords);
+		int vbo2 = storeDataInAttributeList(1, 2, textureCoOrds);
 		unbindVao();
 		return new MeshData(vaoId, vbo1, vbo2);
 	}
 
-	public RawModel loadToVao(float[] positions, float[] textureCoords, float[] normals, int[] indices) {
+	public RawModel loadToVao(float[] positions, float[] textureCoOrds, float[] normals, int[] indices) {
 		int vaoId = createVao();
 		bindIndicesBuffer(vaoId, indices);
 		storeDataInAttributeList(0, 3, positions);     // using VAO attribute 0. Could be any 0 thru 15
-		storeDataInAttributeList(1, 2, textureCoords);
+		storeDataInAttributeList(1, 2, textureCoOrds);
 		storeDataInAttributeList(2, 3, normals);
+		unbindVao();
+
+		return new RawModel(vaoId, indices.length);
+	}
+	public RawModel loadToVao(float[] positions, int[] indices) {
+		int vaoId = createVao();
+		bindIndicesBuffer(vaoId, indices);
+		storeDataInAttributeList(0, 3, positions);     // using VAO attribute 0. Could be any 0 thru 15
 		unbindVao();
 
 		return new RawModel(vaoId, indices.length);
