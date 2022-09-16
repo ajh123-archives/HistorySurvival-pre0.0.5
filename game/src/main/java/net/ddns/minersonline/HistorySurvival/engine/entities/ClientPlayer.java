@@ -5,8 +5,8 @@ import net.ddns.minersonline.HistorySurvival.api.entities.PlayerEntity;
 import net.ddns.minersonline.HistorySurvival.commands.ChatSystem;
 import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
 import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
-import net.ddns.minersonline.HistorySurvival.engine.terrains.Terrain;
-import net.ddns.minersonline.HistorySurvival.engine.terrains.World;
+import net.ddns.minersonline.HistorySurvival.engine.worldOld.types.Terrain;
+import net.ddns.minersonline.HistorySurvival.engine.worldOld.types.World;
 import org.joml.Vector3f;
 
 

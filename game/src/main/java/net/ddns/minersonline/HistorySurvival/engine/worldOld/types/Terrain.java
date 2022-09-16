@@ -1,4 +1,4 @@
-package net.ddns.minersonline.HistorySurvival.engine.terrains;
+package net.ddns.minersonline.HistorySurvival.engine.worldOld.types;
 
 import net.ddns.minersonline.HistorySurvival.api.data.models.RawModel;
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;

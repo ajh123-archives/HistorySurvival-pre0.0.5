@@ -1,4 +1,4 @@
-package net.ddns.minersonline.HistorySurvival.engine.terrains;
+package net.ddns.minersonline.HistorySurvival.engine.worldOld.types;
 
 public interface HeightsGenerator {
 	void getInfo();

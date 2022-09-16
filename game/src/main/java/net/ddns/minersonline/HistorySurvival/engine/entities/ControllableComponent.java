@@ -4,8 +4,8 @@ import net.ddns.minersonline.HistorySurvival.api.auth.GameProfile;
 import net.ddns.minersonline.HistorySurvival.api.ecs.Component;
 import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
 import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
-import net.ddns.minersonline.HistorySurvival.engine.terrains.Terrain;
-import net.ddns.minersonline.HistorySurvival.engine.terrains.World;
+import net.ddns.minersonline.HistorySurvival.engine.worldOld.types.Terrain;
+import net.ddns.minersonline.HistorySurvival.engine.worldOld.types.World;
 
 import static org.lwjgl.glfw.GLFW.*;
 

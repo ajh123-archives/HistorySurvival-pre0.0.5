@@ -6,9 +6,10 @@ import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
 import net.ddns.minersonline.HistorySurvival.engine.shaders.StaticShader;
-import net.ddns.minersonline.HistorySurvival.engine.shaders.TerrainShader;
-import net.ddns.minersonline.HistorySurvival.engine.terrains.Terrain;
-import net.ddns.minersonline.HistorySurvival.engine.terrains.World;
+import net.ddns.minersonline.HistorySurvival.engine.worldOld.TerrainRenderer;
+import net.ddns.minersonline.HistorySurvival.engine.worldOld.TerrainShader;
+import net.ddns.minersonline.HistorySurvival.engine.worldOld.types.Terrain;
+import net.ddns.minersonline.HistorySurvival.engine.worldOld.types.World;
 import net.ddns.minersonline.HistorySurvival.engine.voxel.Voxel;
 import net.ddns.minersonline.HistorySurvival.engine.voxel.VoxelRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.voxel.VoxelShader;
@@ -125,6 +126,7 @@ public class MasterRenderer {
 	public void destroy() {
 		staticShader.destroy();
 		terrainShader.destroy();
+		voxelShader.destroy();
 	}
 
 	private void prepare() {

@@ -15,7 +15,7 @@ import net.ddns.minersonline.HistorySurvival.engine.GameObjectManager;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
-import net.ddns.minersonline.HistorySurvival.engine.terrains.World;
+import net.ddns.minersonline.HistorySurvival.engine.worldOld.types.World;
 import net.ddns.minersonline.HistorySurvival.scenes.SceneMetaData;
 import org.lwjgl.glfw.GLFW;
 

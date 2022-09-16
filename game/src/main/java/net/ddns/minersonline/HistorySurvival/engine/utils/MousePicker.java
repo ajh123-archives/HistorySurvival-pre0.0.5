@@ -3,14 +3,12 @@ package net.ddns.minersonline.HistorySurvival.engine.utils;
 import net.ddns.minersonline.HistorySurvival.engine.DisplayManager;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.io.Mouse;
-import net.ddns.minersonline.HistorySurvival.engine.terrains.Terrain;
-import net.ddns.minersonline.HistorySurvival.engine.terrains.World;
+import net.ddns.minersonline.HistorySurvival.engine.worldOld.types.Terrain;
+import net.ddns.minersonline.HistorySurvival.engine.worldOld.types.World;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
-
-import java.util.Map;
 
 public class MousePicker {
 	private static final int RECURSION_COUNT = 200;

@@ -1,10 +1,10 @@
-package net.ddns.minersonline.HistorySurvival.engine.terrains;
+package net.ddns.minersonline.HistorySurvival.engine.worldOld.types;
 
 import com.google.gson.*;
 import net.ddns.minersonline.HistorySurvival.Game;
 import net.ddns.minersonline.HistorySurvival.engine.textures.TerrainTexture;
 import net.ddns.minersonline.HistorySurvival.engine.textures.TerrainTexturePack;
-import net.ddns.minersonline.HistorySurvival.engine.water.WaterTile;
+import net.ddns.minersonline.HistorySurvival.engine.worldOld.water.WaterTile;
 import org.joml.Vector3f;
 
 import java.lang.reflect.Type;
