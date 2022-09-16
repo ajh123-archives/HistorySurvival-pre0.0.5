@@ -4,8 +4,11 @@ import net.ddns.minersonline.HistorySurvival.api.auth.GameProfile;
 import net.ddns.minersonline.HistorySurvival.api.ecs.Component;
 import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
 import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
+import net.ddns.minersonline.HistorySurvival.engine.voxel.Voxel;
 import net.ddns.minersonline.HistorySurvival.engine.worldOld.types.Terrain;
 import net.ddns.minersonline.HistorySurvival.engine.worldOld.types.World;
+
+import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -14,7 +17,8 @@ public class ControllableComponent extends Component {
 	private transient static final float TURN_SPEED = 160; // degrees per second
 	public transient static final float GRAVITY = -50;
 	private transient static final float JUMP_POWER = 18;
-	private transient World world;
+	private transient boolean GRAVITY_ENABLED = false;
+	private transient List<Voxel> world;
 
 	public float currentSpeed;
 	public float currentTurnSpeed;
@@ -26,7 +30,7 @@ public class ControllableComponent extends Component {
 
 	public ControllableComponent() {}
 
-	public ControllableComponent(World world, float currentSpeed, float currentTurnSpeed, float upwardsSpeed, boolean isJump, GameProfile profile) {
+	public ControllableComponent(List<Voxel> world, float currentSpeed, float currentTurnSpeed, float upwardsSpeed, boolean isJump, GameProfile profile) {
 		this.currentSpeed = currentSpeed;
 		this.currentTurnSpeed = currentTurnSpeed;
 		this.upwardsSpeed = upwardsSpeed;
@@ -35,7 +39,7 @@ public class ControllableComponent extends Component {
 		this.world = world;
 	}
 
-	public ControllableComponent(World world) {
+	public ControllableComponent(List<Voxel> world) {
 		this.world = world;
 	}
 
@@ -45,11 +49,13 @@ public class ControllableComponent extends Component {
 		this.transformComponent = gameObject.getComponent(TransformComponent.class);
 	}
 
-	private void jump() {
-		if (this.upwardsSpeed == 0) {
+	private void jump(boolean down) {
+		if (this.upwardsSpeed == 0 && !down) {
 			this.upwardsSpeed = JUMP_POWER;
-			this.isJump = true;
+		} else {
+			this.upwardsSpeed = -JUMP_POWER;
 		}
+		this.isJump = true;
 	}
 
 	@Override
@@ -74,10 +80,12 @@ public class ControllableComponent extends Component {
 			}
 
 			if (Keyboard.isKeyDown(GLFW_KEY_SPACE)) {
-				this.jump();
+				this.jump(false);
 			}
 
-			Terrain terrain = this.world.getTerrain(this.transformComponent.position.x, this.transformComponent.position.z);
+			if (Keyboard.isKeyDown(GLFW_KEY_LEFT_SHIFT)) {
+				this.jump(true);
+			}
 
 			// Calculate movement
 			this.transformComponent.increaseRotation(0, this.currentTurnSpeed * deltaTime, 0);
@@ -87,22 +95,26 @@ public class ControllableComponent extends Component {
 			this.transformComponent.increasePosition(dx, 0, dz);
 
 			// Calculate jump
-			this.upwardsSpeed += GRAVITY * deltaTime;
+			if (GRAVITY_ENABLED) {
+				this.upwardsSpeed += GRAVITY * deltaTime;
+			}
 			this.transformComponent.increasePosition(0, this.upwardsSpeed * deltaTime, 0);
 
-			// Player terrain collision detection
-			if (terrain != null) {
-				float terrainHeight = terrain.getHeightOfTerrain(this.transformComponent.position.x, this.transformComponent.position.z);
-				if (this.transformComponent.position.y < terrainHeight) {
-					this.upwardsSpeed = 0;
-					this.isJump = false;
-					this.transformComponent.position.y = terrainHeight;
-				}
-			}
+			// Player terrain collision detection  TODO: update when we have blocks
+//			if (terrain != null) {
+//				float terrainHeight = terrain.getHeightOfTerrain(this.transformComponent.position.x, this.transformComponent.position.z);
+//				if (this.transformComponent.position.y < terrainHeight) {
+//					this.upwardsSpeed = 0;
+//					this.isJump = false;
+//					this.transformComponent.position.y = terrainHeight;
+//				}
+//			}
+			this.isJump = false;
+			this.upwardsSpeed = 0;
 		}
 	}
 
-	public void setWorld(World world) {
+	public void setWorld(List<Voxel> world) {
 		this.world = world;
 	}
 }

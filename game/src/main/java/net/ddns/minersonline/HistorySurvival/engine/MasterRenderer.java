@@ -43,10 +43,8 @@ public class MasterRenderer {
 	private VoxelShader voxelShader;
 	private List<Terrain> terrainList;
 	private final List<GameObject> newEntityList = new ArrayList<>();
-	private final List<Voxel> voxels = new ArrayList<>();
 
 	public MasterRenderer(ModelLoader loader) {
-		voxels.add(new Voxel(new Vector3f(0, 4, 0)));
 		enableCulling();
 		staticShader = new StaticShader();
 		terrainShader = new TerrainShader();
@@ -86,19 +84,18 @@ public class MasterRenderer {
 		}
 	}
 
-	public void renderScene(World world, List<Light> lights, Camera camera, Vector4f clipping_plane, float deltaTime){
-		processWorld(world);
+	public void renderScene(List<Voxel> world, List<Light> lights, Camera camera, Vector4f clipping_plane, float deltaTime){
 		for (GameObject entity : GameObjectManager.getGameObjects()) {
 			processEntity(entity);
 		}
-		render(lights, camera, clipping_plane, deltaTime);
+		render(world, lights, camera, clipping_plane, deltaTime);
 		newEntityList.clear();
 	}
 
 
-	public void render(List<Light> lights, Camera camera, Vector4f clipping_plane, float deltaTime) {
+	public void render(List<Voxel> world, List<Light> lights, Camera camera, Vector4f clipping_plane, float deltaTime) {
 		prepare();
-		voxelRenderer.render(voxels, camera, deltaTime);
+		voxelRenderer.render(world, camera, deltaTime);
 		staticShader.bind();
 		staticShader.loadClipPlane(clipping_plane);
 		staticShader.loadSkyColor(SKY_RED, SKY_GREEN, SKY_BLUE);
@@ -115,12 +112,6 @@ public class MasterRenderer {
 		terrainShader.unbind();
 		entities.clear();
 		terrainList.clear();
-	}
-
-	public void processWorld(World world) {
-		if (world != null) {
-			terrainList.addAll(world.getTerrains());
-		}
 	}
 
 	public void destroy() {

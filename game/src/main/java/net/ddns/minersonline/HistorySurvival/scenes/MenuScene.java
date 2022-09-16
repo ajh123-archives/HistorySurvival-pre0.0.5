@@ -87,10 +87,8 @@ public class MenuScene extends Scene {
 				MenuScene scene = this;
 				Game.queue.add(() -> Game.setCurrentScene(new MainScene(
 						scene,
-						game,
 						modelLoader,
-						masterRenderer,
-						guiRenderer
+						masterRenderer
 				)));
 			};
 			Game.addTask(task);
@@ -121,8 +119,6 @@ public class MenuScene extends Scene {
 					MainScene world = new MainScene();
 					world.setModelLoader(modelLoader);
 					world.setMasterRenderer(masterRenderer);
-					world.setGuiRenderer(guiRenderer);
-					world.setGame(game);
 					world.setPrevScene(this);
 					DelayedTask task = () -> Game.queue.add(() -> {
 						Game.setCurrentScene(world);

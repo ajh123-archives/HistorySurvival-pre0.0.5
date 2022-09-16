@@ -17,6 +17,7 @@ import net.ddns.minersonline.HistorySurvival.engine.*;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleMaster;
+import net.ddns.minersonline.HistorySurvival.engine.voxel.Voxel;
 import net.ddns.minersonline.HistorySurvival.engine.worldOld.types.World;
 import net.ddns.minersonline.HistorySurvival.api.data.text.ChatColor;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiRenderer;
@@ -217,7 +218,7 @@ public class Game extends GameHook {
 			GameObjectManager.update(deltaTime);
 			currentScene.update(deltaTime);
 
-			World world = currentScene.getWorld();
+			List<Voxel> world = currentScene.getWorld();
 			Camera camera = currentScene.getCamera();
 			TransformComponent player = currentScene.getPlayer();
 			List<Light> lights = currentScene.getLights();
@@ -228,7 +229,7 @@ public class Game extends GameHook {
 			if(world != null) {
 				GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
 				wfbos.bindReflectionFrameBuffer();
-				float waterHeight = world.getHeightOfWater(player.position.x, player.position.z);
+				float waterHeight = 0;
 				float distance = 2 * (camera.getPosition().y - waterHeight);
 				camera.getPosition().y -= distance;
 				camera.invertPitch();
@@ -241,7 +242,7 @@ public class Game extends GameHook {
 				wfbos.unbindCurrentFrameBuffer();
 
 				masterRenderer.renderScene(world, lights, camera, new Vector4f(0, -1, 0, 999999999), deltaTime);
-				waterRenderer.render(world.getWaterTiles(), camera, sun, deltaTime);
+				waterRenderer.render(null, camera, sun, deltaTime);
 				GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
 			} else {
 				masterRenderer.renderScene(null, lights, camera, new Vector4f(0, -1, 0, 999999999), deltaTime);
@@ -332,7 +333,7 @@ public class Game extends GameHook {
 		}
 
 		String username = cmd.getOptionValue("username");
-		String version = cmd.getOptionValue("version");
+		String version = cmd.getOptionValue("version", "0.0.3");
 		String gameDir = cmd.getOptionValue("gameDir");
 		String uuid = cmd.getOptionValue("uuid");
 		String accessToken = cmd.getOptionValue("accessToken");

@@ -42,7 +42,6 @@ public class ClientScene extends Scene {
 	private transient GameObject player;
 	private transient Camera camera;
 	private transient ChatSystem chatSystem;
-	private transient MousePicker picker;
 	private transient Light sun;
 
 	private transient Vector3f worldCenter;
@@ -72,18 +71,15 @@ public class ClientScene extends Scene {
 	public void init() {
 		masterRenderer.setBackgroundColour(new Vector3f(0.65f, 0.9f, 0.97f));
 		ENABLE_FILES = false;
-		metaData.world = new TestWorld();
 
 		sun = new Light(new Vector3f(3000, 2000, 2000), new Vector3f(0.6f, 0.6f, 0.6f));
 		lights.add(sun);
 
-		float centerX = metaData.world.getXSize()/2;
-		float centerZ = metaData.world.getZSize()/2;
-		worldCenter = metaData.world.getTerrainPoint(centerX, centerZ, 10);
+		worldCenter = new Vector3f(0, 0, 0);
 
 		if(!levelLoaded) {
 			player = new GameObject();
-			player.addComponent(new ControllableComponent(metaData.world));
+			player.addComponent(new ControllableComponent(metaData.voxels));
 			player.addComponent(new MeshComponent(ModelType.PLAYER_MODEL.create()));
 			player.addComponent(new TransformComponent(new Vector3f(worldCenter), new Vector3f(0, 0, 0), .6f));
 			putGameObject(network.entityId, player);
@@ -95,8 +91,6 @@ public class ClientScene extends Scene {
 
 		GuiTexture gui = new GuiTexture(modelLoader.loadTexture("health.png"), new Vector2f(-0.75f, -0.85f), new Vector2f(0.25f, 0.15f));
 		guis.add(gui);
-
-		picker = new MousePicker(metaData.world, masterRenderer.getProjectionMatrix(), camera);
 
 		ParticleTexture particleTexture = new ParticleTexture(modelLoader.loadTexture("grass.png"), 1, false);
 		particleSystem = new ParticleSystem(particleTexture, 50, 0, 0.3f, 4, 2);
@@ -116,7 +110,6 @@ public class ClientScene extends Scene {
 	@Override
 	public void update(float deltaTime) {
 		camera.move();
-		picker.update();
 		camera.update();
 
 		try {
@@ -157,7 +150,7 @@ public class ClientScene extends Scene {
 		if(player == null){return new TransformComponent();}
 		ControllableComponent component = player.getComponent(ControllableComponent.class);
 		if (component != null) {
-			component.setWorld(metaData.world);
+			component.setWorld(metaData.voxels);
 		}
 		TransformComponent transformComponent = player.getComponent(TransformComponent.class);
 		if (camera != null && transformComponent != null) {

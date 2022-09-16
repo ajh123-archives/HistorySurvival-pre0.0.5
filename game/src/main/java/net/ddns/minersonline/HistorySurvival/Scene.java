@@ -1,5 +1,8 @@
 package net.ddns.minersonline.HistorySurvival;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import imgui.ImGui;
 import imgui.ImVec2;
 import imgui.extension.imguifiledialog.ImGuiFileDialog;
@@ -15,7 +18,9 @@ import net.ddns.minersonline.HistorySurvival.engine.GameObjectManager;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
+import net.ddns.minersonline.HistorySurvival.engine.voxel.Voxel;
 import net.ddns.minersonline.HistorySurvival.engine.worldOld.types.World;
+import net.ddns.minersonline.HistorySurvival.scenes.MenuScene;
 import net.ddns.minersonline.HistorySurvival.scenes.SceneMetaData;
 import org.lwjgl.glfw.GLFW;
 
@@ -68,8 +73,8 @@ public abstract class Scene {
 		}
 	}
 
-	public final World getWorld(){
-		return metaData.world;
+	public final List<Voxel> getWorld(){
+		return metaData.voxels;
 	}
 	public abstract Camera getCamera();
 	public abstract TransformComponent getPlayer();
@@ -245,12 +250,35 @@ public abstract class Scene {
 		try {
 			String file = new String(Files.readAllBytes(Paths.get(path)));
 			if (!file.equals("")){
+				JsonObject jsonScene = JsonParser.parseString(file).getAsJsonObject();
+				if (jsonScene.has("version")){
+					String version = jsonScene.get("version").getAsString();
+					if (version.equalsIgnoreCase("0.0.2") || version.equalsIgnoreCase("0.0.1")){
+						DelayedTask task = () -> Game.queue.add(() -> {
+							MenuScene menuScene = (MenuScene) Game.getStartSceneScene();
+							menuScene.error = new Exception("Worlds from versions before 0.0.3 are incompatible.");
+							MenuScene.ENABLE_ERRORS.set(true);
+							Game.setCurrentScene(menuScene);
+						});
+						Game.addTask(task);
+						return;
+					}
+				} else {
+					DelayedTask task = () -> Game.queue.add(() -> {
+						MenuScene menuScene = (MenuScene) Game.getStartSceneScene();
+						menuScene.error = new Exception("Worlds from versions before 0.0.3 are incompatible.");
+						MenuScene.ENABLE_ERRORS.set(true);
+						Game.setCurrentScene(menuScene);
+					});
+					Game.addTask(task);
+					return;
+				}
+
 				SceneMetaData scene = gson.fromJson(file, SceneMetaData.class);
 
-				from.metaData.world.setTerrains(scene.world.getTerrains());
+				from.metaData.voxels = scene.voxels;
 
 				from.metaData.gameObjects.clear();
-				from.metaData.world.updateWorld();
 				GameObjectManager.reset();
 				from.isRunning = false;
 				for (GameObject go : scene.gameObjects) {
