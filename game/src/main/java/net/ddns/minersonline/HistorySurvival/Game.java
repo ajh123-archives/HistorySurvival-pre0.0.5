@@ -29,6 +29,8 @@ import net.ddns.minersonline.HistorySurvival.engine.worldOld.water.WaterRenderer
 import net.ddns.minersonline.HistorySurvival.engine.worldOld.water.WaterShader;
 import net.ddns.minersonline.HistorySurvival.gameplay.GamePlugin;
 import net.ddns.minersonline.HistorySurvival.scenes.MenuScene;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
@@ -218,7 +220,7 @@ public class Game extends GameHook {
 			GameObjectManager.update(deltaTime);
 			currentScene.update(deltaTime);
 
-			List<Voxel> world = currentScene.getWorld();
+			Map<Vector3f, Voxel> world = currentScene.getWorld();
 			Camera camera = currentScene.getCamera();
 			TransformComponent player = currentScene.getPlayer();
 			List<Light> lights = currentScene.getLights();
@@ -256,8 +258,6 @@ public class Game extends GameHook {
 			if(Keyboard.isKeyPressed(GLFW.GLFW_KEY_F3)) {
 				DisplayManager.setShowFPSTitle(!debug);
 			}
-
-
 
 			currentScene.renderDebug();
 			DisplayManager.updateDisplay();

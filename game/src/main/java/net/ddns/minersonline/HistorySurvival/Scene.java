@@ -1,6 +1,5 @@
 package net.ddns.minersonline.HistorySurvival;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import imgui.ImGui;
@@ -19,9 +18,9 @@ import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
 import net.ddns.minersonline.HistorySurvival.engine.voxel.Voxel;
-import net.ddns.minersonline.HistorySurvival.engine.worldOld.types.World;
 import net.ddns.minersonline.HistorySurvival.scenes.MenuScene;
 import net.ddns.minersonline.HistorySurvival.scenes.SceneMetaData;
+import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
 import java.io.File;
@@ -40,8 +39,12 @@ public abstract class Scene {
 	protected boolean levelLoaded = false;
 	protected static ImVec2 barSize;
 	protected static ImVec2 barPos;
-	protected SceneMetaData metaData = new SceneMetaData();
+	protected SceneMetaData metaData;
 	public File savePath;
+
+	public Scene() {
+		metaData = new SceneMetaData();
+	}
 
 	public void init(){}
 	public void update(float deltaTime){}//KeyEvent keyEvent
@@ -73,7 +76,7 @@ public abstract class Scene {
 		}
 	}
 
-	public final List<Voxel> getWorld(){
+	public final Map<Vector3f, Voxel> getWorld(){
 		return metaData.voxels;
 	}
 	public abstract Camera getCamera();

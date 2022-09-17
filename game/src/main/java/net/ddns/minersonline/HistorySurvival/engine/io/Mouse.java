@@ -1,6 +1,8 @@
 package net.ddns.minersonline.HistorySurvival.engine.io;
 
+import net.ddns.minersonline.HistorySurvival.engine.DisplayManager;
 import net.ddns.minersonline.HistorySurvival.engine.GuiManager;
+import org.joml.Vector2f;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
 import org.lwjgl.glfw.GLFWScrollCallback;
@@ -11,6 +13,7 @@ public class Mouse {
 	private static boolean[] buttons;
 	private static double mouseX, mouseY, lastMouseX, lastMouseY, lastScrollMouseX, lastScrollMouseY, deltaX, deltaY, deltaScrollY, deltaScrollX;
 	private static double mouseScrollX, mouseScrollY;
+	private static boolean isGrabbed;
 	private GLFWCursorPosCallback mouseMove;
 	private GLFWMouseButtonCallback mouseButtons;
 	private GLFWScrollCallback mouseScroll;
@@ -58,6 +61,32 @@ public class Mouse {
 
 	public static float getDMouseScrollX() {
 		return (float) deltaScrollX * 10;
+	}
+
+	public static void grab() {
+		glfwSetInputMode(DisplayManager.getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		isGrabbed = true;
+	}
+
+	public static void unGrab() {
+		glfwSetInputMode(DisplayManager.getWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		isGrabbed = false;
+	}
+
+	public static boolean isGrabbed() {
+		return isGrabbed;
+	}
+
+	public static void setIsGrabbed(boolean isGrabbed) {
+		if (isGrabbed){
+			Mouse.grab();
+		} else {
+			Mouse.unGrab();
+		}
+	}
+
+	public static void setCursorPos(Vector2f pos){
+		glfwSetCursorPos(DisplayManager.getWindow(), pos.x, pos.y);
 	}
 
 	public GLFWCursorPosCallback getMouseMoveCallback() {

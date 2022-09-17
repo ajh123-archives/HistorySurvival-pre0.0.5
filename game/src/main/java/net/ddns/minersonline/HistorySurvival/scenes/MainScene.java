@@ -48,6 +48,7 @@ public class MainScene extends Scene {
 	private transient ParticleSystem particleSystem;
 
 	public MainScene() {
+		super();
 		levelLoaded = true;
 		isRunning = false;
 	}
@@ -73,10 +74,6 @@ public class MainScene extends Scene {
 	public void init() {
 		masterRenderer.setBackgroundColour(new Vector3f(0.65f, 0.9f, 0.97f));
 		ENABLE_FILES = true;
-		metaData.voxels.add(new Voxel(
-				ModelType.GRASS_MODEL.getRegistryName(),
-				new Vector3f(2, 2, 2)
-		));
 
 		sun = new Light(new Vector3f(3000, 2000, 2000), new Vector3f(0.6f, 0.6f, 0.6f));
 		lights.add(sun);
@@ -106,7 +103,83 @@ public class MainScene extends Scene {
 		particleSystem.setLifeError(0.1f);
 		particleSystem.setSpeedError(0.4f);
 		particleSystem.setScaleError(0.8f);
+
+		int chunkDistance = 20*2;
+		new Thread(() -> {
+			while (isRunning) {
+				Vector3f position = getPlayer().position;
+				for (int x = (int) (position.x - chunkDistance); x < (int) (position.x); x++) {
+					for (int z = (int) (position.z); z < (int) (position.z + chunkDistance); z++) {
+						Vector3f pos = new Vector3f(x, 0, z);
+						if (metaData.voxels.get(pos) == null) {
+							metaData.voxels.put(pos, new Voxel(
+									ModelType.GRASS_MODEL.getRegistryName(), pos
+							));
+						}
+					}
+				}
+				for (int x = (int) (position.x); x < (int) (position.x + chunkDistance); x++) {
+					for (int z = (int) (position.z); z < (int) (position.z + chunkDistance); z++) {
+						Vector3f pos = new Vector3f(x, 0, z);
+						if (metaData.voxels.get(pos) == null) {
+							metaData.voxels.put(pos, new Voxel(
+									ModelType.GRASS_MODEL.getRegistryName(), pos
+							));
+						}
+					}
+				}
+			}
+		}).start();
+		new Thread(() -> {
+			while (isRunning) {
+				Vector3f position = getPlayer().position;
+				for (int x = (int) (position.x - chunkDistance); x < (int) (position.x); x++) {
+					for (int z = (int) (position.z - chunkDistance); z < (int) (position.z); z++) {
+						Vector3f pos = new Vector3f(x, 0, z);
+						if (metaData.voxels.get(pos) == null) {
+							metaData.voxels.put(pos, new Voxel(
+									ModelType.GRASS_MODEL.getRegistryName(), pos
+							));
+						}
+					}
+				}
+				for (int x = (int) (position.x); x < (int) (position.x + chunkDistance); x++) {
+					for (int z = (int) (position.z - chunkDistance); z < (int) (position.z); z++) {
+						Vector3f pos = new Vector3f(x, 0, z);
+						if (metaData.voxels.get(pos) == null) {
+							metaData.voxels.put(pos, new Voxel(
+									ModelType.GRASS_MODEL.getRegistryName(), pos
+							));
+						}
+					}
+				}
+			}
+		}).start();
+		new Thread(() -> {
+			while (isRunning) {
+				for (Vector3f pos : metaData.voxels.keySet()) {
+					TransformComponent player = getPlayer();
+					if (player == null){continue;}
+					int distX = (int) (player.position.x - pos.x);
+					int distY = (int) (player.position.y - pos.y);
+					int distZ = (int) (player.position.z - pos.z);
+
+					if (distX < 0){
+						distX = -distX;
+					}
+					if (distZ < 0){
+						distZ = -distZ;
+					}
+
+					if ((distX > chunkDistance) || ( distZ > chunkDistance)){
+						metaData.voxels.remove(pos);
+					}
+				}
+			}
+		}).start();
+		getPlayer().position.y = 0;
 	}
+
 
 	@Override
 	public void update(float deltaTime) {

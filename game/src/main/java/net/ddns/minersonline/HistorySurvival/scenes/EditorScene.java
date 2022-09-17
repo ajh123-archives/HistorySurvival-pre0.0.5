@@ -52,6 +52,7 @@ public class EditorScene extends Scene {
 	}
 
 	public EditorScene(Game game, ModelLoader modelLoader, MasterRenderer masterRenderer, GuiRenderer guiRenderer) {
+		super();
 		this.masterRenderer = masterRenderer;
 		this.modelLoader = modelLoader;
 		this.guiRenderer = guiRenderer;

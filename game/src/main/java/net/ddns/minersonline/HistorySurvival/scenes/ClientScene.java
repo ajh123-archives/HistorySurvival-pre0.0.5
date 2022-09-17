@@ -52,6 +52,7 @@ public class ClientScene extends Scene {
 	private final transient ClientHandler network;
 
 	public ClientScene(ClientHandler handler) {
+		super();
 		levelLoaded = true;
 		isRunning = false;
 		network = handler;

@@ -7,8 +7,10 @@ import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
 import net.ddns.minersonline.HistorySurvival.engine.voxel.Voxel;
 import net.ddns.minersonline.HistorySurvival.engine.worldOld.types.Terrain;
 import net.ddns.minersonline.HistorySurvival.engine.worldOld.types.World;
+import org.joml.Vector3f;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -17,8 +19,8 @@ public class ControllableComponent extends Component {
 	private transient static final float TURN_SPEED = 160; // degrees per second
 	public transient static final float GRAVITY = -50;
 	private transient static final float JUMP_POWER = 18;
-	private transient boolean GRAVITY_ENABLED = false;
-	private transient List<Voxel> world;
+	private transient boolean GRAVITY_ENABLED = true;
+	private transient Map<Vector3f, Voxel> world;
 
 	public float currentSpeed;
 	public float currentTurnSpeed;
@@ -30,7 +32,7 @@ public class ControllableComponent extends Component {
 
 	public ControllableComponent() {}
 
-	public ControllableComponent(List<Voxel> world, float currentSpeed, float currentTurnSpeed, float upwardsSpeed, boolean isJump, GameProfile profile) {
+	public ControllableComponent(Map<Vector3f, Voxel> world, float currentSpeed, float currentTurnSpeed, float upwardsSpeed, boolean isJump, GameProfile profile) {
 		this.currentSpeed = currentSpeed;
 		this.currentTurnSpeed = currentTurnSpeed;
 		this.upwardsSpeed = upwardsSpeed;
@@ -39,7 +41,7 @@ public class ControllableComponent extends Component {
 		this.world = world;
 	}
 
-	public ControllableComponent(List<Voxel> world) {
+	public ControllableComponent(Map<Vector3f, Voxel> world) {
 		this.world = world;
 	}
 
@@ -80,11 +82,17 @@ public class ControllableComponent extends Component {
 			}
 
 			if (Keyboard.isKeyDown(GLFW_KEY_SPACE)) {
-				this.jump(false);
+				if (!isJump) {
+					this.jump(false);
+				}
 			}
 
-			if (Keyboard.isKeyDown(GLFW_KEY_LEFT_SHIFT)) {
-				this.jump(true);
+			if (!GRAVITY_ENABLED) {
+				if (!isJump) {
+					if (Keyboard.isKeyDown(GLFW_KEY_LEFT_SHIFT)) {
+						this.jump(true);
+					}
+				}
 			}
 
 			// Calculate movement
@@ -97,24 +105,27 @@ public class ControllableComponent extends Component {
 			// Calculate jump
 			if (GRAVITY_ENABLED) {
 				this.upwardsSpeed += GRAVITY * deltaTime;
+				this.transformComponent.increasePosition(0, this.upwardsSpeed * deltaTime, 0);
 			}
-			this.transformComponent.increasePosition(0, this.upwardsSpeed * deltaTime, 0);
 
-			// Player terrain collision detection  TODO: update when we have blocks
-//			if (terrain != null) {
-//				float terrainHeight = terrain.getHeightOfTerrain(this.transformComponent.position.x, this.transformComponent.position.z);
-//				if (this.transformComponent.position.y < terrainHeight) {
-//					this.upwardsSpeed = 0;
-//					this.isJump = false;
-//					this.transformComponent.position.y = terrainHeight;
-//				}
-//			}
-			this.isJump = false;
-			this.upwardsSpeed = 0;
+			// Player terrain collision detection
+			Voxel voxel = world.get(new Vector3f(
+					(int) this.transformComponent.position.x,
+					(int) this.transformComponent.position.y,
+					(int) this.transformComponent.position.z
+			));
+			if (voxel != null && GRAVITY_ENABLED) {
+				float terrainHeight = voxel.getPosition().y;
+				if ((this.transformComponent.position.y - 0.5f) < terrainHeight) {
+					this.upwardsSpeed = 0;
+					this.isJump = false;
+					this.transformComponent.position.y = 0.5f + terrainHeight;
+				}
+			}
 		}
 	}
 
-	public void setWorld(List<Voxel> world) {
+	public void setWorld(Map<Vector3f, Voxel> world) {
 		this.world = world;
 	}
 }

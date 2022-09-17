@@ -7,11 +7,13 @@ import net.ddns.minersonline.HistorySurvival.engine.MasterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.utils.Maths;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.glBindTexture;
@@ -31,8 +33,8 @@ public class VoxelRenderer {
 		shader.unbind();
 	}
 
-	public void render(List<Voxel> voxels, Camera camera,float deltaTime) {
-		for (Voxel tile : voxels) {
+	public void render(Map<Vector3f, Voxel> voxels, Camera camera, float deltaTime) {
+		for (Voxel tile : voxels.values()) {
 			prepareTexturedModel(tile.getModel());
 			shader.loadViewMatrix(camera);
 			Matrix4f transformationMatrix = Maths.createTransformationMatrix(tile.getPosition(), 0, 0, 0, 1);

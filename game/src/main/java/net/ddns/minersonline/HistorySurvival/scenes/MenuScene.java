@@ -56,6 +56,7 @@ public class MenuScene extends Scene {
 	public transient Throwable error = null;
 
 	public MenuScene(Game game, ModelLoader modelLoader, MasterRenderer masterRenderer, GuiRenderer guiRenderer) {
+		super();
 		this.masterRenderer = masterRenderer;
 		this.modelLoader = modelLoader;
 		this.guiRenderer = guiRenderer;

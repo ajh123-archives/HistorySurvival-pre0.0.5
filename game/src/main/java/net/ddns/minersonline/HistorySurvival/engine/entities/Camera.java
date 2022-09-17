@@ -1,8 +1,10 @@
 package net.ddns.minersonline.HistorySurvival.engine.entities;
 
 import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
+import net.ddns.minersonline.HistorySurvival.engine.DisplayManager;
 import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
 import net.ddns.minersonline.HistorySurvival.engine.io.Mouse;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -16,7 +18,8 @@ public class Camera {
 	private float distanceFromPlayer;
 	private float angleAroundPLayer;
 
-	private final float CAMERA_Y_OFFSET = 7;
+	private final float CAMERA_Y_OFFSET = 6;
+	private final float CAMERA_FORWARD_OFFSET = 1;
 	private final float ZOOM_LEVEL_FACTOR = 0.1f;
 	private final float PITCH_CHANGE_FACTOR = 0.2f;
 	private final float ANGLE_AROUND_PLAYER_CHANGE_FACTOR = 0.3f;
@@ -31,9 +34,19 @@ public class Camera {
 	}
 
 	public void move() {
-		calculateZoom();
-		calculatePitch();
+		if (Keyboard.isKeyDown(GLFW_KEY_LEFT_CONTROL)){
+			Mouse.setIsGrabbed(true);
+			calculateZoom();
+			calculatePitch();
+		} else {
+			Mouse.setIsGrabbed(false);
+		}
 		calculateAngleAroundPlayer();
+		if (Keyboard.isKeyDown(GLFW_KEY_LEFT_CONTROL) && Mouse.isButtonDown(2)){
+			distanceFromPlayer = 50;
+			pitch = 20;
+			angleAroundPLayer = 0;
+		}
 	}
 
 	public void update() {
@@ -90,14 +103,18 @@ public class Camera {
 	}
 
 	private void calculateZoom() {
-		float zoomLevel = Mouse.getDMouseScrollY() * ZOOM_LEVEL_FACTOR;;
-		distanceFromPlayer -= zoomLevel;
+		float zoomLevel = Mouse.getDMouseScrollY() * ZOOM_LEVEL_FACTOR;
+		if ((distanceFromPlayer - zoomLevel) < 0){
+			distanceFromPlayer = 0;
+		} else {
+			distanceFromPlayer -= zoomLevel;
+		}
 	}
 
 	private void calculatePitch() {
-		if (Keyboard.isKeyDown(GLFW_KEY_LEFT_CONTROL) && Mouse.isButtonDown(GLFW_MOUSE_BUTTON_RIGHT)) {
+		if (Keyboard.isKeyDown(GLFW_KEY_LEFT_CONTROL)) {
 			float pitchChange = Mouse.getDY() * PITCH_CHANGE_FACTOR;
-			pitch -= pitchChange;
+			pitch += pitchChange;
 			if (pitch < MIN_PITCH) {
 				pitch = MIN_PITCH;
 			} else if (pitch > MAX_PITCH) {
@@ -107,7 +124,7 @@ public class Camera {
 	}
 
 	private void calculateAngleAroundPlayer() {
-		if (Keyboard.isKeyDown(GLFW_KEY_LEFT_CONTROL) && Mouse.isButtonDown(GLFW_MOUSE_BUTTON_LEFT)) {
+		if (Keyboard.isKeyDown(GLFW_KEY_LEFT_CONTROL)) {
 			float angleChange = Mouse.getDX() * ANGLE_AROUND_PLAYER_CHANGE_FACTOR;
 			angleAroundPLayer -= angleChange;
 		}
@@ -123,8 +140,8 @@ public class Camera {
 
 	private void calculateCameraPosition(float horizontalDistanceFromPlayer, float verticalDistanceFromPlayer) {
 		float theta = player.rotation.y + angleAroundPLayer;
-		float offsetXOfCameraFromPlayer = (float) (horizontalDistanceFromPlayer * Math.sin(Math.toRadians(theta)));
-		float offsetZOfCameraFromPlayer = (float) (horizontalDistanceFromPlayer * Math.cos(Math.toRadians(theta)));
+		float offsetXOfCameraFromPlayer = (float) ((horizontalDistanceFromPlayer-CAMERA_FORWARD_OFFSET) * Math.sin(Math.toRadians(theta)));
+		float offsetZOfCameraFromPlayer = (float) ((horizontalDistanceFromPlayer-CAMERA_FORWARD_OFFSET) * Math.cos(Math.toRadians(theta)));
 		position.x = player.position.x - offsetXOfCameraFromPlayer;
 		position.z = player.position.z - offsetZOfCameraFromPlayer;
 		position.y = player.position.y + verticalDistanceFromPlayer + CAMERA_Y_OFFSET;
