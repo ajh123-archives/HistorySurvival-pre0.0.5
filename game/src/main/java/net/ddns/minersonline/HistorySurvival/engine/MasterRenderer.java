@@ -53,7 +53,7 @@ public class MasterRenderer {
 		createProjectionMatrix();
 		gameObjectRenderer = new GameObjectRenderer(staticShader, projectionMatrix);
 		terrainRenderer = new TerrainRenderer(terrainShader, projectionMatrix);
-		voxelRenderer = new VoxelRenderer(loader, voxelShader, projectionMatrix);
+		voxelRenderer = new VoxelRenderer(voxelShader, projectionMatrix);
 		terrainList = new ArrayList<>();
 
 	}
@@ -95,7 +95,9 @@ public class MasterRenderer {
 
 	public void render(List<Voxel> world, List<Light> lights, Camera camera, Vector4f clipping_plane, float deltaTime) {
 		prepare();
+		voxelShader.bind();
 		voxelRenderer.render(world, camera, deltaTime);
+		voxelShader.unbind();
 		staticShader.bind();
 		staticShader.loadClipPlane(clipping_plane);
 		staticShader.loadSkyColor(SKY_RED, SKY_GREEN, SKY_BLUE);

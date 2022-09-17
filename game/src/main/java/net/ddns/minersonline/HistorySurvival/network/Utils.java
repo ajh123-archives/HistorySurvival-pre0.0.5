@@ -6,6 +6,7 @@ import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
 import net.ddns.minersonline.HistorySurvival.api.ecs.Component;
 import net.ddns.minersonline.HistorySurvival.api.ecs.GameObject;
 import net.ddns.minersonline.HistorySurvival.api.util.Defaults;
+import net.ddns.minersonline.HistorySurvival.engine.voxel.Voxel;
 import net.ddns.minersonline.HistorySurvival.engine.worldOld.types.World;
 
 import java.security.PrivateKey;
@@ -31,6 +32,7 @@ public class Utils {
 		gsonBuilder.registerTypeAdapter(Component.class, new Component.JSON());
 		gsonBuilder.registerTypeAdapter(GameObject.class, new GameObject.JSON());
 		gsonBuilder.registerTypeAdapter(TexturedModel.class, new TexturedModel.JSON());
+		gsonBuilder.registerTypeAdapter(Voxel.class, new Voxel.JSON());
 		gsonBuilder.registerTypeAdapter(World.class, new World.JSON());
 		gson = gsonBuilder.create();
 	}

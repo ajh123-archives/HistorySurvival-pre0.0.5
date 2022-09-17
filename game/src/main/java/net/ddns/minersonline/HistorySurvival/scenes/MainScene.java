@@ -73,7 +73,10 @@ public class MainScene extends Scene {
 	public void init() {
 		masterRenderer.setBackgroundColour(new Vector3f(0.65f, 0.9f, 0.97f));
 		ENABLE_FILES = true;
-		metaData.voxels.add(new Voxel(new Vector3f(2, 2, 2)));
+		metaData.voxels.add(new Voxel(
+				ModelType.GRASS_MODEL.getRegistryName(),
+				new Vector3f(2, 2, 2)
+		));
 
 		sun = new Light(new Vector3f(3000, 2000, 2000), new Vector3f(0.6f, 0.6f, 0.6f));
 		lights.add(sun);

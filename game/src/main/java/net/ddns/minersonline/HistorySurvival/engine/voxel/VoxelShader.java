@@ -2,7 +2,6 @@ package net.ddns.minersonline.HistorySurvival.engine.voxel;
 
 
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
-import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.shaders.ShaderProgramBase;
 import net.ddns.minersonline.HistorySurvival.engine.utils.Maths;
 import org.joml.Matrix4f;
@@ -22,7 +21,8 @@ public class VoxelShader extends ShaderProgramBase {
 
 	@Override
 	protected void bindAttributes() {
-		bindAttribute(0, "position");
+		super.bindAttribute(0, "position");
+		super.bindAttribute(1, "textureCoOrds");
 	}
 
 	@Override

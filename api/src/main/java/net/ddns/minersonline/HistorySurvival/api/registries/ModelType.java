@@ -14,36 +14,13 @@ public class ModelType<T extends TexturedModel> {
 	private static Map<String, TexturedModel> MODElS = new HashMap<>();
 
 	static {
-		TexturedModel tree = new TexturedModel(
-				GameHook.getLoader().loadObjModel("tree.obj"),
-				new ModelTexture(GameHook.getLoader().loadTexture("tree.png")));
-		MODElS.put("tree", tree);
-
-
-		TexturedModel low_poly_tree = new TexturedModel(
-				GameHook.getLoader().loadObjModel("lowPolyTree.obj"),
-				new ModelTexture(GameHook.getLoader().loadTexture("lowPolyTree.png")));
-		MODElS.put("low_poly_tree", low_poly_tree);
-
-
 		TexturedModel grassModel = new TexturedModel(
-				GameHook.getLoader().loadObjModel("grassModel.obj"),
+				GameHook.getLoader().loadCube(),
 				new ModelTexture(GameHook.getLoader().loadTexture("grassTexture.png"))
 		);
 		grassModel.getModelTexture().setHasTransparency(true);
 		grassModel.getModelTexture().setUseFakeLighting(true);
 		MODElS.put("grass", grassModel);
-
-
-		ModelTexture fernTextureAtlas = new ModelTexture(GameHook.getLoader().loadTexture("fern.png"));
-		fernTextureAtlas.setNumberOfRowsInTextureAtlas(2);
-		TexturedModel fernModel = new TexturedModel(
-				GameHook.getLoader().loadObjModel("fern.obj"),
-				fernTextureAtlas
-		);
-		fernModel.getModelTexture().setHasTransparency(true);
-		MODElS.put("fern", fernModel);
-
 
 		TexturedModel player = new TexturedModel(
 				GameHook.getLoader().loadObjModel("person.obj"),
@@ -52,24 +29,9 @@ public class ModelType<T extends TexturedModel> {
 		MODElS.put("player", player);
 	}
 
-	public static ModelType<TexturedModel> TREE_MODEL = register(
-			"tree",
-			ModelType.Builder.of(() -> MODElS.get("tree"))
-	);
-
-	public static ModelType<TexturedModel> LOW_POLY_TREE_MODEL = register(
-			"low_poly_tree",
-			ModelType.Builder.of(() -> MODElS.get("low_poly_tree"))
-	);
-
 	public static ModelType<TexturedModel> GRASS_MODEL = register(
 			"grass",
 			ModelType.Builder.of(() -> MODElS.get("grass"))
-	);
-
-	public static ModelType<TexturedModel> FERN_MODEL = register(
-			"fern",
-			ModelType.Builder.of(() -> MODElS.get("fern"))
 	);
 
 	public static ModelType<TexturedModel> PLAYER_MODEL = register(

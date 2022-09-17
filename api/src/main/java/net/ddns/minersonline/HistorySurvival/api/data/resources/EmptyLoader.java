@@ -9,6 +9,11 @@ public class EmptyLoader extends ResourceLoader{
 	}
 
 	@Override
+	public RawModel loadCube() {
+		return null;
+	}
+
+	@Override
 	public int loadTexture(String filename) {
 		return 0;
 	}
