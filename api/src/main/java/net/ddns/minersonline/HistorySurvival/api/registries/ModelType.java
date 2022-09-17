@@ -16,7 +16,7 @@ public class ModelType<T extends TexturedModel> {
 	static {
 		TexturedModel grassModel = new TexturedModel(
 				GameHook.getLoader().loadCube(),
-				new ModelTexture(GameHook.getLoader().loadTexture("grassTexture.png"))
+				new ModelTexture(GameHook.getLoader().loadTexture("grass.png"))
 		);
 		grassModel.getModelTexture().setHasTransparency(true);
 		grassModel.getModelTexture().setUseFakeLighting(true);
