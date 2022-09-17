@@ -222,7 +222,6 @@ public class Game extends GameHook {
 
 			Map<Vector3f, Voxel> world = currentScene.getWorld();
 			Camera camera = currentScene.getCamera();
-			TransformComponent player = currentScene.getPlayer();
 			List<Light> lights = currentScene.getLights();
 			Light sun = currentScene.getSun();
 

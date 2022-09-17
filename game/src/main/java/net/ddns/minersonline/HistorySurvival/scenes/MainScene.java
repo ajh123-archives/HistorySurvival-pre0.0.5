@@ -19,6 +19,7 @@ import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleMaster;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleSystem;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleTexture;
 import net.ddns.minersonline.HistorySurvival.engine.voxel.Voxel;
+import net.ddns.minersonline.HistorySurvival.engine.voxel.VoxelRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.worldOld.types.TestWorld;
 import net.ddns.minersonline.HistorySurvival.engine.utils.MousePicker;
 import net.ddns.minersonline.HistorySurvival.api.registries.ModelType;
@@ -30,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MainScene extends Scene {
 	private transient static final Logger logger = LoggerFactory.getLogger(MainScene.class);
@@ -46,6 +48,8 @@ public class MainScene extends Scene {
 	private transient Vector3f worldCenter;
 
 	private transient ParticleSystem particleSystem;
+
+	private transient volatile boolean generating = true;
 
 	public MainScene() {
 		super();
@@ -81,6 +85,7 @@ public class MainScene extends Scene {
 		worldCenter = new Vector3f(0, 0, 0);
 
 		if(!levelLoaded) {
+			metaData.voxels = new ConcurrentHashMap<>();
 			player = new GameObject();
 			player.addComponent(new ControllableComponent(metaData.voxels));
 			player.addComponent(new MeshComponent(ModelType.PLAYER_MODEL.create()));
@@ -106,10 +111,10 @@ public class MainScene extends Scene {
 
 		int chunkDistance = 20*2;
 		new Thread(() -> {
-			while (isRunning) {
+			while (generating) {
 				Vector3f position = getPlayer().position;
-				for (int x = (int) (position.x - chunkDistance); x < (int) (position.x); x++) {
-					for (int z = (int) (position.z); z < (int) (position.z + chunkDistance); z++) {
+				for (int x = (int) (position.x - chunkDistance); x < (int) position.x; x++) {
+					for (int z = (int) position.z; z < (int) (position.z + chunkDistance); z++) {
 						Vector3f pos = new Vector3f(x, 0, z);
 						if (metaData.voxels.get(pos) == null) {
 							metaData.voxels.put(pos, new Voxel(
@@ -118,8 +123,8 @@ public class MainScene extends Scene {
 						}
 					}
 				}
-				for (int x = (int) (position.x); x < (int) (position.x + chunkDistance); x++) {
-					for (int z = (int) (position.z); z < (int) (position.z + chunkDistance); z++) {
+				for (int x = (int) position.x; x < (int) (position.x + chunkDistance); x++) {
+					for (int z = (int) position.z; z < (int) (position.z + chunkDistance); z++) {
 						Vector3f pos = new Vector3f(x, 0, z);
 						if (metaData.voxels.get(pos) == null) {
 							metaData.voxels.put(pos, new Voxel(
@@ -131,10 +136,10 @@ public class MainScene extends Scene {
 			}
 		}).start();
 		new Thread(() -> {
-			while (isRunning) {
+			while (generating) {
 				Vector3f position = getPlayer().position;
-				for (int x = (int) (position.x - chunkDistance); x < (int) (position.x); x++) {
-					for (int z = (int) (position.z - chunkDistance); z < (int) (position.z); z++) {
+				for (int x = (int) (position.x - chunkDistance); x < (int) position.x; x++) {
+					for (int z = (int) (position.z - chunkDistance); z < (int) position.z; z++) {
 						Vector3f pos = new Vector3f(x, 0, z);
 						if (metaData.voxels.get(pos) == null) {
 							metaData.voxels.put(pos, new Voxel(
@@ -143,8 +148,8 @@ public class MainScene extends Scene {
 						}
 					}
 				}
-				for (int x = (int) (position.x); x < (int) (position.x + chunkDistance); x++) {
-					for (int z = (int) (position.z - chunkDistance); z < (int) (position.z); z++) {
+				for (int x = (int) position.x; x < (int) (position.x + chunkDistance); x++) {
+					for (int z = (int) (position.z - chunkDistance); z < (int) position.z; z++) {
 						Vector3f pos = new Vector3f(x, 0, z);
 						if (metaData.voxels.get(pos) == null) {
 							metaData.voxels.put(pos, new Voxel(
@@ -156,12 +161,11 @@ public class MainScene extends Scene {
 			}
 		}).start();
 		new Thread(() -> {
-			while (isRunning) {
+			while (generating) {
 				for (Vector3f pos : metaData.voxels.keySet()) {
 					TransformComponent player = getPlayer();
 					if (player == null){continue;}
 					int distX = (int) (player.position.x - pos.x);
-					int distY = (int) (player.position.y - pos.y);
 					int distZ = (int) (player.position.z - pos.z);
 
 					if (distX < 0){
@@ -177,7 +181,7 @@ public class MainScene extends Scene {
 				}
 			}
 		}).start();
-		getPlayer().position.y = 0;
+		getPlayer().position.y = 6;
 	}
 
 
@@ -206,6 +210,7 @@ public class MainScene extends Scene {
 
 	@Override
 	public void stop() {
+		generating = false;
 		ParticleMaster.stop();
 //		chatSystem.setInChat(false);
 //		chatSystem.cleanUp();

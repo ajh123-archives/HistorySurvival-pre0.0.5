@@ -15,7 +15,8 @@ This code made from https://github.com/gruberchris/ThinMatrixGame which was to b
 
 Keyboard arrow keys also work for movement. 
 ~~Mouse input is buggy. Good luck!~~ 
-Mouse input now fixed! Used left control + hold left/right click to rotate the camera
+Mouse input now fixed! Used left control + and move mouse to rotate the camera
+Or use left control + middle mouse button (2) to reset the camera's angle
 
 ## Multiplayer!
 This feature is sill in-development! Beware!

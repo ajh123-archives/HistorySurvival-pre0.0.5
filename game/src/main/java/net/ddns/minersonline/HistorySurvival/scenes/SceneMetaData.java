@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SceneMetaData {
 	public String name = "";
 	public String version = GameSettings.version;
-	public Map<Vector3f, Voxel> voxels = new ConcurrentHashMap<>();
+	public volatile Map<Vector3f, Voxel> voxels = new ConcurrentHashMap<>();
 
 	public List<GameObject> gameObjects = new ArrayList<>();
 
