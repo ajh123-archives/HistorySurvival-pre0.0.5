@@ -220,7 +220,7 @@ public class Game extends GameHook {
 			GameObjectManager.update(deltaTime);
 			currentScene.update(deltaTime);
 
-			Map<Vector3f, Voxel> world = currentScene.getWorld();
+			Collection<Voxel> world = currentScene.getWorld().getVisible();
 			Camera camera = currentScene.getCamera();
 			List<Light> lights = currentScene.getLights();
 			Light sun = currentScene.getSun();

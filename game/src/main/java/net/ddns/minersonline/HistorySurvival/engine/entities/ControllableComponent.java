@@ -5,6 +5,7 @@ import net.ddns.minersonline.HistorySurvival.api.ecs.Component;
 import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
 import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
 import net.ddns.minersonline.HistorySurvival.engine.voxel.Voxel;
+import net.ddns.minersonline.HistorySurvival.engine.voxel.VoxelWorld;
 import net.ddns.minersonline.HistorySurvival.engine.worldOld.types.Terrain;
 import net.ddns.minersonline.HistorySurvival.engine.worldOld.types.World;
 import org.joml.Vector3f;
@@ -20,7 +21,7 @@ public class ControllableComponent extends Component {
 	public transient static final float GRAVITY = -50;
 	private transient static final float JUMP_POWER = 18;
 	private transient boolean GRAVITY_ENABLED = true;
-	private transient Map<Vector3f, Voxel> world;
+	private transient VoxelWorld world;
 
 	public float currentSpeed;
 	public float currentTurnSpeed;
@@ -32,7 +33,7 @@ public class ControllableComponent extends Component {
 
 	public ControllableComponent() {}
 
-	public ControllableComponent(Map<Vector3f, Voxel> world, float currentSpeed, float currentTurnSpeed, float upwardsSpeed, boolean isJump, GameProfile profile) {
+	public ControllableComponent(VoxelWorld world, float currentSpeed, float currentTurnSpeed, float upwardsSpeed, boolean isJump, GameProfile profile) {
 		this.currentSpeed = currentSpeed;
 		this.currentTurnSpeed = currentTurnSpeed;
 		this.upwardsSpeed = upwardsSpeed;
@@ -41,7 +42,7 @@ public class ControllableComponent extends Component {
 		this.world = world;
 	}
 
-	public ControllableComponent(Map<Vector3f, Voxel> world) {
+	public ControllableComponent(VoxelWorld world) {
 		this.world = world;
 	}
 
@@ -109,7 +110,7 @@ public class ControllableComponent extends Component {
 			}
 
 			// Player terrain collision detection
-			Voxel voxel = world.get(new Vector3f(
+			Voxel voxel = world.getVoxel(new Vector3f(
 					(int) this.transformComponent.position.x,
 					(int) this.transformComponent.position.y,
 					(int) this.transformComponent.position.z
@@ -125,7 +126,7 @@ public class ControllableComponent extends Component {
 		}
 	}
 
-	public void setWorld(Map<Vector3f, Voxel> world) {
+	public void setWorld(VoxelWorld world) {
 		this.world = world;
 	}
 }

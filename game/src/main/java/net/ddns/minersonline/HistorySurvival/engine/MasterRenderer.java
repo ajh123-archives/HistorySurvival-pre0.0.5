@@ -9,7 +9,6 @@ import net.ddns.minersonline.HistorySurvival.engine.shaders.StaticShader;
 import net.ddns.minersonline.HistorySurvival.engine.worldOld.TerrainRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.worldOld.TerrainShader;
 import net.ddns.minersonline.HistorySurvival.engine.worldOld.types.Terrain;
-import net.ddns.minersonline.HistorySurvival.engine.worldOld.types.World;
 import net.ddns.minersonline.HistorySurvival.engine.voxel.Voxel;
 import net.ddns.minersonline.HistorySurvival.engine.voxel.VoxelRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.voxel.VoxelShader;
@@ -17,10 +16,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
@@ -84,7 +80,7 @@ public class MasterRenderer {
 		}
 	}
 
-	public void renderScene(Map<Vector3f, Voxel> world, List<Light> lights, Camera camera, Vector4f clipping_plane, float deltaTime){
+	public void renderScene(Collection<Voxel> world, List<Light> lights, Camera camera, Vector4f clipping_plane, float deltaTime){
 		for (GameObject entity : GameObjectManager.getGameObjects()) {
 			processEntity(entity);
 		}
@@ -93,7 +89,7 @@ public class MasterRenderer {
 	}
 
 
-	public void render(Map<Vector3f, Voxel> world, List<Light> lights, Camera camera, Vector4f clipping_plane, float deltaTime) {
+	public void render(Collection<Voxel> world, List<Light> lights, Camera camera, Vector4f clipping_plane, float deltaTime) {
 		prepare();
 		voxelShader.bind();
 		voxelRenderer.render(world, camera, deltaTime);

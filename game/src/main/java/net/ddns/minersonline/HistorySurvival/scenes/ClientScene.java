@@ -80,7 +80,7 @@ public class ClientScene extends Scene {
 
 		if(!levelLoaded) {
 			player = new GameObject();
-			player.addComponent(new ControllableComponent(metaData.voxels));
+			player.addComponent(new ControllableComponent(metaData.world));
 			player.addComponent(new MeshComponent(ModelType.PLAYER_MODEL.create()));
 			player.addComponent(new TransformComponent(new Vector3f(worldCenter), new Vector3f(0, 0, 0), .6f));
 			putGameObject(network.entityId, player);
@@ -151,7 +151,7 @@ public class ClientScene extends Scene {
 		if(player == null){return new TransformComponent();}
 		ControllableComponent component = player.getComponent(ControllableComponent.class);
 		if (component != null) {
-			component.setWorld(metaData.voxels);
+			component.setWorld(metaData.world);
 		}
 		TransformComponent transformComponent = player.getComponent(TransformComponent.class);
 		if (camera != null && transformComponent != null) {

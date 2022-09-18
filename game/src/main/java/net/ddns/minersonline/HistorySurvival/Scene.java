@@ -18,6 +18,7 @@ import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
 import net.ddns.minersonline.HistorySurvival.engine.voxel.Voxel;
+import net.ddns.minersonline.HistorySurvival.engine.voxel.VoxelWorld;
 import net.ddns.minersonline.HistorySurvival.scenes.MenuScene;
 import net.ddns.minersonline.HistorySurvival.scenes.SceneMetaData;
 import org.joml.Vector3f;
@@ -76,8 +77,8 @@ public abstract class Scene {
 		}
 	}
 
-	public final Map<Vector3f, Voxel> getWorld(){
-		return metaData.voxels;
+	public final VoxelWorld getWorld(){
+		return metaData.world;
 	}
 	public abstract Camera getCamera();
 	public abstract TransformComponent getPlayer();
@@ -279,7 +280,7 @@ public abstract class Scene {
 
 				SceneMetaData scene = gson.fromJson(file, SceneMetaData.class);
 
-				from.metaData.voxels = scene.voxels;
+				from.metaData.world = scene.world;
 
 				from.metaData.gameObjects.clear();
 				GameObjectManager.reset();

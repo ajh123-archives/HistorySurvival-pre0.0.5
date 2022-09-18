@@ -9,19 +9,13 @@ import net.ddns.minersonline.HistorySurvival.engine.entities.ControllableCompone
 import net.ddns.minersonline.HistorySurvival.api.ecs.GameObject;
 import net.ddns.minersonline.HistorySurvival.api.ecs.MeshComponent;
 import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
-import net.ddns.minersonline.HistorySurvival.commands.ChatSystem;
 import net.ddns.minersonline.HistorySurvival.engine.MasterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
 import net.ddns.minersonline.HistorySurvival.engine.entities.*;
-import net.ddns.minersonline.HistorySurvival.engine.guis.GuiRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleMaster;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleSystem;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleTexture;
-import net.ddns.minersonline.HistorySurvival.engine.voxel.Voxel;
-import net.ddns.minersonline.HistorySurvival.engine.voxel.VoxelRenderer;
-import net.ddns.minersonline.HistorySurvival.engine.worldOld.types.TestWorld;
-import net.ddns.minersonline.HistorySurvival.engine.utils.MousePicker;
 import net.ddns.minersonline.HistorySurvival.api.registries.ModelType;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -30,8 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class MainScene extends Scene {
 	private transient static final Logger logger = LoggerFactory.getLogger(MainScene.class);
@@ -48,8 +40,6 @@ public class MainScene extends Scene {
 	private transient Vector3f worldCenter;
 
 	private transient ParticleSystem particleSystem;
-
-	private transient volatile boolean generating = true;
 
 	public MainScene() {
 		super();
@@ -85,9 +75,8 @@ public class MainScene extends Scene {
 		worldCenter = new Vector3f(0, 0, 0);
 
 		if(!levelLoaded) {
-			metaData.voxels = new ConcurrentHashMap<>();
 			player = new GameObject();
-			player.addComponent(new ControllableComponent(metaData.voxels));
+			player.addComponent(new ControllableComponent(metaData.world));
 			player.addComponent(new MeshComponent(ModelType.PLAYER_MODEL.create()));
 			player.addComponent(new TransformComponent(new Vector3f(worldCenter), new Vector3f(0, 0, 0), .6f));
 			addGameObject(player);
@@ -96,6 +85,7 @@ public class MainScene extends Scene {
 		} else {
 			camera = new Camera(getPlayer());
 		}
+		metaData.world.start(getPlayer());
 
 
 		GuiTexture gui = new GuiTexture(modelLoader.loadTexture("health.png"), new Vector2f(-0.75f, -0.85f), new Vector2f(0.25f, 0.15f));
@@ -109,78 +99,7 @@ public class MainScene extends Scene {
 		particleSystem.setSpeedError(0.4f);
 		particleSystem.setScaleError(0.8f);
 
-		int chunkDistance = 20*2;
-		new Thread(() -> {
-			while (generating) {
-				Vector3f position = getPlayer().position;
-				for (int x = (int) (position.x - chunkDistance); x < (int) position.x; x++) {
-					for (int z = (int) position.z; z < (int) (position.z + chunkDistance); z++) {
-						Vector3f pos = new Vector3f(x, 0, z);
-						if (metaData.voxels.get(pos) == null) {
-							metaData.voxels.put(pos, new Voxel(
-									ModelType.GRASS_MODEL.getRegistryName(), pos
-							));
-						}
-					}
-				}
-				for (int x = (int) position.x; x < (int) (position.x + chunkDistance); x++) {
-					for (int z = (int) position.z; z < (int) (position.z + chunkDistance); z++) {
-						Vector3f pos = new Vector3f(x, 0, z);
-						if (metaData.voxels.get(pos) == null) {
-							metaData.voxels.put(pos, new Voxel(
-									ModelType.GRASS_MODEL.getRegistryName(), pos
-							));
-						}
-					}
-				}
-			}
-		}).start();
-		new Thread(() -> {
-			while (generating) {
-				Vector3f position = getPlayer().position;
-				for (int x = (int) (position.x - chunkDistance); x < (int) position.x; x++) {
-					for (int z = (int) (position.z - chunkDistance); z < (int) position.z; z++) {
-						Vector3f pos = new Vector3f(x, 0, z);
-						if (metaData.voxels.get(pos) == null) {
-							metaData.voxels.put(pos, new Voxel(
-									ModelType.GRASS_MODEL.getRegistryName(), pos
-							));
-						}
-					}
-				}
-				for (int x = (int) position.x; x < (int) (position.x + chunkDistance); x++) {
-					for (int z = (int) (position.z - chunkDistance); z < (int) position.z; z++) {
-						Vector3f pos = new Vector3f(x, 0, z);
-						if (metaData.voxels.get(pos) == null) {
-							metaData.voxels.put(pos, new Voxel(
-									ModelType.GRASS_MODEL.getRegistryName(), pos
-							));
-						}
-					}
-				}
-			}
-		}).start();
-		new Thread(() -> {
-			while (generating) {
-				for (Vector3f pos : metaData.voxels.keySet()) {
-					TransformComponent player = getPlayer();
-					if (player == null){continue;}
-					int distX = (int) (player.position.x - pos.x);
-					int distZ = (int) (player.position.z - pos.z);
 
-					if (distX < 0){
-						distX = -distX;
-					}
-					if (distZ < 0){
-						distZ = -distZ;
-					}
-
-					if ((distX > chunkDistance) || ( distZ > chunkDistance)){
-						metaData.voxels.remove(pos);
-					}
-				}
-			}
-		}).start();
 		getPlayer().position.y = 6;
 	}
 
@@ -210,7 +129,7 @@ public class MainScene extends Scene {
 
 	@Override
 	public void stop() {
-		generating = false;
+		metaData.world.stop();
 		ParticleMaster.stop();
 //		chatSystem.setInChat(false);
 //		chatSystem.cleanUp();
@@ -232,7 +151,7 @@ public class MainScene extends Scene {
 		if(player == null){return new TransformComponent();}
 		ControllableComponent component = player.getComponent(ControllableComponent.class);
 		if (component != null) {
-			component.setWorld(metaData.voxels);
+			component.setWorld(metaData.world);
 		}
 		TransformComponent transformComponent = player.getComponent(TransformComponent.class);
 		if (camera != null && transformComponent != null) {
