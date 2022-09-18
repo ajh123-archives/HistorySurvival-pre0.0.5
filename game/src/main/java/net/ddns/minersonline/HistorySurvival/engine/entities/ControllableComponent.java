@@ -6,12 +6,7 @@ import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
 import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
 import net.ddns.minersonline.HistorySurvival.engine.voxel.Voxel;
 import net.ddns.minersonline.HistorySurvival.engine.voxel.VoxelWorld;
-import net.ddns.minersonline.HistorySurvival.engine.worldOld.types.Terrain;
-import net.ddns.minersonline.HistorySurvival.engine.worldOld.types.World;
 import org.joml.Vector3f;
-
-import java.util.List;
-import java.util.Map;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -20,7 +15,7 @@ public class ControllableComponent extends Component {
 	private transient static final float TURN_SPEED = 160; // degrees per second
 	public transient static final float GRAVITY = -50;
 	private transient static final float JUMP_POWER = 18;
-	private transient boolean GRAVITY_ENABLED = true;
+	private transient boolean GRAVITY_ENABLED = false;
 	private transient VoxelWorld world;
 
 	public float currentSpeed;
@@ -84,13 +79,17 @@ public class ControllableComponent extends Component {
 
 			if (Keyboard.isKeyDown(GLFW_KEY_SPACE)) {
 				if (!isJump) {
+					if (!GRAVITY_ENABLED) {
+						upwardsSpeed = 0;
+					}
 					this.jump(false);
 				}
 			}
 
 			if (!GRAVITY_ENABLED) {
-				if (!isJump) {
-					if (Keyboard.isKeyDown(GLFW_KEY_LEFT_SHIFT)) {
+				if (Keyboard.isKeyDown(GLFW_KEY_LEFT_SHIFT)) {
+					if (!isJump) {
+						upwardsSpeed = 1;
 						this.jump(true);
 					}
 				}
@@ -110,11 +109,7 @@ public class ControllableComponent extends Component {
 			}
 
 			// Player terrain collision detection
-			Voxel voxel = world.getVoxel(new Vector3f(
-					(int) this.transformComponent.position.x,
-					(int) this.transformComponent.position.y,
-					(int) this.transformComponent.position.z
-			));
+			Voxel voxel = world.getBlock(transformComponent.position);
 			if (voxel != null && GRAVITY_ENABLED) {
 				float terrainHeight = voxel.getPosition().y;
 				if ((this.transformComponent.position.y - 0.5f) < terrainHeight) {

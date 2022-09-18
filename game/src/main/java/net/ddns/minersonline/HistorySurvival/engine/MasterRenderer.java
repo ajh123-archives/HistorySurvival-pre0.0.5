@@ -80,7 +80,7 @@ public class MasterRenderer {
 		}
 	}
 
-	public void renderScene(Collection<Voxel> world, List<Light> lights, Camera camera, Vector4f clipping_plane, float deltaTime){
+	public void renderScene(Map<TexturedModel, Collection<Voxel>> world, List<Light> lights, Camera camera, Vector4f clipping_plane, float deltaTime){
 		for (GameObject entity : GameObjectManager.getGameObjects()) {
 			processEntity(entity);
 		}
@@ -89,7 +89,7 @@ public class MasterRenderer {
 	}
 
 
-	public void render(Collection<Voxel> world, List<Light> lights, Camera camera, Vector4f clipping_plane, float deltaTime) {
+	public void render(Map<TexturedModel, Collection<Voxel>> world, List<Light> lights, Camera camera, Vector4f clipping_plane, float deltaTime) {
 		prepare();
 		voxelShader.bind();
 		voxelRenderer.render(world, camera, deltaTime);

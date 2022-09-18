@@ -25,7 +25,7 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 
 
 public class VoxelRenderer {
-	private VoxelShader shader;
+	private final VoxelShader shader;
 
 	public VoxelRenderer(VoxelShader shader, Matrix4f projectionMatrix) {
 		this.shader = shader;
@@ -34,13 +34,15 @@ public class VoxelRenderer {
 		shader.unbind();
 	}
 
-	public void render(Collection<Voxel> voxels, Camera camera, float deltaTime) {
-		for (Voxel tile : voxels) {
-			prepareTexturedModel(tile.getModel());
-			shader.loadViewMatrix(camera);
-			Matrix4f transformationMatrix = Maths.createTransformationMatrix(tile.getPosition(), 0, 0, 0, 1);
-			shader.loadTransformationMatrix(transformationMatrix);
-			GL11.glDrawElements(GL11.GL_TRIANGLES, tile.getModel().getRawModel().getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+	public void render(Map<TexturedModel, Collection<Voxel>> voxels, Camera camera, float deltaTime) {
+		for (TexturedModel model : voxels.keySet()) {
+			prepareTexturedModel(model);
+			for (Voxel tile : voxels.get(model)) {
+				shader.loadViewMatrix(camera);
+				Matrix4f transformationMatrix = Maths.createTransformationMatrix(tile.getPosition(), 0, 0, 0, 1);
+				shader.loadTransformationMatrix(transformationMatrix);
+				GL11.glDrawElements(GL11.GL_TRIANGLES, model.getRawModel().getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+			}
 			unbind();
 		}
 	}

@@ -100,7 +100,7 @@ public class MainScene extends Scene {
 		particleSystem.setScaleError(0.8f);
 
 
-		getPlayer().position.y = 6;
+		getPlayer().position.y = 30;
 	}
 
 

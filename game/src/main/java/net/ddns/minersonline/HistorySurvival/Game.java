@@ -10,6 +10,7 @@ import com.mojang.brigadier.tree.CommandNode;
 import net.ddns.minersonline.HistorySurvival.api.EventHandler;
 import net.ddns.minersonline.HistorySurvival.api.GameHook;
 import net.ddns.minersonline.HistorySurvival.api.commands.CommandSender;
+import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
 import net.ddns.minersonline.HistorySurvival.api.data.text.JSONTextComponent;
 import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
 import net.ddns.minersonline.HistorySurvival.api.registries.ModelType;
@@ -220,7 +221,7 @@ public class Game extends GameHook {
 			GameObjectManager.update(deltaTime);
 			currentScene.update(deltaTime);
 
-			Collection<Voxel> world = currentScene.getWorld().getVisible();
+			Map<TexturedModel, Collection<Voxel>> world = currentScene.getWorld().getVisible();
 			Camera camera = currentScene.getCamera();
 			List<Light> lights = currentScene.getLights();
 			Light sun = currentScene.getSun();

@@ -2,6 +2,7 @@ package net.ddns.minersonline.HistorySurvival.api.registries;
 
 import net.ddns.minersonline.HistorySurvival.api.GameHook;
 import net.ddns.minersonline.HistorySurvival.api.data.models.ModelTexture;
+import net.ddns.minersonline.HistorySurvival.api.data.models.RawModel;
 import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
 import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceLocation;
 
@@ -22,12 +23,25 @@ public class ModelType<T extends TexturedModel> {
 		grassModel.getModelTexture().setUseFakeLighting(true);
 		MODElS.put("grass", grassModel);
 
+		TexturedModel mudModel = new TexturedModel(
+				GameHook.getLoader().loadCube(),
+				new ModelTexture(GameHook.getLoader().loadTexture("mud.png"))
+		);
+		mudModel.getModelTexture().setHasTransparency(true);
+		mudModel.getModelTexture().setUseFakeLighting(true);
+		MODElS.put("mud", mudModel);
+
 		TexturedModel player = new TexturedModel(
 				GameHook.getLoader().loadObjModel("person.obj"),
 				new ModelTexture(GameHook.getLoader().loadTexture("playerTexture.png"))
 		);
 		MODElS.put("player", player);
 	}
+
+	public static ModelType<TexturedModel> MUD_MODEL = register(
+			"mud",
+			ModelType.Builder.of(() -> MODElS.get("mud"))
+	);
 
 	public static ModelType<TexturedModel> GRASS_MODEL = register(
 			"grass",
