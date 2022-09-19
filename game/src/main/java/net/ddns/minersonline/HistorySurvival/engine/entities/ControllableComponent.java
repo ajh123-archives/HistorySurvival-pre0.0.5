@@ -3,6 +3,7 @@ package net.ddns.minersonline.HistorySurvival.engine.entities;
 import net.ddns.minersonline.HistorySurvival.api.auth.GameProfile;
 import net.ddns.minersonline.HistorySurvival.api.ecs.Component;
 import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
+import net.ddns.minersonline.HistorySurvival.api.voxel.VoxelChunk;
 import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
 import net.ddns.minersonline.HistorySurvival.api.voxel.Voxel;
 import net.ddns.minersonline.HistorySurvival.api.voxel.VoxelWorld;
@@ -14,7 +15,7 @@ public class ControllableComponent extends Component {
 	private transient static final float TURN_SPEED = 160; // degrees per second
 	public transient static final float GRAVITY = -50;
 	private transient static final float JUMP_POWER = 18;
-	private transient boolean GRAVITY_ENABLED = false;
+	private transient boolean GRAVITY_ENABLED = true;
 	private transient VoxelWorld world;
 
 	public float currentSpeed;
@@ -103,8 +104,11 @@ public class ControllableComponent extends Component {
 
 			// Calculate jump
 			if (GRAVITY_ENABLED) {
-				this.upwardsSpeed += GRAVITY * deltaTime;
-				this.transformComponent.increasePosition(0, this.upwardsSpeed * deltaTime, 0);
+				VoxelChunk chunk = world.getWorldChunk(this.transformComponent.position);
+				if (chunk != null) {
+					this.upwardsSpeed += GRAVITY * deltaTime;
+					this.transformComponent.increasePosition(0, this.upwardsSpeed * deltaTime, 0);
+				}
 			}
 
 			// Player terrain collision detection

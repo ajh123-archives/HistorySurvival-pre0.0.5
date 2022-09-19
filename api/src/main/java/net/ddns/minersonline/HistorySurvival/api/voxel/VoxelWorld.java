@@ -21,19 +21,39 @@ public class VoxelWorld {
 		chunks.put(pos, chunk);
 	}
 
-	public VoxelChunk getChunk(Vector3f pos){
-		return chunks.get(pos);
+	public VoxelChunk getChunk(Vector3f chunkPos){
+		return chunks.get(chunkPos);
+	}
+
+	public VoxelChunk getWorldChunk(Vector3f worldPos){
+		Vector3f chunkPos = new Vector3f(
+				(float) Math.floor(worldPos.x/VoxelChunk.CHUNK_SIZE),
+				0,
+				(float) Math.floor(worldPos.z/VoxelChunk.CHUNK_SIZE)
+		);
+
+		return chunks.get(chunkPos);
 	}
 
 	public Voxel getBlock(Vector3f pos){
-		Vector3f chunkPos = new Vector3f(
-				(int) Math.floor(Math.floor(pos.x)/VoxelChunk.CHUNK_SIZE),
-				0,
-				(int) Math.floor(Math.floor(pos.z)/VoxelChunk.CHUNK_SIZE)
-		);
-		VoxelChunk chunk = getChunk(chunkPos);
+		Vector3f pos2 = new Vector3f(pos);
+		pos2.x = (int) Math.floor((int) pos2.x);
+		pos2.y = (int) Math.floor((int) pos2.y);
+		pos2.z = (int) Math.floor((int) pos2.z);
+
+		VoxelChunk chunk = getWorldChunk(pos);
 		if (chunk == null) { return null; }
-		return chunk.getVoxels().get(chunkPos);
+
+		for (Voxel voxel : chunk.getVoxels().values()){
+			if (voxel.getPosition().x == pos2.x){
+				if (voxel.getPosition().y == pos2.y) {
+					if (voxel.getPosition().z == pos2.z){
+						return voxel;
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	public void start(TransformComponent player){
