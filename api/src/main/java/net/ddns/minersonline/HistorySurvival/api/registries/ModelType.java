@@ -2,7 +2,6 @@ package net.ddns.minersonline.HistorySurvival.api.registries;
 
 import net.ddns.minersonline.HistorySurvival.api.GameHook;
 import net.ddns.minersonline.HistorySurvival.api.data.models.ModelTexture;
-import net.ddns.minersonline.HistorySurvival.api.data.models.RawModel;
 import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
 import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceLocation;
 

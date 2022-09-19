@@ -6,7 +6,7 @@ import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
 import net.ddns.minersonline.HistorySurvival.api.ecs.Component;
 import net.ddns.minersonline.HistorySurvival.api.ecs.GameObject;
 import net.ddns.minersonline.HistorySurvival.api.util.Defaults;
-import net.ddns.minersonline.HistorySurvival.engine.voxel.Voxel;
+import net.ddns.minersonline.HistorySurvival.api.voxel.Voxel;
 import net.ddns.minersonline.HistorySurvival.engine.worldOld.types.World;
 
 import java.security.PrivateKey;

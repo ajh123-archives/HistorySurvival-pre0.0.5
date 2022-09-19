@@ -12,14 +12,14 @@ import net.ddns.minersonline.HistorySurvival.api.GameHook;
 import net.ddns.minersonline.HistorySurvival.api.commands.CommandSender;
 import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
 import net.ddns.minersonline.HistorySurvival.api.data.text.JSONTextComponent;
-import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
 import net.ddns.minersonline.HistorySurvival.api.registries.ModelType;
+import net.ddns.minersonline.HistorySurvival.api.registries.VoxelType;
+import net.ddns.minersonline.HistorySurvival.api.voxel.VoxelChunkMesh;
 import net.ddns.minersonline.HistorySurvival.engine.*;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleMaster;
-import net.ddns.minersonline.HistorySurvival.engine.voxel.Voxel;
-import net.ddns.minersonline.HistorySurvival.engine.worldOld.types.World;
+import net.ddns.minersonline.HistorySurvival.api.voxel.Voxel;
 import net.ddns.minersonline.HistorySurvival.api.data.text.ChatColor;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
@@ -30,8 +30,6 @@ import net.ddns.minersonline.HistorySurvival.engine.worldOld.water.WaterRenderer
 import net.ddns.minersonline.HistorySurvival.engine.worldOld.water.WaterShader;
 import net.ddns.minersonline.HistorySurvival.gameplay.GamePlugin;
 import net.ddns.minersonline.HistorySurvival.scenes.MenuScene;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
@@ -104,6 +102,7 @@ public class Game extends GameHook {
 
 	private static void init(){
 		ModelType.init();
+		VoxelType.init();
 
 		modelLoader = new ModelLoader();
 		masterRenderer = new MasterRenderer(modelLoader);
@@ -221,7 +220,7 @@ public class Game extends GameHook {
 			GameObjectManager.update(deltaTime);
 			currentScene.update(deltaTime);
 
-			Map<TexturedModel, Collection<Voxel>> world = currentScene.getWorld().getVisible();
+			Map<TexturedModel, Collection<VoxelChunkMesh>> world = currentScene.getWorld().getVisible();
 			Camera camera = currentScene.getCamera();
 			List<Light> lights = currentScene.getLights();
 			Light sun = currentScene.getSun();

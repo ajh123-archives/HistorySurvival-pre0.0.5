@@ -14,6 +14,11 @@ public class EmptyLoader extends ResourceLoader{
 	}
 
 	@Override
+	public RawModel loadToVao(float[] positions, float[] textureCoOrds) {
+		return null;
+	}
+
+	@Override
 	public int loadTexture(String filename) {
 		return 0;
 	}

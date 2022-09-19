@@ -4,9 +4,8 @@ import net.ddns.minersonline.HistorySurvival.api.auth.GameProfile;
 import net.ddns.minersonline.HistorySurvival.api.ecs.Component;
 import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
 import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
-import net.ddns.minersonline.HistorySurvival.engine.voxel.Voxel;
-import net.ddns.minersonline.HistorySurvival.engine.voxel.VoxelWorld;
-import org.joml.Vector3f;
+import net.ddns.minersonline.HistorySurvival.api.voxel.Voxel;
+import net.ddns.minersonline.HistorySurvival.api.voxel.VoxelWorld;
 
 import static org.lwjgl.glfw.GLFW.*;
 

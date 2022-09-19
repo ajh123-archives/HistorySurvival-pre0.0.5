@@ -17,11 +17,9 @@ import net.ddns.minersonline.HistorySurvival.engine.GameObjectManager;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
-import net.ddns.minersonline.HistorySurvival.engine.voxel.Voxel;
-import net.ddns.minersonline.HistorySurvival.engine.voxel.VoxelWorld;
+import net.ddns.minersonline.HistorySurvival.api.voxel.VoxelWorld;
 import net.ddns.minersonline.HistorySurvival.scenes.MenuScene;
 import net.ddns.minersonline.HistorySurvival.scenes.SceneMetaData;
-import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
 import java.io.File;

@@ -2,6 +2,7 @@ package net.ddns.minersonline.HistorySurvival.engine;
 
 import net.ddns.minersonline.HistorySurvival.api.ecs.GameObject;
 import net.ddns.minersonline.HistorySurvival.api.ecs.MeshComponent;
+import net.ddns.minersonline.HistorySurvival.api.voxel.VoxelChunkMesh;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
@@ -9,7 +10,7 @@ import net.ddns.minersonline.HistorySurvival.engine.shaders.StaticShader;
 import net.ddns.minersonline.HistorySurvival.engine.worldOld.TerrainRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.worldOld.TerrainShader;
 import net.ddns.minersonline.HistorySurvival.engine.worldOld.types.Terrain;
-import net.ddns.minersonline.HistorySurvival.engine.voxel.Voxel;
+import net.ddns.minersonline.HistorySurvival.api.voxel.Voxel;
 import net.ddns.minersonline.HistorySurvival.engine.voxel.VoxelRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.voxel.VoxelShader;
 import org.joml.Matrix4f;
@@ -80,7 +81,7 @@ public class MasterRenderer {
 		}
 	}
 
-	public void renderScene(Map<TexturedModel, Collection<Voxel>> world, List<Light> lights, Camera camera, Vector4f clipping_plane, float deltaTime){
+	public void renderScene(Map<TexturedModel, Collection<VoxelChunkMesh>> world, List<Light> lights, Camera camera, Vector4f clipping_plane, float deltaTime){
 		for (GameObject entity : GameObjectManager.getGameObjects()) {
 			processEntity(entity);
 		}
@@ -89,7 +90,7 @@ public class MasterRenderer {
 	}
 
 
-	public void render(Map<TexturedModel, Collection<Voxel>> world, List<Light> lights, Camera camera, Vector4f clipping_plane, float deltaTime) {
+	public void render(Map<TexturedModel, Collection<VoxelChunkMesh>> world, List<Light> lights, Camera camera, Vector4f clipping_plane, float deltaTime) {
 		prepare();
 		voxelShader.bind();
 		voxelRenderer.render(world, camera, deltaTime);

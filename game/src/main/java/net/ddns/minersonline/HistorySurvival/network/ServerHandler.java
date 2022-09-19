@@ -14,7 +14,6 @@ import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
 import net.ddns.minersonline.HistorySurvival.api.registries.ModelType;
 import net.ddns.minersonline.HistorySurvival.engine.GameObjectManager;
 import net.ddns.minersonline.HistorySurvival.engine.entities.ControllableComponent;
-import net.ddns.minersonline.HistorySurvival.network.packets.AlivePacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.DisconnectPacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.client.EncryptionResponsePacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.client.HandshakePacket;

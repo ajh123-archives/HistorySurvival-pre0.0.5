@@ -3,18 +3,16 @@ package net.ddns.minersonline.HistorySurvival.engine.voxel;
 import net.ddns.minersonline.HistorySurvival.api.data.models.ModelTexture;
 import net.ddns.minersonline.HistorySurvival.api.data.models.RawModel;
 import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
+import net.ddns.minersonline.HistorySurvival.api.voxel.VoxelChunkMesh;
 import net.ddns.minersonline.HistorySurvival.engine.MasterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.utils.Maths;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL30;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.glBindTexture;
@@ -34,14 +32,14 @@ public class VoxelRenderer {
 		shader.unbind();
 	}
 
-	public void render(Map<TexturedModel, Collection<Voxel>> voxels, Camera camera, float deltaTime) {
+	public void render(Map<TexturedModel, Collection<VoxelChunkMesh>> voxels, Camera camera, float deltaTime) {
 		for (TexturedModel model : voxels.keySet()) {
 			prepareTexturedModel(model);
-			for (Voxel tile : voxels.get(model)) {
+			for (VoxelChunkMesh tile : voxels.get(model)) {
 				shader.loadViewMatrix(camera);
-				Matrix4f transformationMatrix = Maths.createTransformationMatrix(tile.getPosition(), 0, 0, 0, 1);
+				Matrix4f transformationMatrix = Maths.createTransformationMatrix(tile.chunk.getOrigin(), 0, 0, 0, 1);
 				shader.loadTransformationMatrix(transformationMatrix);
-				GL11.glDrawElements(GL11.GL_TRIANGLES, model.getRawModel().getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+				GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, model.getRawModel().getVertexCount());
 			}
 			unbind();
 		}
@@ -51,7 +49,7 @@ public class VoxelRenderer {
 		GL11.glDisable(GL11.GL_BLEND);
 		GL20.glDisableVertexAttribArray(0);
 		GL20.glDisableVertexAttribArray(1);
-		GL30.glBindVertexArray(0);
+		glBindVertexArray(0);
 	}
 
 	private void prepareTexturedModel(TexturedModel texturedModel) {

@@ -1,4 +1,4 @@
-package net.ddns.minersonline.HistorySurvival.engine.voxel;
+package net.ddns.minersonline.HistorySurvival.api.voxel;
 
 import com.google.gson.*;
 import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
@@ -11,14 +11,8 @@ import java.lang.reflect.Type;
 public class Voxel {
 
 	private Vector3f position;
-	private final ResourceLocation type;
+	private ResourceLocation type;
 	private transient TexturedModel model;
-
-	public Voxel(ResourceLocation type, Vector3f position) {
-		this.position = position;
-		this.type = type;
-		this.model = Registries.MODEL_REGISTRY.get(type).create();
-	}
 
 	public Vector3f getPosition() {
 		return position;
@@ -36,6 +30,11 @@ public class Voxel {
 		return type;
 	}
 
+	public void setModelType(ResourceLocation modelType) {
+		this.type = modelType;
+		this.model = Registries.MODEL_REGISTRY.get(type).create();
+	}
+
 	public static class JSON implements JsonDeserializer<Voxel> {
 		@Override
 		public Voxel deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
@@ -47,7 +46,7 @@ public class Voxel {
 			JsonElement jsonPosition = jsonObject.get("position");
 			Vector3f position = context.deserialize(jsonPosition, Vector3f.class);
 
-			return new Voxel(location, position);
+			return Registries.VOXEL_REGISTRY.get(location).create(position);
 		}
 	}
 }

@@ -1,8 +1,8 @@
 package net.ddns.minersonline.HistorySurvival.api.data.models;
 
 public class RawModel {
-	private int vaoId;
-	private int vertexCount;
+	private final int vaoId;
+	private final int vertexCount;
 
 	public RawModel(int vaoId, int vertexCount) {
 		this.vaoId = vaoId;
