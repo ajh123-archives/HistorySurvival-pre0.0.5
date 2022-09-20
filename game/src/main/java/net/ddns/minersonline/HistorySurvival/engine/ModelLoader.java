@@ -156,6 +156,7 @@ public class ModelLoader {
 		vaos.clear();
 		vbos.clear();
 		textureList.clear();
+		TextureLoader.images.clear();
 	}
 
 	public MeshData createEmptyVbo(int floatCount) {

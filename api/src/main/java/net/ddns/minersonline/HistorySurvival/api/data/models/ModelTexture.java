@@ -1,6 +1,7 @@
 package net.ddns.minersonline.HistorySurvival.api.data.models;
 
 public class ModelTexture {
+	private int atlasOffset = 0;
 	private int textureId;
 	private float shineDamper;
 	private float reflectivity;
@@ -58,5 +59,13 @@ public class ModelTexture {
 
 	public void setNumberOfRowsInTextureAtlas(int numberOfRowsInTextureAtlas) {
 		this.numberOfRowsInTextureAtlas = numberOfRowsInTextureAtlas;
+	}
+
+	public int getAtlasOffset() {
+		return atlasOffset;
+	}
+
+	public void setAtlasOffset(int atlasOffset) {
+		this.atlasOffset = atlasOffset;
 	}
 }

@@ -152,8 +152,11 @@ public class VoxelWorld {
 						if (mesh.model == null) {
 							RawModel model = GameHook.getLoader().loadToVao(mesh.positions, mesh.uvs);
 
-							ModelTexture texture = ModelType.GRASS_MODEL.create().getModelTexture();
+							ModelTexture texture = GameHook.getLoader().getTextureAtlas();
 							mesh.model = new TexturedModel(model, texture);
+							mesh.positions = null;
+							mesh.uvs = null;
+							mesh.normals = null;
 						}
 
 						result.computeIfAbsent(mesh.model, k -> new ArrayList<>());

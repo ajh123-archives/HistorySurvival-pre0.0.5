@@ -1,6 +1,7 @@
 package net.ddns.minersonline.HistorySurvival.engine;
 
 import net.ddns.minersonline.HistorySurvival.Game;
+import net.ddns.minersonline.HistorySurvival.api.data.models.ModelTexture;
 import net.ddns.minersonline.HistorySurvival.api.data.models.RawModel;
 import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceLoader;
 import net.ddns.minersonline.HistorySurvival.api.voxel.Voxel;
@@ -25,5 +26,10 @@ public class ResourceLoaderImpl extends ResourceLoader {
 	@Override
 	public int loadTexture(String filename) {
 		return Game.modelLoader.loadTexture(filename);
+	}
+
+	@Override
+	public ModelTexture getTextureAtlas() {
+		return TextureLoader.getTextureAtlas();
 	}
 }

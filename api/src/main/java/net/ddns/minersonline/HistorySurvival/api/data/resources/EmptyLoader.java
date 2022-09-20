@@ -1,5 +1,6 @@
 package net.ddns.minersonline.HistorySurvival.api.data.resources;
 
+import net.ddns.minersonline.HistorySurvival.api.data.models.ModelTexture;
 import net.ddns.minersonline.HistorySurvival.api.data.models.RawModel;
 
 public class EmptyLoader extends ResourceLoader{
@@ -21,5 +22,10 @@ public class EmptyLoader extends ResourceLoader{
 	@Override
 	public int loadTexture(String filename) {
 		return 0;
+	}
+
+	@Override
+	public ModelTexture getTextureAtlas() {
+		return null;
 	}
 }

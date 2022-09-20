@@ -13,6 +13,7 @@ import org.lwjgl.opengl.GL20;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.glBindTexture;

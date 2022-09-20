@@ -9,6 +9,8 @@ import imgui.extension.imguifiledialog.callback.ImGuiFileDialogPaneFun;
 import imgui.extension.imguifiledialog.flag.ImGuiFileDialogFlags;
 import imgui.flag.ImGuiCond;
 import imgui.type.ImBoolean;
+import net.ddns.minersonline.HistorySurvival.api.data.models.ModelTexture;
+import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
 import net.ddns.minersonline.HistorySurvival.api.ecs.Component;
 import net.ddns.minersonline.HistorySurvival.api.ecs.GameObject;
 import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
@@ -194,56 +196,68 @@ public abstract class Scene {
 		ImGui.setNextWindowSize(500, 440);
 		if (ImGui.begin("Inspector", p_open))
 		{
-			// Left
-			{
-				ImGui.beginChild("left pane", 150, 0);
-				for (GameObject object: GameObjectManager.getGameObjects())
-				{
-					if (ImGui.selectable("GameObject "+object.getId(), selected == object.getId())) {
-						selected = object.getId();
-						serialise = false;
-					}
+			if (ImGui.beginTabBar("##MainTabs")) {
+				if (ImGui.beginTabItem("Other")) {
+					ImGui.text("Texture Atlas");
+					ModelTexture textureAtlas = Game.getLoader().getTextureAtlas();
+					ImGui.image(textureAtlas.getTextureId(), 256, 256);
+					ImGui.endTabItem();
 				}
-				ImGui.endChild();
-			}
-			ImGui.sameLine();
 
-			// Right
-			{
-				GameObject active = GameObjectManager.getGameObject(selected);
-				if(active != null) {
-					ImGui.beginGroup();
-					ImGui.beginChild("item view", 0, -ImGui.getFrameHeightWithSpacing()); // Leave room for 1 line below us
-					ImGui.text("GameObject: " + selected);
-					ImGui.separator();
-					if (ImGui.beginTabBar("##Tabs")) {
-						if (ImGui.beginTabItem("Details")) {
-							ImGui.text("ID: " + active.getId());
-							ImGui.endTabItem();
-						}
-						for (Component component : active.getComponents()) {
-							if (ImGui.beginTabItem(component.getClass().getSimpleName())) {
-								ImGui.beginChild("GameObject: " + selected + ":" + component.getClass().getSimpleName());
-								component.debug();
-								ImGui.endChild();
-								ImGui.endTabItem();
+				if (ImGui.beginTabItem("GameObjects")) {
+					// Left
+					{
+						ImGui.beginChild("left pane", 150, 0);
+						for (GameObject object : GameObjectManager.getGameObjects()) {
+							if (ImGui.selectable("GameObject " + object.getId(), selected == object.getId())) {
+								selected = object.getId();
+								serialise = false;
 							}
 						}
-						ImGui.endTabBar();
+						ImGui.endChild();
 					}
-					ImGui.endChild();
-					if (ImGui.checkbox("Serialise", serialise)){
-						serialise = !serialise;
+					ImGui.sameLine();
+
+					// Right
+					{
+						GameObject active = GameObjectManager.getGameObject(selected);
+						if (active != null) {
+							ImGui.beginGroup();
+							ImGui.beginChild("item view", 0, -ImGui.getFrameHeightWithSpacing()); // Leave room for 1 line below us
+							ImGui.text("GameObject: " + selected);
+							ImGui.separator();
+							if (ImGui.beginTabBar("##Tabs")) {
+								if (ImGui.beginTabItem("Details")) {
+									ImGui.text("ID: " + active.getId());
+									ImGui.endTabItem();
+								}
+								for (Component component : active.getComponents()) {
+									if (ImGui.beginTabItem(component.getClass().getSimpleName())) {
+										ImGui.beginChild("GameObject: " + selected + ":" + component.getClass().getSimpleName());
+										component.debug();
+										ImGui.endChild();
+										ImGui.endTabItem();
+									}
+								}
+								ImGui.endTabBar();
+							}
+							ImGui.endChild();
+							if (ImGui.checkbox("Serialise", serialise)) {
+								serialise = !serialise;
+							}
+							if (serialise) {
+								String object = gson.toJson(active);
+								ImGui.begin("GameObject: " + selected + " serialised");
+								ImGui.text(object);
+								ImGui.end();
+							}
+							ImGui.endGroup();
+						}
 					}
-					if (serialise) {
-						String object = gson.toJson(active);
-						ImGui.begin("GameObject: "+selected+" serialised");
-						ImGui.text(object);
-						ImGui.end();
-					}
-					ImGui.endGroup();
+					ImGui.endTabItem();
 				}
 			}
+			ImGui.endTabBar();
 		}
 		ImGui.end();
 	}

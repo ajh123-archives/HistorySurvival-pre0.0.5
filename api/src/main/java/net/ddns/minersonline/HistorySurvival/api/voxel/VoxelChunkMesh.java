@@ -84,27 +84,27 @@ public class VoxelChunkMesh {
 				}
 			}
 			if (!px){
-				buildVertex(VoxelModel.PX_POS, VoxelModel.NORMALS, VoxelModel.UV, pos1);
+				buildVertex(voxel, VoxelModel.PX_POS, VoxelModel.NORMALS, VoxelModel.UV, pos1);
 			}
 			if (!nx){
-				buildVertex(VoxelModel.NX_POS, VoxelModel.NORMALS, VoxelModel.UV, pos1);
+				buildVertex(voxel, VoxelModel.NX_POS, VoxelModel.NORMALS, VoxelModel.UV, pos1);
 			}
 			if (!py){
-				buildVertex(VoxelModel.PY_POS, VoxelModel.NORMALS, VoxelModel.UV, pos1);
+				buildVertex(voxel, VoxelModel.PY_POS, VoxelModel.NORMALS, VoxelModel.UV, pos1);
 			}
 			if (!ny){
-				buildVertex(VoxelModel.NY_POS, VoxelModel.NORMALS, VoxelModel.UV, pos1);
+				buildVertex(voxel, VoxelModel.NY_POS, VoxelModel.NORMALS, VoxelModel.UV, pos1);
 			}
 			if (!pz){
-				buildVertex(VoxelModel.PZ_POS, VoxelModel.NORMALS, VoxelModel.UV, pos1);
+				buildVertex(voxel, VoxelModel.PZ_POS, VoxelModel.NORMALS, VoxelModel.UV, pos1);
 			}
 			if (!nz){
-				buildVertex(VoxelModel.NZ_POS, VoxelModel.NORMALS, VoxelModel.UV, pos1);
+				buildVertex(voxel, VoxelModel.NZ_POS, VoxelModel.NORMALS, VoxelModel.UV, pos1);
 			}
 		}
 	}
 
-	private void buildVertex(Vector3f[] poses, Vector3f[] normals, Vector2f[] uv, Vector3f pos1) {
+	private void buildVertex(Voxel voxel, Vector3f[] poses, Vector3f[] normals, Vector2f[] uv, Vector3f pos1) {
 		for (int k = 0; k < 6; k++) {
 			vertices.add(new Vertex(
 					new Vector3f(
@@ -113,7 +113,10 @@ public class VoxelChunkMesh {
 							poses[k].z + pos1.z
 					),
 					normals[k],
-					uv[k]
+					uv[k].add(new Vector2f(
+							voxel.getModel().getModelTexture().getAtlasOffset(),
+							voxel.getModel().getModelTexture().getAtlasOffset()
+					))
 			));
 		}
 	}
@@ -144,5 +147,9 @@ public class VoxelChunkMesh {
 		for (int i = 0; i<normalsList.size(); i++){
 			normals[i] = normalsList.get(i);
 		}
+
+		positionsList.clear();
+		uvsList.clear();
+		normalsList.clear();
 	}
 }

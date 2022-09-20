@@ -101,9 +101,6 @@ public class Game extends GameHook {
 	}
 
 	private static void init(){
-		ModelType.init();
-		VoxelType.init();
-
 		modelLoader = new ModelLoader();
 		masterRenderer = new MasterRenderer(modelLoader);
 		ParticleMaster.init(modelLoader, masterRenderer.getProjectionMatrix());
@@ -179,6 +176,11 @@ public class Game extends GameHook {
 
 		logger.info("OpenGL: " + DisplayManager.getOpenGlVersionMessage());
 		logger.info("LWJGL: " + Version.getVersion());
+
+		ModelType.init();
+		VoxelType.init();
+
+		TextureLoader.createTextureAtlas();
 		init();
 
 		currentScene = new MenuScene(this, modelLoader, masterRenderer, guiRenderer);
