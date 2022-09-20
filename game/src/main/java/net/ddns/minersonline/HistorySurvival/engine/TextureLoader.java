@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import jdk.jshell.execution.Util;
 import net.ddns.minersonline.HistorySurvival.Game;
 import net.ddns.minersonline.HistorySurvival.api.data.models.ModelTexture;
 import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
@@ -19,6 +20,7 @@ import net.ddns.minersonline.HistorySurvival.api.exceptions.ResourceLocationExce
 import net.ddns.minersonline.HistorySurvival.api.registries.ModelType;
 import net.ddns.minersonline.HistorySurvival.api.registries.Registries;
 import net.ddns.minersonline.HistorySurvival.engine.utils.BufferUtils;
+//import net.ddns.minersonline.HistorySurvival.engine.utils.BufferUtils;
 import javax.imageio.ImageIO;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -85,15 +87,10 @@ public class TextureLoader {
 		int result = glGenTextures();
 		int width = images.size() * 256;
 		int height = 256;
-		int[] data = new int[width * height];
-		IntBuffer buffer = BufferUtils.createIntBuffer(data);
+		IntBuffer buffer = BufferUtils.createIntBuffer(width * height * 3);
 
-		int[] real_data = new int[width * height];
-//		for (int x = 0; x < 256; x ++) {
-//			for (int y = 0; y < 256; y ++) {
-//				real_data[x * y] = 256;
-//			}
-//		}
+		int[] atlas_data = new int[width * height * 3];
+
 
 		Game.logger.info("Using texture id '"+result+"' for atlas");
 		int index = 0;
@@ -109,30 +106,35 @@ public class TextureLoader {
 				Map<Integer, int[]> subData = images.get(path);
 
 				for (int[] imgData : subData.values()) {
-					int[] realData = new int[256 * 256];
+					IntBuffer bb = BufferUtils.createIntBuffer(imgData);
+
 					glTexSubImage2D(
 							GL_TEXTURE_2D,
 							0,
-							1,
+							256*index,
 							0,
 							256,
 							256,
-							GL_RGBA,
-							GL_UNSIGNED_BYTE,
-							BufferUtils.createIntBuffer(realData)
+							GL_RGB8,
+							GL_UNSIGNED_INT,
+							bb
 					);
 				}
 				index++;
+				Game.logger.info("Stitched "+path);
 			} catch (ResourceLocationException ignored){}
-
-
 		}
-		buffer.put(real_data);
+		buffer.put(atlas_data);
 		glBindTexture(GL_TEXTURE_2D, result);
+		Game.logger.info("ASDA");
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		Game.logger.info("ASDA 1");
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+		Game.logger.info("ASDA 2");
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB8, GL_UNSIGNED_INT, buffer);
+		Game.logger.info("ASDA 3");
 		glBindTexture(GL_TEXTURE_2D, 0);
+		Game.logger.info("ASDA 4");
 
 		textureAtlas = new ModelTexture(result);
 		textureAtlas.setUseFakeLighting(true);

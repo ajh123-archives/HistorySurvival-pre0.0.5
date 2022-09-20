@@ -28,4 +28,11 @@ public class BufferUtils {
 		return result;
 	}
 
+	public static IntBuffer createIntBuffer(int capacity) {
+		return org.lwjgl.BufferUtils.createIntBuffer(capacity);
+	}
+
+	public static ByteBuffer createByteBuffer(int capacity) {
+		return org.lwjgl.BufferUtils.createByteBuffer(capacity);
+	}
 }

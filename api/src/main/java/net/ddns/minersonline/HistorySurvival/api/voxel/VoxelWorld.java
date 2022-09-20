@@ -71,7 +71,11 @@ public class VoxelWorld {
 							for (int cx = 0; cx < chunkSize+1; cx++) {
 								for (int cz = 0; cz < chunkSize+1; cz++) {
 									Vector3f pos = new Vector3f((x * chunkSize)+cx, 0, (z * chunkSize)+cz);
-									voxels.put(pos, VoxelType.GRASS.create(pos));
+									if (x % 4 == 0) {
+										voxels.put(pos, VoxelType.GRASS.create(pos));
+									} else {
+										voxels.put(pos, VoxelType.MUD.create(pos));
+									}
 								}
 							}
 							chunks.put(chunkPos, new VoxelChunk(voxels, chunkPos));

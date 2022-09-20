@@ -107,16 +107,16 @@ public class VoxelChunkMesh {
 	private void buildVertex(Voxel voxel, Vector3f[] poses, Vector3f[] normals, Vector2f[] uv, Vector3f pos1) {
 		for (int k = 0; k < 6; k++) {
 			vertices.add(new Vertex(
-					new Vector3f(
-							poses[k].x + pos1.x,
-							poses[k].y + pos1.y,
-							poses[k].z + pos1.z
-					),
-					normals[k],
-					uv[k].add(new Vector2f(
-							voxel.getModel().getModelTexture().getAtlasOffset(),
-							voxel.getModel().getModelTexture().getAtlasOffset()
-					))
+				new Vector3f(
+					poses[k].x + pos1.x,
+					poses[k].y + pos1.y,
+					poses[k].z + pos1.z
+				),
+				normals[k],
+				new Vector2f(
+					uv[k].x * voxel.getModel().getModelTexture().getAtlasOffset(),
+					0
+				)
 			));
 		}
 	}
