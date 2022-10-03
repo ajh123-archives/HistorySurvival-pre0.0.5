@@ -115,7 +115,7 @@ public class VoxelChunkMesh {
 				normals[k],
 				new Vector2f(
 					uv[k].x * voxel.getModel().getModelTexture().getAtlasOffset(),
-					0
+					0//uv[k].y * voxel.getModel().getModelTexture().getAtlasOffset()
 				)
 			));
 		}
