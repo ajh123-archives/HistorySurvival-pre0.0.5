@@ -16,6 +16,7 @@ import net.ddns.minersonline.HistorySurvival.api.ecs.GameObject;
 import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
 import net.ddns.minersonline.HistorySurvival.engine.DisplayManager;
 import net.ddns.minersonline.HistorySurvival.engine.GameObjectManager;
+import net.ddns.minersonline.HistorySurvival.engine.TextureLoader;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
@@ -200,7 +201,7 @@ public abstract class Scene {
 				if (ImGui.beginTabItem("Other")) {
 					ImGui.text("Texture Atlas");
 					ModelTexture textureAtlas = Game.getLoader().getTextureAtlas();
-					ImGui.image(textureAtlas.getTextureId(), 256, 256);
+					ImGui.image(textureAtlas.getTextureId(), 256, TextureLoader.images.size()*256);
 					ImGui.endTabItem();
 				}
 

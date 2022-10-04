@@ -106,26 +106,8 @@ public class TextureLoader {
 				Map<Integer, int[]> subData = images.get(path);
 
 				for (int[] imgData : subData.values()) {
-					//IntBuffer bb = BufferUtils.createIntBuffer(imgData);
-
-//					for (int i = 0; i < 256*256; i++) {
-//						//i = i * index;
-//						//for (int ai = index; ai < (width+index * height); ai++) {
-//							int a = (imgData[i] & 0xff000000) >> 24;
-//							int r = (imgData[i] & 0xff0000) >> 16;
-//							int g = (imgData[i] & 0xff00) >> 8;
-//							int b = (imgData[i] & 0xff);
-//
-//						int x = i % 256;
-//						int y = 256 - i / 256;
-//
-//
-//						atlas_data[i+(index*(x+y))] = imgData[i];//a << 24 | b << 16 | g << 8 | r;
-//						//}
-//					}
-
-					int targetX = index*(((256)-index*256)+128);
-					int targetY = 0;//index*(256+256);
+					int targetX = 0;
+					int targetY = index*(((256)-index*256)+128/2);
 
 					for (int sourceY = 0; sourceY < 256; ++sourceY) {
 						for (int sourceX = 0; sourceX < 256; ++sourceX) {
@@ -138,26 +120,12 @@ public class TextureLoader {
 							}
 						}
 					}
-
-
-
-//					glTexSubImage2D(
-//							GL_TEXTURE_2D,
-//							0,
-//							256*index,
-//							0,
-//							256,
-//							256,
-//							GL_RGBA,
-//							GL_UNSIGNED_BYTE,
-//							bb
-//					);
 				}
 				Game.logger.info("Stitched "+path);
+				index = index + 1;
 			} catch (ResourceLocationException ignored){}
-			index = index + 1;
 		}
-		//buffer.put(atlas_data);
+
 		glBindTexture(GL_TEXTURE_2D, result);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

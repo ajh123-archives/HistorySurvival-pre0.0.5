@@ -11,6 +11,7 @@ import java.util.List;
 /**
  * Represents an object that is visible in the world
  * @since 0.0.2
+ * @deprecated
  */
 public abstract class Entity implements CommandSender {
 	private final ReplicableData entityData;
@@ -22,9 +23,10 @@ public abstract class Entity implements CommandSender {
 	public boolean updateMe = false;
 
 	/**
-	 * Every entity contains an {@link EntityType}, this is used to identify what type of Entity we are.
-	 * Every {@link EntityType} are registered in the {@link EntityType} class using {@link Registry}'s
+	 * Every entity contains an EntityType, this is used to identify what type of Entity we are.
+	 * Every ntityType are registered in the EntityType class using Registry's
 	 * @since 0.0.2
+	 * @deprecated
 	 */
 	protected Entity() {//(EntityType<?> type
 		this.entityData = new ReplicableData(this);

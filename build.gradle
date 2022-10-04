@@ -1,6 +1,3 @@
-tasks.findByPath(":game:javadoc").enabled = false
-tasks.findByPath(":gameplay:javadoc").enabled = false
-
 subprojects {
     repositories {
         mavenCentral()
