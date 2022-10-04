@@ -73,6 +73,9 @@ public class Game extends GameHook {
 	public static final ExecutorService executor = Executors.newCachedThreadPool();
 
 
+	/**
+	 * Testing
+	 */
 	private void helpCommand(CommandContext<CommandSender> c) {
 		CommandContext<CommandSender> context = (CommandContext<CommandSender>) (CommandContext<? extends Object>) c;
 		CommandSender sender = context.getSource();

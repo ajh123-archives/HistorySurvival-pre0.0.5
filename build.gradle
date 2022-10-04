@@ -1,3 +1,48 @@
+
+
+class docProject {
+    String packageName
+    List<String> sources
+
+
+    @Override
+    String toString() {
+        return "{" +
+                "\\\"packageName\\\":\\\"" + packageName + '\\\"' +
+                ", \\\"sources\\\":" + sources +
+                '}';
+    }
+}
+
+ext {
+    docProjects = new HashMap<String, String>()
+}
+
+gradle.projectsEvaluated {
+    allprojects {
+        task packageSources { task ->
+            if (task.project.name != rootProject.name) {
+                SourceSet sourceSet = task.project.sourceSets.main
+                String packageName = task.project.group+"."+task.project.name
+                List<String> dirs = new ArrayList<>()
+                for (File file : sourceSet.java.srcDirs){
+                    String name = file.absolutePath
+                    name = name.replace("\\", "\\\\")
+                    dirs.add("\\\"$name\\\"")
+                }
+                rootProject.ext.docProjects.put("\\\"$task.project.name\\\"", new docProject(packageName: packageName, sources: dirs))
+            }
+        }
+    }
+}
+
+task buildJsonDocs(type:Exec){
+    commandLine "python",
+            "buildTools/build_json_docs.py",
+            "$docProjects",
+            "$buildDir/mark-docs"
+}
+
 subprojects {
     repositories {
         mavenCentral()
