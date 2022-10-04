@@ -13,6 +13,7 @@ build/
 # Intellij
 /.idea
 *.iml
+!/buildTools/buildTools.iml
 
 out
 target
