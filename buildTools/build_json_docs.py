@@ -1,5 +1,6 @@
 import argparse
 import json
+from operator import mod
 import os
 import javalang
 
@@ -59,19 +60,18 @@ for name in projects:
                             funcLine = l
                             if not startOfFunc:
                                 startOfFunc = True
-                            if startOfFunc:
-                                modifiers.append(token.value)
+                            modifiers.append(token.value)
+                                
                             if "=" in lines[funcLine-1]:
                                 if "{" in lines[funcLine-1]:
                                     redefining = True
                         if not gotName and isinstance(token, javalang.tokenizer.Identifier):
                             l, c = token.position
-                            if prevFuncLine != funcLine:
+                            if "{" in lines[l-1]:
                                 if l == funcLine:
                                     gotName = True
                                     name = token.value
                                     if not redefining:
-                                        print(modifiers)
                                         try:
                                             docBlock: javalang.javadoc.DocBlock = javalang.javadoc.parse(prevDoc)
                                             out[name] = {

@@ -7,9 +7,9 @@ class docProject {
 
     @Override
     String toString() {
-        return "{" +
-                "\\\"packageName\\\":\\\"" + packageName + '\\\"' +
-                ", \\\"sources\\\":" + sources +
+        return '{' +
+                '"packageName":"'+ packageName + '"' +
+                ', "sources":' + sources +
                 '}';
     }
 }
@@ -28,9 +28,9 @@ gradle.projectsEvaluated {
                 for (File file : sourceSet.java.srcDirs){
                     String name = file.absolutePath
                     name = name.replace("\\", "\\\\")
-                    dirs.add("\\\"$name\\\"")
+                    dirs.add('"'+name+'"')
                 }
-                rootProject.ext.docProjects.put("\\\"$task.project.name\\\"", new docProject(packageName: packageName, sources: dirs))
+                rootProject.ext.docProjects.put('"'+task.project.name+'"', new docProject(packageName: packageName, sources: dirs))
             }
         }
     }
