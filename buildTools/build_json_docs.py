@@ -67,7 +67,7 @@ for name in projects:
                                     redefining = True
                         if not gotName and isinstance(token, javalang.tokenizer.Identifier):
                             l, c = token.position
-                            if "{" in lines[l-1]:
+                            if "{" in lines[l-1] and not "=" in lines[l-1]:
                                 if l == funcLine:
                                     gotName = True
                                     name = token.value
@@ -89,6 +89,7 @@ for name in projects:
                                         prevDoc = ""
                                         startOfFunc = False
                             modifiers.clear()
+                            redefining = False
                         if doc is not None:
                             prevDoc = doc
 
