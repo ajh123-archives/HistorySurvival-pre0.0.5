@@ -44,6 +44,7 @@ for name in projects:
                 prevDoc = ""
                 redefining = False
                 startOfFunc = False
+                inFunc = False
                 for token in tokens:
                     doc = token.javadoc
                     if not isInClass and isinstance(token, javalang.tokenizer.Modifier):
@@ -53,17 +54,21 @@ for name in projects:
                         isReadyForClass = False
                     if isInClass:
                         if isinstance(token, javalang.tokenizer.Modifier):
-                            gotName = False
-                            l, c = token.position
+                            if not inFunc:
+                                gotName = False
+                                l, c = token.position
 
-                            prevFuncLine = funcLine
-                            funcLine = l
-                            if not startOfFunc:
-                                startOfFunc = True
-                            modifiers.append(token.value)
+                                prevFuncLine = funcLine
+                                funcLine = l
+                                if not startOfFunc:
+                                    startOfFunc = True
+                                modifiers.append(token.value)
                                 
-                            if "=" in lines[funcLine-1]:
+                                print(lines[funcLine-1])
+                                
                                 if "{" in lines[funcLine-1]:
+                                    inFunc = True
+                                if "=" in lines[funcLine-1] and inFunc:
                                     redefining = True
                         if not gotName and isinstance(token, javalang.tokenizer.Identifier):
                             l, c = token.position
@@ -71,23 +76,27 @@ for name in projects:
                                 if l == funcLine:
                                     gotName = True
                                     name = token.value
-                                    if not redefining:
+                                    print(name, redefining)
+                                    if not redefining and inFunc:
                                         try:
                                             docBlock: javalang.javadoc.DocBlock = javalang.javadoc.parse(prevDoc)
                                             out[name] = {
                                                 "desc": docBlock.description,
                                                 "modifiers": modifiers.copy(),
-                                                "line": funcLine
+                                                "line": funcLine,
+                                                "redf": redefining
                                             }
                                         except ValueError:
                                             out[name] = {
                                                 "desc": "",
                                                 "modifiers": modifiers.copy(),
-                                                "line": funcLine
+                                                "line": funcLine,
+                                                "redf": redefining
                                             }
 
                                         prevDoc = ""
                                         startOfFunc = False
+                                        inFunc = False
                             modifiers.clear()
                             redefining = False
                         if doc is not None:
