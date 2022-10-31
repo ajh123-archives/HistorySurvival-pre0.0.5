@@ -49,8 +49,9 @@ for name in projects:
                 prev_returns = ""
                 extra_returns = ""
                 indentifier_count = 0
-                indentifier_threshold = 2
+                indentifier_threshold = 1
                 is_generic = False
+                found = []
                 for token in tokens:
                     doc = token.javadoc
                     if not isInClass and isinstance(token, javalang.tokenizer.Modifier):
@@ -78,24 +79,27 @@ for name in projects:
                         l, c = token.position
                         if token.value == "void":
                             is_primative = True
+                        
                         if token.value == "<":
                             is_generic = True
                             indentifier_count -= 1
                         if token.value == ">":
                             is_generic = False
 
+                        if is_primative:
+                            indentifier_threshold += 1
+
                         if isinstance(token, javalang.tokenizer.Identifier) and inFunc and l == funcLine and not gotName:
                             if "<" in lines[l-1] and ">" in lines[l-1] and token.value in lines[l-1]:
                                 if not is_generic:
                                     extra_returns += token.value
-                                    indentifier_threshold += 1
                                     indentifier_count += 1
                                 else:
                                     extra_returns += "<"+token.value+">"
                                     indentifier_threshold += 1
                                     indentifier_count += 1
-                                print(extra_returns)
-
+                                gotName = False
+ 
                         if isinstance(token, javalang.tokenizer.Identifier) or is_primative and not is_generic:
                             if "{" in lines[l-1] and not "=" in lines[l-1]:
                                 indentifier_count += 1
@@ -106,10 +110,11 @@ for name in projects:
                                     gotName = False
 
                                 if indentifier_count == indentifier_threshold and not gotName and l == funcLine:
+                                    print(extra_returns)
                                     gotName = True
                                     name = token.value
 
-                                    if not redefining and inFunc:
+                                    if not redefining and inFunc and name not in found:
                                         try:
                                             docBlock: javalang.javadoc.DocBlock = javalang.javadoc.parse(prevDoc)
                                             out[name] = {
@@ -132,6 +137,7 @@ for name in projects:
                                         returns = ""
                                         indentifier_threshold = 2
                                         extra_returns = ""
+                                        found.append(name)
                             modifiers.clear()
                             redefining = False
                         if doc is not None:
