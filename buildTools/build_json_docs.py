@@ -87,19 +87,6 @@ for name in projects:
                         if is_primative:
                             indentifier_threshold += 1
 
-                        # if isinstance(token, javalang.tokenizer.Identifier) and inFunc and l == funcLine and not gotName:
-                        #     if "<" in lines[l-1] and ">" in lines[l-1] and token.value in lines[l-1]:
-                        #         is_generic = True
-                        #         # if indentifier_count > 0 and indentifier_count < 3:
-                        #         #     # if not is_generic:
-                        #         #     #     # extra_returns += token.value
-                        #         #     #     # indentifier_count += 1
-                        #         #     # else:
-                        #         #     #     # extra_returns += "<"+token.value+">"
-                        #         #     #     # indentifier_threshold += 1
-                        #         #     #     # indentifier_count += 1
-                        #         #     # gotName = False
- 
                         if isinstance(token, javalang.tokenizer.Identifier) or is_primative and not is_generic:
                             if "{" in lines[l-1] and not "=" in lines[l-1]:
                                 indentifier_count += 1
@@ -122,13 +109,13 @@ for name in projects:
                                         if not is_primative:
                                             indentifier_count -= 1
                                         indentifier_threshold += 1
-                                    # else:
-                                    #     indentifier_count -= 1
-                                    #     indentifier_threshold += 2
 
-                                print(token.value, indentifier_count, indentifier_threshold, is_generic)
+                                if c < splitAt:
+                                    if indentifier_count == 3 and indentifier_threshold == 4:
+                                        indentifier_threshold -= 1
+
+                                print(token.value, returns, indentifier_count, indentifier_threshold, is_generic, c, splitAt)
                                 if indentifier_count == indentifier_threshold and not gotName and l == funcLine:
-                                    # print(extra_returns)
                                     gotName = True
                                     name = token.value
 
