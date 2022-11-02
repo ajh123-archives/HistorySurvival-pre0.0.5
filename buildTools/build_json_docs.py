@@ -48,8 +48,9 @@ for name in projects:
                 returns = ""
                 prev_returns = ""
                 extra_returns = ""
+                got_returns = False
                 indentifier_count = 0
-                indentifier_threshold = 1
+                indentifier_threshold = 0
                 is_generic = False
                 found = []
                 for token in tokens:
@@ -69,6 +70,7 @@ for name in projects:
                             if not startOfFunc:
                                 startOfFunc = True
                                 indentifier_count = 0
+                                got_returns = False
                             modifiers.append(token.value)
 
                             if "{" in lines[funcLine-1]:
@@ -79,38 +81,54 @@ for name in projects:
                         l, c = token.position
                         if token.value == "void":
                             is_primative = True
-                        
-                        if token.value == "<":
-                            is_generic = True
-                            indentifier_count -= 1
-                        if token.value == ">":
-                            is_generic = False
+                            indentifier_count += 1
+                            indentifier_threshold += 1
 
                         if is_primative:
                             indentifier_threshold += 1
 
-                        if isinstance(token, javalang.tokenizer.Identifier) and inFunc and l == funcLine and not gotName:
-                            if "<" in lines[l-1] and ">" in lines[l-1] and token.value in lines[l-1]:
-                                if not is_generic:
-                                    extra_returns += token.value
-                                    indentifier_count += 1
-                                else:
-                                    extra_returns += "<"+token.value+">"
-                                    indentifier_threshold += 1
-                                    indentifier_count += 1
-                                gotName = False
+                        # if isinstance(token, javalang.tokenizer.Identifier) and inFunc and l == funcLine and not gotName:
+                        #     if "<" in lines[l-1] and ">" in lines[l-1] and token.value in lines[l-1]:
+                        #         is_generic = True
+                        #         # if indentifier_count > 0 and indentifier_count < 3:
+                        #         #     # if not is_generic:
+                        #         #     #     # extra_returns += token.value
+                        #         #     #     # indentifier_count += 1
+                        #         #     # else:
+                        #         #     #     # extra_returns += "<"+token.value+">"
+                        #         #     #     # indentifier_threshold += 1
+                        #         #     #     # indentifier_count += 1
+                        #         #     # gotName = False
  
                         if isinstance(token, javalang.tokenizer.Identifier) or is_primative and not is_generic:
                             if "{" in lines[l-1] and not "=" in lines[l-1]:
                                 indentifier_count += 1
+                                beforeParams = lines[l-1].split("(")[0]
+                                splitAt = lines[l-1].find("(")
+                                is_generic = False
+                                if "<" in beforeParams and ">" in beforeParams and token.value in beforeParams:
+                                    is_generic = True
+                                    indentifier_threshold += 1
+                                    indentifier_count -= 1
+                                    if indentifier_threshold == 3:
+                                        indentifier_count = 3
 
-                                if returns == "":
+                                if returns == "" and startOfFunc and not gotName:
                                     returns = token.value + extra_returns
                                     prev_returns = returns
                                     gotName = False
+                                    got_returns = True
+                                    if not is_generic:
+                                        if not is_primative:
+                                            indentifier_count -= 1
+                                        indentifier_threshold += 1
+                                    # else:
+                                    #     indentifier_count -= 1
+                                    #     indentifier_threshold += 2
 
+                                print(token.value, indentifier_count, indentifier_threshold, is_generic)
                                 if indentifier_count == indentifier_threshold and not gotName and l == funcLine:
-                                    print(extra_returns)
+                                    # print(extra_returns)
                                     gotName = True
                                     name = token.value
 
@@ -135,8 +153,10 @@ for name in projects:
                                         startOfFunc = False
                                         inFunc = False
                                         returns = ""
-                                        indentifier_threshold = 2
+                                        indentifier_threshold = 0
+                                        indentifier_count = 0
                                         extra_returns = ""
+                                        is_generic = False
                                         found.append(name)
                             modifiers.clear()
                             redefining = False
