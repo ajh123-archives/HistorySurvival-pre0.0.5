@@ -95,7 +95,8 @@ for name in projects:
                         if isinstance(token, javalang.tokenizer.Identifier) or is_primative and not is_generic:
                             if "{" in lines[l-1] and not "=" in lines[l-1]:
                                 indentifier_count += 1
-                                beforeParams = lines[l-1].split("(")[0]
+                                data = lines[l-1].split("(")
+                                beforeParams = data[0]
                                 splitAt = lines[l-1].find("(")
                                 is_generic = False
                                 if "<" in beforeParams and ">" in beforeParams and token.value in beforeParams:
@@ -123,9 +124,24 @@ for name in projects:
                                     gotName = True
                                     name = token.value
                                     modifiersStr = " ".join(modifiers)
+
                                     realReturns = beforeParams.replace(name, "")
                                     realReturns = realReturns.replace(modifiersStr, "")
                                     realReturns = "".join(realReturns.split())
+
+                                    afterData = data[1]
+                                    afterData = afterData.replace(")", "")
+                                    afterData = afterData.replace("{", "")
+                                    afterData = afterData.rstrip()
+                                    afterData = afterData.split("throws")
+                                    params = afterData[0].split(",")
+                                    params = [s.strip() for s in params]
+                                    params = [" ".join(s.split()) for s in params]
+                                    throws = ""
+                                    if len(afterData) > 1:
+                                        throws = afterData[1]
+                                        throws = throws.lstrip()
+                                        throws = throws.rstrip()
 
                                     if not redefining and inFunc and name not in found:
                                         try:
@@ -134,14 +150,18 @@ for name in projects:
                                                 "desc": docBlock.description,
                                                 "modifiers": modifiers.copy(),
                                                 "line": funcLine,
-                                                "returns": realReturns
+                                                "returns": realReturns,
+                                                "params": params,
+                                                "throws": throws
                                             }
                                         except ValueError:
                                             out[name] = {
                                                 "desc": "",
                                                 "modifiers": modifiers.copy(),
                                                 "line": funcLine,
-                                                "returns": realReturns
+                                                "returns": realReturns,
+                                                "params": params,
+                                                "throws": throws
                                             }
 
                                         prevDoc = ""
