@@ -201,7 +201,7 @@ public abstract class Scene {
 				if (ImGui.beginTabItem("Other")) {
 					ImGui.text("Texture Atlas");
 					ModelTexture textureAtlas = Game.getLoader().getTextureAtlas();
-					ImGui.image(textureAtlas.getTextureId(), 256, TextureLoader.images.size()*256);
+					ImGui.image(textureAtlas.getTextureId(), TextureLoader.images.size()*32, 32);
 					ImGui.endTabItem();
 				}
 

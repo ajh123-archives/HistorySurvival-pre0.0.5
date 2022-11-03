@@ -6,6 +6,7 @@ import net.ddns.minersonline.HistorySurvival.api.data.models.RawModel;
 import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceLoader;
 import net.ddns.minersonline.HistorySurvival.api.voxel.Voxel;
 import net.ddns.minersonline.HistorySurvival.api.voxel.VoxelModel;
+import org.joml.Vector2f;
 
 public class ResourceLoaderImpl extends ResourceLoader {
 	@Override
@@ -24,12 +25,20 @@ public class ResourceLoaderImpl extends ResourceLoader {
 	}
 
 	@Override
-	public int loadTexture(String filename) {
-		return Game.modelLoader.loadTexture(filename);
+	public int loadTexture(String filename, boolean addToAtlas, String rootPath) {
+		return Game.modelLoader.loadTexture(filename, addToAtlas, rootPath);
 	}
 
 	@Override
 	public ModelTexture getTextureAtlas() {
 		return TextureLoader.getTextureAtlas();
+	}
+
+	@Override
+	public Vector2f getTextureAtlasSize() {return TextureLoader.getAtlasSize();}
+
+	@Override
+	public int getAtlasCount() {
+		return TextureLoader.getAtlasCount();
 	}
 }

@@ -94,8 +94,8 @@ public class ModelLoader {
 		return new RawModel(vaoId, positions.length/2);
 	}
 
-	public int loadTexture(String filename) {
-		TextureLoader textureLoader = new TextureLoader(filename);
+	public int loadTexture(String filename, boolean addToAtlas, String rootPath) {
+		TextureLoader textureLoader = new TextureLoader(filename, addToAtlas, rootPath);
 		int textureId = textureLoader.getTextureId();
 		glGenerateMipmap(GL_TEXTURE_2D);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);

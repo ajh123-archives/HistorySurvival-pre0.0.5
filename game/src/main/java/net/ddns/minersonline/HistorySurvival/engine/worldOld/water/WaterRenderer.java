@@ -2,6 +2,7 @@ package net.ddns.minersonline.HistorySurvival.engine.worldOld.water;
 
 import java.util.List;
 
+import net.ddns.minersonline.HistorySurvival.api.GameHook;
 import net.ddns.minersonline.HistorySurvival.api.data.models.RawModel;
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
@@ -31,8 +32,8 @@ public class WaterRenderer {
 	public WaterRenderer(ModelLoader loader, WaterShader shader, Matrix4f projectionMatrix, WaterFrameBuffers wfbos) {
 		this.shader = shader;
 		this.wfbos = wfbos;
-		dudv_texture = loader.loadTexture(DUDV_MAP);
-		normal_texture = loader.loadTexture(NORMAL_MAP);
+		dudv_texture = GameHook.getLoader().loadTexture(DUDV_MAP);
+		normal_texture = GameHook.getLoader().loadTexture(NORMAL_MAP);
 		shader.bind();
 		shader.connectTextureUnits();
 		shader.loadProjectionMatrix(projectionMatrix);

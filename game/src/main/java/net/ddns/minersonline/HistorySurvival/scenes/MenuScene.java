@@ -6,6 +6,7 @@ import imgui.extension.imguifiledialog.flag.ImGuiFileDialogFlags;
 import imgui.type.ImBoolean;
 import imgui.type.ImString;
 import net.ddns.minersonline.HistorySurvival.*;
+import net.ddns.minersonline.HistorySurvival.api.GameHook;
 import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
 import net.ddns.minersonline.HistorySurvival.engine.MasterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
@@ -65,7 +66,7 @@ public class MenuScene extends Scene {
 
 	@Override
 	public void init() {
-		iconId = Game.modelLoader.loadTexture("grass.png");
+		iconId = GameHook.getLoader().loadTexture("grass.png", false, "assets/voxels/textures/");
 
 		masterRenderer.setBackgroundColour(new Vector3f(0.5f, 0.5f, 0.5f));
 		sun = new Light(new Vector3f(3000, 2000, 2000), new Vector3f(0.6f, 0.6f,0.6f));

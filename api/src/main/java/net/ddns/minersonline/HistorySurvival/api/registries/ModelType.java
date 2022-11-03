@@ -16,7 +16,7 @@ public class ModelType<T extends TexturedModel> {
 	static {
 		TexturedModel grassModel = new TexturedModel(
 				GameHook.getLoader().loadCube(),
-				new ModelTexture(GameHook.getLoader().loadTexture("grass.png"))
+				new ModelTexture(GameHook.getLoader().loadTexture("grass.png", true, "assets/voxels/textures/"))
 		);
 		grassModel.getModelTexture().setHasTransparency(true);
 		grassModel.getModelTexture().setUseFakeLighting(true);
@@ -24,7 +24,7 @@ public class ModelType<T extends TexturedModel> {
 
 		TexturedModel mudModel = new TexturedModel(
 				GameHook.getLoader().loadCube(),
-				new ModelTexture(GameHook.getLoader().loadTexture("mud.png"))
+				new ModelTexture(GameHook.getLoader().loadTexture("mud.png", true, "assets/voxels/textures/"))
 		);
 		mudModel.getModelTexture().setHasTransparency(true);
 		mudModel.getModelTexture().setUseFakeLighting(true);

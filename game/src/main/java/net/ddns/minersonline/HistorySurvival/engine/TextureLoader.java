@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +21,7 @@ import net.ddns.minersonline.HistorySurvival.api.exceptions.ResourceLocationExce
 import net.ddns.minersonline.HistorySurvival.api.registries.ModelType;
 import net.ddns.minersonline.HistorySurvival.api.registries.Registries;
 import net.ddns.minersonline.HistorySurvival.engine.utils.BufferUtils;
+import org.joml.Vector2f;
 //import net.ddns.minersonline.HistorySurvival.engine.utils.BufferUtils;
 import javax.imageio.ImageIO;
 
@@ -27,21 +29,24 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class TextureLoader {
 	private int width, height;
+	private static Vector2f atlasSize;
+	private static int atlasCount;
 	private int textureId;
 	public static Map<String, Map<Integer, int[]>> images = new HashMap<>();
 	public static ModelTexture textureAtlas;
 
-	public TextureLoader(String path) {
-		textureId = load(path);
+	public TextureLoader(String path, boolean addToAtlas, String rootPath) {
+		textureId = load(path, addToAtlas, rootPath);
 	}
 
 	public TextureLoader() {
 	}
 
-	public int load(String path) {
+	public int load(String path, boolean addToAtlas, String rootPath) {
 		int[] pixels = null;
 		ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-		InputStream stream = classloader.getResourceAsStream(path);
+		Path realPath = Path.of(rootPath, path);
+		InputStream stream = classloader.getResourceAsStream(realPath.toString());
 
 		try {
 			assert stream != null;
@@ -74,9 +79,11 @@ public class TextureLoader {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, BufferUtils.createIntBuffer(data));
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		Map<Integer, int[]> image = new HashMap<>();
-		image.put(result, data);
-		images.put(path, image);
+		if (addToAtlas) {
+			Map<Integer, int[]> image = new HashMap<>();
+			image.put(result, data);
+			images.put(path, image);
+		}
 
 		return result;
 	}
@@ -89,7 +96,10 @@ public class TextureLoader {
 		int height = 256;
 //		IntBuffer buffer = BufferUtils.createIntBuffer(width * height * 3);
 
-		int[] atlas_data = new int[width * height * 3];
+		int channels = 4;
+		int[] atlas_data = new int[width * height * channels];
+		atlasSize = new Vector2f(width, height);
+		atlasCount = images.size();
 
 
 		Game.logger.info("Using texture id '"+result+"' for atlas");
@@ -106,16 +116,16 @@ public class TextureLoader {
 				Map<Integer, int[]> subData = images.get(path);
 
 				for (int[] imgData : subData.values()) {
-					int targetX = 0;
-					int targetY = index*(((256)-index*256)+128/2);
+					int targetX = (32+32)*index;
+					int targetY = 0;
+					System.out.println(targetX);
 
-					for (int sourceY = 0; sourceY < 256; ++sourceY) {
-						for (int sourceX = 0; sourceX < 256; ++sourceX) {
-							int from = (sourceY * 256 * 3) + (sourceX * 3);
+					for (int sourceY = 0; sourceY < 32; ++sourceY) {
+						for (int sourceX = 0; sourceX < 32; ++sourceX) {
+							int from = (sourceY * 32 * channels) + (sourceX * channels); // 4 bytes per pixel (assuming RGBA)
+							int to = ((targetY + sourceY) * 32 * channels) + ((targetX + sourceX) * channels); // same format as source
 
-							int to = ((targetY + sourceY) * 256 * 3) + ((targetX + sourceX) * 3); // same format as source
-
-							for(int channel = 0; channel < 3; ++channel) {
+							for(int channel = 0; channel < channels; ++channel) {
 								atlas_data[to + channel] = imgData[from + channel];
 							}
 						}
@@ -191,5 +201,13 @@ public class TextureLoader {
 
 	public int getTextureId() {
 		return textureId;
+	}
+
+	public static Vector2f getAtlasSize() {
+		return atlasSize;
+	}
+
+	public static int getAtlasCount() {
+		return atlasCount;
 	}
 }

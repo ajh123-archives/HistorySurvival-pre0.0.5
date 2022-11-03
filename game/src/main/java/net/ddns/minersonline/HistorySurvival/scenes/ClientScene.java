@@ -3,6 +3,7 @@ package net.ddns.minersonline.HistorySurvival.scenes;
 import imgui.type.ImBoolean;
 import net.ddns.minersonline.HistorySurvival.Game;
 import net.ddns.minersonline.HistorySurvival.Scene;
+import net.ddns.minersonline.HistorySurvival.api.GameHook;
 import net.ddns.minersonline.HistorySurvival.api.ecs.GameObject;
 import net.ddns.minersonline.HistorySurvival.api.ecs.MeshComponent;
 import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
@@ -88,10 +89,10 @@ public class ClientScene extends Scene {
 			camera = new Camera(getPlayer());
 		}
 
-		GuiTexture gui = new GuiTexture(modelLoader.loadTexture("health.png"), new Vector2f(-0.75f, -0.85f), new Vector2f(0.25f, 0.15f));
+		GuiTexture gui = new GuiTexture(GameHook.getLoader().loadTexture("health.png"), new Vector2f(-0.75f, -0.85f), new Vector2f(0.25f, 0.15f));
 		guis.add(gui);
 
-		ParticleTexture particleTexture = new ParticleTexture(modelLoader.loadTexture("grass.png"), 1, false);
+		ParticleTexture particleTexture = new ParticleTexture(GameHook.getLoader().loadTexture("grass.png"), 1, false);
 		particleSystem = new ParticleSystem(particleTexture, 50, 0, 0.3f, 4, 2);
 		particleSystem.randomizeRotation();
 		particleSystem.setDirection(new Vector3f(0, 1, 0), 0.1f);

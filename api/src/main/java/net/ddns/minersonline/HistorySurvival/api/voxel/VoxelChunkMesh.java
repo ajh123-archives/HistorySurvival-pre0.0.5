@@ -1,5 +1,6 @@
 package net.ddns.minersonline.HistorySurvival.api.voxel;
 
+import net.ddns.minersonline.HistorySurvival.api.GameHook;
 import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
 import net.ddns.minersonline.HistorySurvival.api.data.models.Vertex;
 import org.joml.Vector2f;
@@ -105,7 +106,9 @@ public class VoxelChunkMesh {
 	}
 
 	private void buildVertex(Voxel voxel, Vector3f[] poses, Vector3f[] normals, Vector2f[] uv, Vector3f pos1) {
+		Vector2f atlasSize = GameHook.getLoader().getTextureAtlasSize();
 		for (int k = 0; k < 6; k++) {
+			Vector2f tc = (uv[k].mul(new Vector2f(32,32)).div(new Vector2f(atlasSize.x,atlasSize.y)));
 			vertices.add(new Vertex(
 				new Vector3f(
 					poses[k].x + pos1.x,
@@ -114,8 +117,10 @@ public class VoxelChunkMesh {
 				),
 				normals[k],
 				new Vector2f(
-					uv[k].x,//* voxel.getModel().getModelTexture().getAtlasOffset() * 6,// * voxel.getModel().getModelTexture().getAtlasOffset(),
-					uv[k].y * ((voxel.getModel().getModelTexture().getAtlasOffset() + 6)+256)
+//					uv[k].x,//* voxel.getModel().getModelTexture().getAtlasOffset() * 6,// * voxel.getModel().getModelTexture().getAtlasOffset(),
+//					uv[k].y + (((voxel.getModel().getModelTexture().getAtlasOffset())*6)*8192)*8192
+					tc.x + (((voxel.getModel().getModelTexture().getAtlasOffset() % GameHook.getLoader().getAtlasCount()) * 32)/ atlasSize.x),
+					tc.y + (((voxel.getModel().getModelTexture().getAtlasOffset()) * 32)/ atlasSize.y)
 				)
 			));
 		}
