@@ -50,13 +50,14 @@ for name in projects:
                 prev_returns = ""
                 extra_returns = ""
                 got_returns = False
-                indentifier_count = 0
+                identifier_count = 0
                 indentifier_threshold = 0
                 is_generic = False
                 found = []
                 className = ""
                 for token in tokens:
                     doc = token.javadoc
+                    line, column = token.position
                     if not isInClass and isinstance(token, javalang.tokenizer.Modifier):
                         isReadyForClass = True
                     if isReadyForClass and token.value == "class":
@@ -65,46 +66,49 @@ for name in projects:
                     if isInClass:
                         if isinstance(token, javalang.tokenizer.Modifier):
                             gotName = False
-                            l, c = token.position
 
                             prevFuncLine = funcLine
-                            funcLine = l
+                            funcLine = line
                             if not startOfFunc:
                                 startOfFunc = True
-                                indentifier_count = 0
+                                identifier_count = 0
                                 modifiers.clear()
                                 got_returns = False
 
-                            if "{" in lines[funcLine-1]:
+                            if "{" in lines[funcLine - 1]:
                                 inFunc = True
-                            if "=" in lines[funcLine-1] and inFunc:
+                            if "=" in lines[funcLine - 1] and inFunc:
                                 redefining = True
 
                             if inFunc:
                                 modifiers.append(token.value)
-                        is_primative = False
-                        l, c = token.position
-                        if token.value == "void":
-                            is_primative = True
-                            indentifier_count += 1
+
+                        is_primitive = False
+                        splitAt = -1
+                        if inFunc:
+                            splitAt = lines[line - 1].find("(")
+                            if column < splitAt and (
+                                    token.value == "void" or isinstance(token, javalang.tokenizer.BasicType)
+                            ):
+                                is_primitive = True
+                                identifier_count += 1
+                                indentifier_threshold += 1
+
+                        if is_primitive:
                             indentifier_threshold += 1
 
-                        if is_primative:
-                            indentifier_threshold += 1
-
-                        if isinstance(token, javalang.tokenizer.Identifier) or is_primative and not is_generic:
-                            if "{" in lines[l-1] and not "=" in lines[l-1]:
-                                indentifier_count += 1
-                                data = lines[l-1].split("(")
+                        if isinstance(token, javalang.tokenizer.Identifier) or is_primitive and not is_generic:
+                            if "{" in lines[line - 1] and "=" not in lines[line - 1]:
+                                identifier_count += 1
+                                data = lines[line - 1].split("(")
                                 beforeParams = data[0]
-                                splitAt = lines[l-1].find("(")
                                 is_generic = False
                                 if "<" in beforeParams and ">" in beforeParams and token.value in beforeParams:
                                     is_generic = True
                                     indentifier_threshold += 1
-                                    indentifier_count -= 1
+                                    identifier_count -= 1
                                     if indentifier_threshold == 3:
-                                        indentifier_count = 3
+                                        identifier_count = 3
 
                                 if returns == "" and startOfFunc and not gotName:
                                     returns = token.value + extra_returns
@@ -112,15 +116,15 @@ for name in projects:
                                     gotName = False
                                     got_returns = True
                                     if not is_generic:
-                                        if not is_primative:
-                                            indentifier_count -= 1
+                                        if not is_primitive:
+                                            identifier_count -= 1
                                         indentifier_threshold += 1
 
-                                if c < splitAt:
-                                    if indentifier_count == 3 and indentifier_threshold == 4:
+                                if column < splitAt:
+                                    if identifier_count == 3 and indentifier_threshold == 4:
                                         indentifier_threshold -= 1
 
-                                if indentifier_count == indentifier_threshold and not gotName and l == funcLine:
+                                if identifier_count == indentifier_threshold and not gotName and line == funcLine:
                                     gotName = True
                                     name = token.value
                                     modifiersStr = " ".join(modifiers)
@@ -169,13 +173,12 @@ for name in projects:
                                         inFunc = False
                                         returns = ""
                                         indentifier_threshold = 0
-                                        indentifier_count = 0
+                                        identifier_count = 0
                                         extra_returns = ""
                                         is_generic = False
                                         found.append(name)
                             redefining = False
                         if doc is not None:
                             prevDoc = doc
-
 
 print(out)
