@@ -13,6 +13,7 @@ projectsList = list(args.projects)
 projectsList[0] = "{"
 projectsList[len(projectsList) - 1] = "}"
 projectsStr = "".join(projectsList)
+projectsStr = projectsStr.replace("\'", "\"")
 
 projects = json.loads(projectsStr)
 out = {}
