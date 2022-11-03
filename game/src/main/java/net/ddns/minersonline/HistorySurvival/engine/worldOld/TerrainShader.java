@@ -1,5 +1,6 @@
 package net.ddns.minersonline.HistorySurvival.engine.worldOld;
 
+import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceLocation;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.shaders.ShaderProgramBase;
@@ -14,8 +15,8 @@ import java.util.List;
 public class TerrainShader extends ShaderProgramBase {
 	private static final int MAX_LIGHTS = 4;
 
-	private static final String VERTEX_FILE = "shaders/terrainVertexShader.glsl";
-	private static final String FRAGMENT_FILE = "shaders/terrainFragmentShader.glsl";
+	private static final ResourceLocation VERTEX_FILE = new ResourceLocation("terrain");
+	private static final ResourceLocation FRAGMENT_FILE = new ResourceLocation("terrain");
 
 	private int location_transformationMatrix;
 	private int location_projectionMatrix;

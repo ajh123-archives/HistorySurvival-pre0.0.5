@@ -1,13 +1,14 @@
 package net.ddns.minersonline.HistorySurvival.engine.text.fontRendering;
 
+import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceLocation;
 import net.ddns.minersonline.HistorySurvival.engine.shaders.ShaderProgramBase;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 public class FontShader extends ShaderProgramBase {
 
-	private static final String VERTEX_FILE = "shaders/fontVertex.glsl";
-	private static final String FRAGMENT_FILE = "shaders/fontFragment.glsl";
+	private static final ResourceLocation VERTEX_FILE = new ResourceLocation("font");
+	private static final ResourceLocation FRAGMENT_FILE = new ResourceLocation("font");
 
 	private static int location_colour;
 	private static int location_translation;

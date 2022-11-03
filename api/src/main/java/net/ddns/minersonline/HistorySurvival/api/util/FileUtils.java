@@ -1,4 +1,4 @@
-package net.ddns.minersonline.HistorySurvival.engine.utils;
+package net.ddns.minersonline.HistorySurvival.api.util;
 
 import java.io.*;
 
@@ -22,9 +22,8 @@ public class FileUtils {
 			}
 			reader.close();
 		} catch (IOException e) {
-			System.err.println("Could not read shader source file: " + file);
+			System.err.println("Could not read file: " + file);
 			e.printStackTrace();
-			System.exit(-1);
 		}
 
 		return result.toString();

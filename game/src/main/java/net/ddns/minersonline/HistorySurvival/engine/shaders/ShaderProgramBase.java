@@ -1,6 +1,8 @@
 package net.ddns.minersonline.HistorySurvival.engine.shaders;
 
-import net.ddns.minersonline.HistorySurvival.engine.utils.FileUtils;
+import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceLocation;
+import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceType;
+import net.ddns.minersonline.HistorySurvival.api.util.FileUtils;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -13,14 +15,15 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.*;
 
 public abstract class ShaderProgramBase {
-	private String vertexFile, fragmentFile;
+	private final String vertexFile;
+	private final String fragmentFile;
 	private int programId, vertexShaderId, fragmentShaderId;
 
 	private static FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16);    // 16 is a 4 x 4 matrix
 
-	public ShaderProgramBase(String vertexPath, String fragmentPath) {
-		vertexFile = FileUtils.loadAsString(vertexPath);
-		fragmentFile = FileUtils.loadAsString(fragmentPath);
+	public ShaderProgramBase(ResourceLocation vertex, ResourceLocation fragment) {
+		vertexFile = ResourceType.VERTEX_SHADER.load(vertex);
+		fragmentFile = ResourceType.FRAGMENT_SHADER.load(fragment);
 
 		create();
 	}

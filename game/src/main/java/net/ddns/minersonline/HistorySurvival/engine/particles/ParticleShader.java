@@ -1,13 +1,13 @@
 package net.ddns.minersonline.HistorySurvival.engine.particles;
 
+import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceLocation;
 import net.ddns.minersonline.HistorySurvival.engine.shaders.ShaderProgramBase;
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
 
 public class ParticleShader extends ShaderProgramBase {
 
-	private static final String VERTEX_FILE = "shaders/particleVShader.glsl";
-	private static final String FRAGMENT_FILE = "shaders/particleFShader.glsl";
+	private static final ResourceLocation VERTEX_FILE = new ResourceLocation("particle");
+	private static final ResourceLocation FRAGMENT_FILE = new ResourceLocation("particle");
 
 	private int location_numberOfRows;
 	private int location_projectionMatrix;

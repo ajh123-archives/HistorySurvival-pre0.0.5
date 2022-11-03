@@ -1,14 +1,15 @@
 package net.ddns.minersonline.HistorySurvival.api.data.resources;
 
+import net.ddns.minersonline.HistorySurvival.api.data.resources.types.ShaderResource;
 import net.ddns.minersonline.HistorySurvival.api.data.resources.types.TextureResource;
 
 public class ResourceType {
 	public static final TextureResource TEXTURE = new TextureResource(TextureResource.TextureType.GENERIC);
 	public static final TextureResource VOXEL_TEXTURE = new TextureResource(TextureResource.TextureType.VOXEL);
 	public static final ResourceType MODEL = new ResourceType("assets/models");
-	public static final ResourceType FRAGMENT_SHADER = new ResourceType("assets/shaders/fragment");
-	public static final ResourceType VERTEX_SHADER = new ResourceType("assets/shaders/vertex");
-	public static final ResourceType COMPUTE_SHADER = new ResourceType("assets/shaders/compute");
+	public static final ShaderResource VERTEX_SHADER = new ShaderResource(ShaderResource.ShaderType.VERTEX);
+	public static final ShaderResource FRAGMENT_SHADER = new ShaderResource(ShaderResource.ShaderType.FRAGMENT);
+	public static final ShaderResource COMPUTE_SHADER = new ShaderResource(ShaderResource.ShaderType.COMPUTE);
 
 	private final String root;
 

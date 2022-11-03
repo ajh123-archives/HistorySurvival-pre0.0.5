@@ -1,12 +1,13 @@
 package net.ddns.minersonline.HistorySurvival.engine.guis;
 
+import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceLocation;
 import net.ddns.minersonline.HistorySurvival.engine.shaders.ShaderProgramBase;
 import org.joml.Matrix4f;
 
 public class GuiShader extends ShaderProgramBase {
 	
-	private static final String VERTEX_FILE = "shaders/guiVertexShader.glsl";
-	private static final String FRAGMENT_FILE = "shaders/guiFragmentShader.glsl";
+	private static final ResourceLocation VERTEX_FILE = new ResourceLocation("gui");
+	private static final ResourceLocation FRAGMENT_FILE = new ResourceLocation("gui");
 	
 	private int location_transformationMatrix;
 

@@ -1,6 +1,7 @@
 package net.ddns.minersonline.HistorySurvival.engine.voxel;
 
 
+import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceLocation;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.shaders.ShaderProgramBase;
 import net.ddns.minersonline.HistorySurvival.engine.utils.Maths;
@@ -8,8 +9,8 @@ import org.joml.Matrix4f;
 
 public class VoxelShader extends ShaderProgramBase {
 
-	private final static String VERTEX_FILE = "shaders/voxelVertex.glsl";
-	private final static String FRAGMENT_FILE = "shaders/voxelFragment.glsl";
+	private final static ResourceLocation VERTEX_FILE = new ResourceLocation("voxel");
+	private final static ResourceLocation FRAGMENT_FILE = new ResourceLocation("voxel");
 
 	private int location_transformationMatrix;
 	private int location_projectionMatrix;

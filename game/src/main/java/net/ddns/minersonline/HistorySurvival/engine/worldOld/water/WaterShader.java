@@ -1,6 +1,7 @@
 package net.ddns.minersonline.HistorySurvival.engine.worldOld.water;
 
 
+import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceLocation;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.shaders.ShaderProgramBase;
@@ -9,8 +10,8 @@ import org.joml.Matrix4f;
 
 public class WaterShader extends ShaderProgramBase {
 
-	private final static String VERTEX_FILE = "shaders/waterVertex.glsl";
-	private final static String FRAGMENT_FILE = "shaders/waterFragment.glsl";
+	private final static ResourceLocation VERTEX_FILE = new ResourceLocation("water");
+	private final static ResourceLocation FRAGMENT_FILE = new ResourceLocation("water");
 
 	private int location_modelMatrix;
 	private int location_viewMatrix;

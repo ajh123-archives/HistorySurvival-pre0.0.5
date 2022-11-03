@@ -1,5 +1,6 @@
 package net.ddns.minersonline.HistorySurvival.engine.shaders;
 
+import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceLocation;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.utils.Maths;
@@ -13,8 +14,8 @@ import java.util.List;
 public class StaticShader extends ShaderProgramBase {
 	private static final int MAX_LIGHTS = 4;
 
-	private static final String VERTEX_FILE = "shaders/vertexShader.glsl";
-	private static final String FRAGMENT_FILE = "shaders/fragmentShader.glsl";
+	private static final ResourceLocation VERTEX_FILE = new ResourceLocation("static");
+	private static final ResourceLocation FRAGMENT_FILE = new ResourceLocation("static");
 
 	private int location_transformationMatrix;
 	private int location_projectionMatrix;

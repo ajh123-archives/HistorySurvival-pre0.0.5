@@ -1,6 +1,8 @@
 package net.ddns.minersonline.HistorySurvival.engine.shaders;
 
-import net.ddns.minersonline.HistorySurvival.engine.utils.FileUtils;
+import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceLocation;
+import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceType;
+import net.ddns.minersonline.HistorySurvival.api.util.FileUtils;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -19,8 +21,8 @@ public abstract class ComputeShaderBase {
 
 	private static FloatBuffer matrixBuffer = BufferUtils.createFloatBuffer(16);    // 16 is a 4 x 4 matrix
 
-	public ComputeShaderBase(String computeFile) {
-		computeFile = FileUtils.loadAsString(computeFile);
+	public ComputeShaderBase(ResourceLocation compute) {
+		computeFile = ResourceType.COMPUTE_SHADER.load(compute);
 
 		create();
 	}
