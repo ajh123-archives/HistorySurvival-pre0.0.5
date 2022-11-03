@@ -49,6 +49,7 @@ public class TextureLoader {
 		InputStream stream = classloader.getResourceAsStream(realPath.toString());
 
 		try {
+			System.out.println(realPath);
 			assert stream != null;
 			BufferedImage image = ImageIO.read(stream);
 			width = image.getWidth();

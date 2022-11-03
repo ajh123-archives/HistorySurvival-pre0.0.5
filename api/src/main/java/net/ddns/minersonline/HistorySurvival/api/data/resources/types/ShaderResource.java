@@ -17,13 +17,13 @@ public class ShaderResource extends ResourceType {
 	}
 
 	public String load(ResourceLocation path) {
-		return FileUtils.loadAsString(type.toString() + "/" + path.getPath() + ".glsl");
+		return FileUtils.loadAsString("assets/" + path.getNamespace() + "/" + type.toString() + "/" + path.getPath() + ".glsl");
 	}
 
 	public enum ShaderType {
-		VERTEX("assets/shaders/vertex"),
-		FRAGMENT("assets/shaders/fragment"),
-		COMPUTE("assets/shaders/compute")
+		VERTEX("shaders/vertex"),
+		FRAGMENT("shaders/fragment"),
+		COMPUTE("shaders/compute")
 		;
 
 		private final String path;

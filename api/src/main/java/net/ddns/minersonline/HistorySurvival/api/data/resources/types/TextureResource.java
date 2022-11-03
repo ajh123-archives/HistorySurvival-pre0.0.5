@@ -25,14 +25,14 @@ public class TextureResource extends ResourceType {
 		return new ModelTexture(GameHook.getLoader().loadTexture(
 				path.getPath()+"."+format.format,
 				addToAtlas,
-				type.path),
+				"assets/" + path.getNamespace() + "/" + type.path),
 				this
 		);
 	}
 
 	public enum TextureType {
-		GENERIC("assets/textures"),
-		VOXEL("assets/voxels/textures")
+		GENERIC("textures"),
+		VOXEL("voxels/textures")
 		;
 
 		private final String path;

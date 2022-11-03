@@ -66,7 +66,7 @@ public class MenuScene extends Scene {
 
 	@Override
 	public void init() {
-		iconId = GameHook.getLoader().loadTexture("grass.png", false, "assets/voxels/textures/");
+		iconId = GameHook.getLoader().loadTexture("grass.png", false, "assets/history_survival/voxels/textures/");
 
 		masterRenderer.setBackgroundColour(new Vector3f(0.5f, 0.5f, 0.5f));
 		sun = new Light(new Vector3f(3000, 2000, 2000), new Vector3f(0.6f, 0.6f,0.6f));

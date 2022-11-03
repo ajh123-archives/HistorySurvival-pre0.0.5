@@ -92,7 +92,7 @@ public class MainScene extends Scene {
 		GuiTexture gui = new GuiTexture(GameHook.getLoader().loadTexture("health.png"), new Vector2f(-0.75f, -0.85f), new Vector2f(0.25f, 0.15f));
 		guis.add(gui);
 
-		ParticleTexture particleTexture = new ParticleTexture(GameHook.getLoader().loadTexture("grass.png", false, "assets/voxels/textures/"), 1, false);
+		ParticleTexture particleTexture = new ParticleTexture(GameHook.getLoader().loadTexture("grass.png", false, "assets/history_survival/voxels/textures/"), 1, false);
 		particleSystem = new ParticleSystem(particleTexture, 50, 0, 0.3f, 4, 2);
 		particleSystem.randomizeRotation();
 		particleSystem.setDirection(new Vector3f(0, 1, 0), 0.1f);
