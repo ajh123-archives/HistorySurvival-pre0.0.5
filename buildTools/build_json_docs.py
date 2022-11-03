@@ -45,6 +45,14 @@ for name in projects:
                 redefining = False
                 startOfFunc = False
                 inFunc = False
+                returns = ""
+                prev_returns = ""
+                extra_returns = ""
+                got_returns = False
+                indentifier_count = 0
+                indentifier_threshold = 0
+                is_generic = False
+                found = []
                 for token in tokens:
                     doc = token.javadoc
                     if not isInClass and isinstance(token, javalang.tokenizer.Modifier):
@@ -54,52 +62,93 @@ for name in projects:
                         isReadyForClass = False
                     if isInClass:
                         if isinstance(token, javalang.tokenizer.Modifier):
-                            if not inFunc:
-                                gotName = False
-                                l, c = token.position
-
-                                prevFuncLine = funcLine
-                                funcLine = l
-                                if not startOfFunc:
-                                    startOfFunc = True
-                                modifiers.append(token.value)
-                                
-                                print(lines[funcLine-1])
-                                
-                                if "{" in lines[funcLine-1]:
-                                    inFunc = True
-                                if "=" in lines[funcLine-1] and inFunc:
-                                    redefining = True
-                        if not gotName and isinstance(token, javalang.tokenizer.Identifier):
+                            gotName = False
                             l, c = token.position
+
+                            prevFuncLine = funcLine
+                            funcLine = l
+                            if not startOfFunc:
+                                startOfFunc = True
+                                indentifier_count = 0
+                                got_returns = False
+                            modifiers.append(token.value)
+
+                            if "{" in lines[funcLine-1]:
+                                inFunc = True
+                            if "=" in lines[funcLine-1] and inFunc:
+                                redefining = True
+                        is_primative = False
+                        l, c = token.position
+                        if token.value == "void":
+                            is_primative = True
+                            indentifier_count += 1
+                            indentifier_threshold += 1
+
+                        if is_primative:
+                            indentifier_threshold += 1
+
+                        if isinstance(token, javalang.tokenizer.Identifier) or is_primative and not is_generic:
                             if "{" in lines[l-1] and not "=" in lines[l-1]:
-                                if l == funcLine:
+                                indentifier_count += 1
+                                beforeParams = lines[l-1].split("(")[0]
+                                splitAt = lines[l-1].find("(")
+                                is_generic = False
+                                if "<" in beforeParams and ">" in beforeParams and token.value in beforeParams:
+                                    is_generic = True
+                                    indentifier_threshold += 1
+                                    indentifier_count -= 1
+                                    if indentifier_threshold == 3:
+                                        indentifier_count = 3
+
+                                if returns == "" and startOfFunc and not gotName:
+                                    returns = token.value + extra_returns
+                                    prev_returns = returns
+                                    gotName = False
+                                    got_returns = True
+                                    if not is_generic:
+                                        if not is_primative:
+                                            indentifier_count -= 1
+                                        indentifier_threshold += 1
+
+                                if c < splitAt:
+                                    if indentifier_count == 3 and indentifier_threshold == 4:
+                                        indentifier_threshold -= 1
+
+                                print(token.value, returns, indentifier_count, indentifier_threshold, is_generic, c, splitAt)
+                                if indentifier_count == indentifier_threshold and not gotName and l == funcLine:
                                     gotName = True
                                     name = token.value
-                                    print(name, redefining)
-                                    if not redefining and inFunc:
+
+                                    if not redefining and inFunc and name not in found:
                                         try:
                                             docBlock: javalang.javadoc.DocBlock = javalang.javadoc.parse(prevDoc)
                                             out[name] = {
                                                 "desc": docBlock.description,
                                                 "modifiers": modifiers.copy(),
                                                 "line": funcLine,
-                                                "redf": redefining
+                                                "returns": prev_returns
                                             }
                                         except ValueError:
                                             out[name] = {
                                                 "desc": "",
                                                 "modifiers": modifiers.copy(),
                                                 "line": funcLine,
-                                                "redf": redefining
+                                                "returns": prev_returns
                                             }
 
                                         prevDoc = ""
                                         startOfFunc = False
                                         inFunc = False
+                                        returns = ""
+                                        indentifier_threshold = 0
+                                        indentifier_count = 0
+                                        extra_returns = ""
+                                        is_generic = False
+                                        found.append(name)
                             modifiers.clear()
                             redefining = False
                         if doc is not None:
                             prevDoc = doc
+
 
 print(out)
