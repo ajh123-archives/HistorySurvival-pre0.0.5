@@ -11,6 +11,7 @@ import net.ddns.minersonline.HistorySurvival.api.EventHandler;
 import net.ddns.minersonline.HistorySurvival.api.GameHook;
 import net.ddns.minersonline.HistorySurvival.api.commands.CommandSender;
 import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
+import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceType;
 import net.ddns.minersonline.HistorySurvival.api.data.text.JSONTextComponent;
 import net.ddns.minersonline.HistorySurvival.api.registries.ModelType;
 import net.ddns.minersonline.HistorySurvival.api.registries.VoxelType;
@@ -287,6 +288,8 @@ public class Game extends GameHook {
 		logger.info("Cleaned main renderer");
 		modelLoader.destroy();
 		logger.info("Cleaned model loader");
+		ResourceType.destroy();
+		logger.info("Cleaned resources");
 		DisplayManager.dispose();
 		logger.info("Closed display");
 		System.exit(0);

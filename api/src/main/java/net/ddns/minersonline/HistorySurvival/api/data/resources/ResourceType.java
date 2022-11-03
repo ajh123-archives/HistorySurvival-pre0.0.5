@@ -23,5 +23,7 @@ public class ResourceType {
 
 	public static void init(){}
 
-
+	public static void destroy() {
+		TextureResource.destroy();
+	}
 }

@@ -5,8 +5,11 @@ import net.ddns.minersonline.HistorySurvival.api.data.models.ModelTexture;
 import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceLocation;
 import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceType;
 
+import java.util.HashMap;
+
 public class TextureResource extends ResourceType {
 	private final TextureType type;
+	private static final HashMap<HashMap<ResourceLocation, TextureType>, ModelTexture> cache = new HashMap<>();
 
 	public TextureResource(TextureType type) {
 		super(type.path);
@@ -22,12 +25,24 @@ public class TextureResource extends ResourceType {
 	}
 
 	public ModelTexture load(ResourceLocation path, TextureFormat format, boolean addToAtlas) {
-		return new ModelTexture(GameHook.getLoader().loadTexture(
-				path.getPath()+"."+format.format,
-				addToAtlas,
-				"assets/" + path.getNamespace() + "/" + type.path),
-				this
-		);
+		HashMap<ResourceLocation, TextureType> key = new HashMap<>();
+		key.put(path, type);
+		if (cache.containsKey(key)) {
+			return cache.get(key);
+		} else {
+			ModelTexture texture = new ModelTexture(GameHook.getLoader().loadTexture(
+					path.getPath() + "." + format.format,
+					addToAtlas,
+					"assets/" + path.getNamespace() + "/" + type.path),
+					this
+			);
+			cache.put(key, texture);
+			return texture;
+		}
+	}
+
+	public static void destroy() {
+		cache.clear();
 	}
 
 	public enum TextureType {

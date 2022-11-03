@@ -124,10 +124,6 @@ public class DisplayManager {
 	}
 
 	public static void dispose() {
-		guiManager.dispose();
-		guiRenderer.dispose();
-		ImGui.destroyContext();
-
 		glfwSetCursorPosCallback(window, null);
 		glfwSetMouseButtonCallback(window, null);
 		glfwSetScrollCallback(window, null);
