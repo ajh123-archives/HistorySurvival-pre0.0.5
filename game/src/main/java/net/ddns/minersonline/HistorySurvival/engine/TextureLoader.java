@@ -96,7 +96,7 @@ public class TextureLoader {
 		int height = 256;
 //		IntBuffer buffer = BufferUtils.createIntBuffer(width * height * 3);
 
-		int channels = 4;
+		int channels = 3;
 		int[] atlas_data = new int[width * height * channels];
 		atlasSize = new Vector2f(width, height);
 		atlasCount = images.size();
@@ -116,13 +116,13 @@ public class TextureLoader {
 				Map<Integer, int[]> subData = images.get(path);
 
 				for (int[] imgData : subData.values()) {
-					int targetX = (32+32)*index;
-					int targetY = 0;
-					System.out.println(targetX);
+					int targetX = 0;
+					int targetY = index*(((32)-index*32)+32/4);
 
 					for (int sourceY = 0; sourceY < 32; ++sourceY) {
 						for (int sourceX = 0; sourceX < 32; ++sourceX) {
-							int from = (sourceY * 32 * channels) + (sourceX * channels); // 4 bytes per pixel (assuming RGBA)
+							int from = (sourceY * 32 * channels) + (sourceX * channels);
+
 							int to = ((targetY + sourceY) * 32 * channels) + ((targetX + sourceX) * channels); // same format as source
 
 							for(int channel = 0; channel < channels; ++channel) {
@@ -142,7 +142,7 @@ public class TextureLoader {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, BufferUtils.createIntBuffer(atlas_data));
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		textureAtlas = new ModelTexture(result);
+		textureAtlas = new ModelTexture(result, null);
 		textureAtlas.setUseFakeLighting(true);
 		textureAtlas.setHasTransparency(true);
 	}

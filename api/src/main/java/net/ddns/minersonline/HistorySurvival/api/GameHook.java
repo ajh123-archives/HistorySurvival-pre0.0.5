@@ -3,6 +3,7 @@ package net.ddns.minersonline.HistorySurvival.api;
 import com.mojang.brigadier.CommandDispatcher;
 import net.ddns.minersonline.HistorySurvival.api.commands.CommandSender;
 import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceLoader;
+import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceType;
 import org.slf4j.Logger;
 
 /**
@@ -23,6 +24,7 @@ public abstract class GameHook {
 
 	protected static void setInstance(GameHook instance) {
 		GameHook.instance = instance;
+		ResourceType.init();
 	}
 
 	/**

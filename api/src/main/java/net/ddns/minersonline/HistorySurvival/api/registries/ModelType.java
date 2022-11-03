@@ -4,6 +4,8 @@ import net.ddns.minersonline.HistorySurvival.api.GameHook;
 import net.ddns.minersonline.HistorySurvival.api.data.models.ModelTexture;
 import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
 import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceLocation;
+import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceType;
+import net.ddns.minersonline.HistorySurvival.api.data.resources.types.TextureResource;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -16,7 +18,7 @@ public class ModelType<T extends TexturedModel> {
 	static {
 		TexturedModel grassModel = new TexturedModel(
 				GameHook.getLoader().loadCube(),
-				new ModelTexture(GameHook.getLoader().loadTexture("grass.png", true, "assets/voxels/textures/"))
+				ResourceType.VOXEL_TEXTURE.load(new ResourceLocation("grass"), TextureResource.TextureFormat.PNG, true)
 		);
 		grassModel.getModelTexture().setHasTransparency(true);
 		grassModel.getModelTexture().setUseFakeLighting(true);
@@ -24,7 +26,7 @@ public class ModelType<T extends TexturedModel> {
 
 		TexturedModel mudModel = new TexturedModel(
 				GameHook.getLoader().loadCube(),
-				new ModelTexture(GameHook.getLoader().loadTexture("mud.png", true, "assets/voxels/textures/"))
+				ResourceType.VOXEL_TEXTURE.load(new ResourceLocation("mud"), TextureResource.TextureFormat.PNG, true)
 		);
 		mudModel.getModelTexture().setHasTransparency(true);
 		mudModel.getModelTexture().setUseFakeLighting(true);
@@ -32,7 +34,7 @@ public class ModelType<T extends TexturedModel> {
 
 		TexturedModel player = new TexturedModel(
 				GameHook.getLoader().loadObjModel("person.obj"),
-				new ModelTexture(GameHook.getLoader().loadTexture("playerTexture.png"))
+				ResourceType.TEXTURE.load(new ResourceLocation("player"), TextureResource.TextureFormat.PNG)
 		);
 		MODElS.put("player", player);
 	}
