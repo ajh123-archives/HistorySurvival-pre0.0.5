@@ -54,6 +54,7 @@ for name in projects:
                 indentifier_threshold = 0
                 is_generic = False
                 found = []
+                className = ""
                 for token in tokens:
                     doc = token.javadoc
                     if not isInClass and isinstance(token, javalang.tokenizer.Modifier):
@@ -71,13 +72,16 @@ for name in projects:
                             if not startOfFunc:
                                 startOfFunc = True
                                 indentifier_count = 0
+                                modifiers.clear()
                                 got_returns = False
-                            modifiers.append(token.value)
 
                             if "{" in lines[funcLine-1]:
                                 inFunc = True
                             if "=" in lines[funcLine-1] and inFunc:
                                 redefining = True
+
+                            if inFunc:
+                                modifiers.append(token.value)
                         is_primative = False
                         l, c = token.position
                         if token.value == "void":
@@ -115,10 +119,13 @@ for name in projects:
                                     if indentifier_count == 3 and indentifier_threshold == 4:
                                         indentifier_threshold -= 1
 
-                                print(token.value, returns, indentifier_count, indentifier_threshold, is_generic, c, splitAt)
                                 if indentifier_count == indentifier_threshold and not gotName and l == funcLine:
                                     gotName = True
                                     name = token.value
+                                    modifiersStr = " ".join(modifiers)
+                                    realReturns = beforeParams.replace(name, "")
+                                    realReturns = realReturns.replace(modifiersStr, "")
+                                    realReturns = "".join(realReturns.split())
 
                                     if not redefining and inFunc and name not in found:
                                         try:
@@ -127,14 +134,14 @@ for name in projects:
                                                 "desc": docBlock.description,
                                                 "modifiers": modifiers.copy(),
                                                 "line": funcLine,
-                                                "returns": prev_returns
+                                                "returns": realReturns
                                             }
                                         except ValueError:
                                             out[name] = {
                                                 "desc": "",
                                                 "modifiers": modifiers.copy(),
                                                 "line": funcLine,
-                                                "returns": prev_returns
+                                                "returns": realReturns
                                             }
 
                                         prevDoc = ""
@@ -146,7 +153,6 @@ for name in projects:
                                         extra_returns = ""
                                         is_generic = False
                                         found.append(name)
-                            modifiers.clear()
                             redefining = False
                         if doc is not None:
                             prevDoc = doc
