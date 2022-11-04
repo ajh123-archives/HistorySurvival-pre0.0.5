@@ -1,6 +1,5 @@
 import argparse
 import json
-from operator import mod
 import os
 import javalang
 
