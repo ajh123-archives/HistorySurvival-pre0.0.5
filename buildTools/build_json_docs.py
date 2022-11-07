@@ -87,17 +87,18 @@ for name in projects:
 
                         is_primitive = False
                         splitAt = -1
-                        if inFunc and className == "":
-                            splitAt = lines[line - 1].find("(")
-                            if column < splitAt and (
-                                    token.value == "void" or isinstance(token, javalang.tokenizer.BasicType)
-                            ):
-                                is_primitive = True
-                                identifier_count += 1
-                                indentifier_threshold += 1
+                        if className != "":
+                            if inFunc:
+                                splitAt = lines[line - 1].find("(")
+                                if column < splitAt and (
+                                        token.value == "void" or isinstance(token, javalang.tokenizer.BasicType)
+                                ):
+                                    is_primitive = True
+                                    identifier_count += 1
+                                    indentifier_threshold += 1
 
-                        if is_primitive:
-                            indentifier_threshold += 1
+                            if is_primitive:
+                                indentifier_threshold += 1
 
                         if isinstance(token, javalang.tokenizer.Identifier) and className == "":
                             className = token.value
