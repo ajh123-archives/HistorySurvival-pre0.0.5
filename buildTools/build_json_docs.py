@@ -56,6 +56,7 @@ for name in projects:
                 is_generic = False
                 found = []
                 className = ""
+                out["classes"] = {}
                 for token in tokens:
                     doc = token.javadoc
                     line, column = token.position
@@ -86,7 +87,7 @@ for name in projects:
 
                         is_primitive = False
                         splitAt = -1
-                        if inFunc:
+                        if inFunc and className == "":
                             splitAt = lines[line - 1].find("(")
                             if column < splitAt and (
                                     token.value == "void" or isinstance(token, javalang.tokenizer.BasicType)
@@ -97,6 +98,24 @@ for name in projects:
 
                         if is_primitive:
                             indentifier_threshold += 1
+
+                        if isinstance(token, javalang.tokenizer.Identifier) and className == "":
+                            className = token.value
+                            classData = lines[line - 1].split(className, 1)
+                            left = " ".join(classData[0].split()).replace("{", "").replace("}", "").split(" ")
+                            right = " ".join(classData[1].split()).replace("{", "").replace("}", "").split(" ")
+
+                            classModifiers = left.copy()
+                            del classModifiers[-1]
+
+                            out["classes"][className] = {
+                                "line": line,
+                                "type": left[-1],
+                                "modifers": classModifiers,
+                                "extends": "",
+                                "implements": "",
+                                "functions": {}
+                            }
 
                         if isinstance(token, javalang.tokenizer.Identifier) or is_primitive and not is_generic:
                             if "{" in lines[line - 1] and "=" not in lines[line - 1]:
@@ -151,7 +170,7 @@ for name in projects:
                                     if not redefining and inFunc and name not in found:
                                         try:
                                             docBlock: javalang.javadoc.DocBlock = javalang.javadoc.parse(prevDoc)
-                                            out[name] = {
+                                            out["classes"][className]["functions"][name] = {
                                                 "desc": docBlock.description,
                                                 "modifiers": modifiers.copy(),
                                                 "line": funcLine,
@@ -160,7 +179,7 @@ for name in projects:
                                                 "throws": throws
                                             }
                                         except ValueError:
-                                            out[name] = {
+                                            out["classes"][className]["functions"][name] = {
                                                 "desc": "",
                                                 "modifiers": modifiers.copy(),
                                                 "line": funcLine,
