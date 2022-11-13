@@ -10,8 +10,6 @@ args = parser.parse_args()
 
 projectsList = list(args.projects)
 projectsList[0] = "{"
-del projectsList[1]
-del projectsList[-1]
 projectsList[len(projectsList) - 1] = "}"
 projectsStr = "".join(projectsList)
 projectsStr = projectsStr.replace("\'", "\"")
