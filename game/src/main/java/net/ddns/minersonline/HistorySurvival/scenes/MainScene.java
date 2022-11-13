@@ -30,6 +30,7 @@ public class MainScene extends Scene {
 	private transient static final Logger logger = LoggerFactory.getLogger(MainScene.class);
 	private transient ModelLoader modelLoader;
 	private transient MasterRenderer masterRenderer;
+	private transient SceneMetaData worldData;
 
 	private transient List<Light> lights = new ArrayList<>();
 	private transient List<GuiTexture> guis = new ArrayList<>();
@@ -57,51 +58,57 @@ public class MainScene extends Scene {
 		this.masterRenderer = masterRenderer;
 	}
 
-	public MainScene(Scene prevScene, ModelLoader modelLoader, MasterRenderer masterRenderer) {
+	public MainScene(Scene prevScene, ModelLoader modelLoader, MasterRenderer masterRenderer, SceneMetaData from) {
 		this();
 		levelLoaded = false;
 		this.masterRenderer = masterRenderer;
 		this.modelLoader = modelLoader;
 		this.prevScene = prevScene;
+		this.worldData = from;
 	}
 
 	@Override
 	public void init() {
-		masterRenderer.setBackgroundColour(new Vector3f(0.65f, 0.9f, 0.97f));
-		ENABLE_FILES = true;
+		if (!hasInited) {
+			masterRenderer.setBackgroundColour(new Vector3f(0.65f, 0.9f, 0.97f));
+			ENABLE_FILES = true;
 
-		sun = new Light(new Vector3f(3000, 2000, 2000), new Vector3f(0.6f, 0.6f, 0.6f));
-		lights.add(sun);
+			sun = new Light(new Vector3f(3000, 2000, 2000), new Vector3f(0.6f, 0.6f, 0.6f));
+			lights.add(sun);
 
-		worldCenter = new Vector3f(0, 0, 0);
+			worldCenter = new Vector3f(0, 0, 0);
 
-		if(!levelLoaded) {
-			player = new GameObject();
-			player.addComponent(new ControllableComponent(metaData.world));
-			player.addComponent(new MeshComponent(ModelType.PLAYER_MODEL.create()));
-			player.addComponent(new TransformComponent(new Vector3f(worldCenter), new Vector3f(0, 0, 0), .6f));
-			addGameObject(player);
+			if (!levelLoaded) {
+				player = new GameObject();
+				player.addComponent(new ControllableComponent(metaData.world));
+				player.addComponent(new MeshComponent(ModelType.PLAYER_MODEL.create()));
+				player.addComponent(new TransformComponent(new Vector3f(worldCenter), new Vector3f(0, 0, 0), .6f));
+				addGameObject(player);
 
-			camera = new Camera(player.getComponent(TransformComponent.class));
-		} else {
-			camera = new Camera(getPlayer());
+				camera = new Camera(player.getComponent(TransformComponent.class));
+			} else {
+				camera = new Camera(getPlayer());
+			}
+			System.out.println(camera);
+			metaData.name = worldData.name;
+			metaData.world.start(getPlayer());
+
+
+			GuiTexture gui = new GuiTexture(GameHook.getLoader().loadTexture("health.png"), new Vector2f(-0.75f, -0.85f), new Vector2f(0.25f, 0.15f));
+			guis.add(gui);
+
+			ParticleTexture particleTexture = new ParticleTexture(GameHook.getLoader().loadTexture("grass.png", false, "assets/history_survival/voxels/textures/"), 1, false);
+			particleSystem = new ParticleSystem(particleTexture, 50, 0, 0.3f, 4, 2);
+			particleSystem.randomizeRotation();
+			particleSystem.setDirection(new Vector3f(0, 1, 0), 0.1f);
+			particleSystem.setLifeError(0.1f);
+			particleSystem.setSpeedError(0.4f);
+			particleSystem.setScaleError(0.8f);
+
+
+			getPlayer().position.y = 30;
+			hasInited = true;
 		}
-		metaData.world.start(getPlayer());
-
-
-		GuiTexture gui = new GuiTexture(GameHook.getLoader().loadTexture("health.png"), new Vector2f(-0.75f, -0.85f), new Vector2f(0.25f, 0.15f));
-		guis.add(gui);
-
-		ParticleTexture particleTexture = new ParticleTexture(GameHook.getLoader().loadTexture("grass.png", false, "assets/history_survival/voxels/textures/"), 1, false);
-		particleSystem = new ParticleSystem(particleTexture, 50, 0, 0.3f, 4, 2);
-		particleSystem.randomizeRotation();
-		particleSystem.setDirection(new Vector3f(0, 1, 0), 0.1f);
-		particleSystem.setLifeError(0.1f);
-		particleSystem.setSpeedError(0.4f);
-		particleSystem.setScaleError(0.8f);
-
-
-		getPlayer().position.y = 30;
 	}
 
 
@@ -117,7 +124,6 @@ public class MainScene extends Scene {
 		} catch (Exception e){
 			Game.logger.info("AHHHHh");
 		}
-
 	}
 
 	@Override

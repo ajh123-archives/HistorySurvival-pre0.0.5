@@ -9,9 +9,8 @@ import java.util.*;
 public class SceneMetaData {
 	public String name = "";
 	public String version = GameSettings.version;
-	public VoxelWorld world = new VoxelWorld();
-
-	public List<GameObject> gameObjects = new ArrayList<>();
+	public transient VoxelWorld world = new VoxelWorld();
+	public transient List<GameObject> gameObjects = new ArrayList<>();
 
 	public SceneMetaData() {}
 }

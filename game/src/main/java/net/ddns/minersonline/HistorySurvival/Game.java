@@ -70,7 +70,7 @@ public class Game extends GameHook {
 	private static WaterFrameBuffers wfbos;
 	private static WaterShader waterShader;
 	private static WaterRenderer waterRenderer;
-	private static MasterRenderer masterRenderer;
+	public static MasterRenderer masterRenderer;
 	public static ModelLoader modelLoader = new ModelLoader();
 	public static final ExecutorService executor = Executors.newCachedThreadPool();
 

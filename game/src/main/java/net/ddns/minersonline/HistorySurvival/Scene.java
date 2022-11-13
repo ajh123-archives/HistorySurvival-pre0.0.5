@@ -18,6 +18,7 @@ import net.ddns.minersonline.HistorySurvival.engine.DisplayManager;
 import net.ddns.minersonline.HistorySurvival.engine.GameObjectManager;
 import net.ddns.minersonline.HistorySurvival.engine.TextureLoader;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
+import net.ddns.minersonline.HistorySurvival.engine.entities.ControllableComponent;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
 import net.ddns.minersonline.HistorySurvival.api.voxel.VoxelWorld;
@@ -29,9 +30,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static net.ddns.minersonline.HistorySurvival.network.Utils.gson;
 
@@ -39,10 +40,10 @@ public abstract class Scene {
 	protected boolean isRunning = false;
 	protected boolean ENABLE_FILES = false;
 	protected boolean levelLoaded = false;
+	protected boolean hasInited = false;
 	protected static ImVec2 barSize;
 	protected static ImVec2 barPos;
 	protected SceneMetaData metaData;
-	public File savePath;
 
 	public Scene() {
 		metaData = new SceneMetaData();
@@ -52,13 +53,16 @@ public abstract class Scene {
 	public void update(float deltaTime){}//KeyEvent keyEvent
 	public void stop(){}
 	public final void start(){
-		for (GameObject go : metaData.gameObjects){
-			go.start();
+		if (!isRunning) {
+			for (GameObject go : metaData.gameObjects) {
+				go.start();
+			}
+			isRunning = true;
 		}
-		isRunning = true;
 	}
 
 	public final void addGameObject(GameObject go){
+
 		GameObjectManager.addGameObject(go);
 		if (!isRunning){
 			metaData.gameObjects.add(go);
@@ -66,6 +70,7 @@ public abstract class Scene {
 			metaData.gameObjects.add(go);
 			go.start();
 		}
+		System.out.println("Added "+go.getId());
 	}
 
 	public final void putGameObject(int index, GameObject go){
@@ -123,17 +128,9 @@ public abstract class Scene {
 			if (ImGui.beginMenu("File"))
 			{
 				if (ENABLE_FILES && ImGui.menuItem("Save", "Ctrl+S")) {
-					//save();
-					if(savePath!=null) {
-						ImGuiFileDialog.openDialog("browse-save", "Save World As", "Json File (*.hsjs){.hsjs},Binary File (*.hsbs){.hsbs}", savePath.getParent(), savePath.getName(), 1, 2, ImGuiFileDialogFlags.HideColumnSize | ImGuiFileDialogFlags.HideColumnType | ImGuiFileDialogFlags.ConfirmOverwrite);
-					} else {
-						ImGuiFileDialog.openDialog("browse-save", "Save World As", "Json File (*.hsjs){.hsjs},Binary File (*.hsbs){.hsbs}", ".", "", 1, 2, ImGuiFileDialogFlags.HideColumnSize | ImGuiFileDialogFlags.HideColumnType | ImGuiFileDialogFlags.ConfirmOverwrite);
-					}
+					save(GameSettings.gameDir+"/saves/"+metaData.name);
 				}
-				if (ENABLE_FILES && ImGui.menuItem("Open", "Ctrl+O")) {
-					//load();
-					ImGuiFileDialog.openModal("browse-save", "Choose World", "Json File (*.hsjs){.hsjs}", ".", callback, 150, 1, 1, ImGuiFileDialogFlags.HideColumnSize | ImGuiFileDialogFlags.HideColumnType);
-				}
+
 				ImGui.separator();
 				if (prevScene!=null && ImGui.menuItem("Exit", "Esc")) {
 					DelayedTask task = () -> {
@@ -174,20 +171,6 @@ public abstract class Scene {
 
 		if(ENABLE_FILE_DEMO)
 		showFileDemo(new ImBoolean(ENABLE_FILE_DEMO));
-
-		if (ImGuiFileDialog.display("browse-save", ImGuiFileDialogFlags.None, 150, 400, 800, 600)) {
-			if (ImGuiFileDialog.isOk()) {
-				Map<String, String> selection = ImGuiFileDialog.getSelection();
-				long userData = ImGuiFileDialog.getUserDatas();
-				if(userData == 1) {
-					load(this, selection.values().stream().findFirst().get());
-				}
-				if(userData == 2) {
-					save(ImGuiFileDialog.getFilePathName());
-				}
-			}
-			ImGuiFileDialog.close();
-		}
 	}
 
 	int selected = 0;
@@ -263,47 +246,60 @@ public abstract class Scene {
 		ImGui.end();
 	}
 
-	public void load(Scene from, String path){
+	public void load(String path){
 		try {
-			String file = new String(Files.readAllBytes(Paths.get(path)));
+			String file = new String(Files.readAllBytes(Paths.get(path+"/level.json")));
 			if (!file.equals("")){
 				JsonObject jsonScene = JsonParser.parseString(file).getAsJsonObject();
 				if (jsonScene.has("version")){
 					String version = jsonScene.get("version").getAsString();
 					if (version.equalsIgnoreCase("0.0.2") || version.equalsIgnoreCase("0.0.1")){
 						DelayedTask task = () -> Game.queue.add(() -> {
-							MenuScene menuScene = (MenuScene) Game.getStartSceneScene();
 							MenuScene.ERROR = new Exception("Worlds from versions before 0.0.3 are incompatible.");
 							MenuScene.ENABLE_ERRORS.set(true);
-							Game.setCurrentScene(menuScene);
+							Game.setCurrentScene(Game.getStartSceneScene());
 						});
 						Game.addTask(task);
 						return;
 					}
 				} else {
 					DelayedTask task = () -> Game.queue.add(() -> {
-						MenuScene menuScene = (MenuScene) Game.getStartSceneScene();
 						MenuScene.ERROR = new Exception("Worlds from versions before 0.0.3 are incompatible.");
 						MenuScene.ENABLE_ERRORS.set(true);
-						Game.setCurrentScene(menuScene);
+						Game.setCurrentScene(Game.getStartSceneScene());
 					});
 					Game.addTask(task);
 					return;
 				}
 
-				SceneMetaData scene = gson.fromJson(file, SceneMetaData.class);
+				DelayedTask task = () -> Game.queue.add(() -> {
+					SceneMetaData scene = gson.fromJson(file, SceneMetaData.class);
 
-				from.metaData.world = scene.world;
+					File objectsPath = new File(Paths.get(path+"/objects").toString());
+					if (objectsPath.exists() && objectsPath.isDirectory()) {
+						for (File objectFile : Objects.requireNonNull(objectsPath.listFiles())) {
+							if (objectFile.isFile()) {
+								if (objectFile.exists()) {
+									try {
+										String data = new String(Files.readAllBytes(objectFile.toPath()));
+										GameObject go = gson.fromJson(data, GameObject.class);
+										scene.gameObjects.add(go);
+									} catch (IOException e) {
+										e.printStackTrace();
+									}
+								}
+							}
+						}
+					}
 
-				from.metaData.gameObjects.clear();
-				GameObjectManager.reset();
-				from.isRunning = false;
-				for (GameObject go : scene.gameObjects) {
-					from.addGameObject(go);
-				}
-				from.levelLoaded = true;
-				from.start();
-				savePath = new File(path);
+					for (GameObject go : scene.gameObjects) {
+						if (go.getComponent(ControllableComponent.class) == null) {
+							addGameObject(go);
+							go.start();
+						}
+					}
+				});
+				Game.addTask(task);
 			}
 		} catch (IOException e){
 			Game.logger.info("An error occurred! :(", e);
@@ -317,9 +313,19 @@ public abstract class Scene {
 
 	public void save(String path){
 		try {
-			FileWriter writer = new FileWriter(path);
-			writer.write(gson.toJson(this.metaData));
-			writer.close();
+			Files.createDirectories(Paths.get(path));
+			FileWriter levelWriter = new FileWriter(path+"/level.json");
+			levelWriter.write(gson.toJson(this.metaData));
+			levelWriter.close();
+
+			for (GameObject object : this.metaData.gameObjects) {
+				if (object.getComponent(ControllableComponent.class) == null) {
+					Files.createDirectories(Paths.get(path+"/objects"));
+					FileWriter objectWriter = new FileWriter(path+"/objects/"+object.getId()+".json");
+					objectWriter.write(gson.toJson(object));
+					objectWriter.close();
+				}
+			}
 		} catch (IOException e){
 			Game.logger.info("An error occurred! :(", e);
 		}

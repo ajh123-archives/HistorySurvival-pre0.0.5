@@ -72,6 +72,7 @@ public class MenuScene extends Scene {
 
 		if (ImGui.button("Single Player")){
 			ENABLE_WORLDS.set(true);
+			WorldMenu.init();
 		}
 		if (ImGui.button("Multiplayer")){
 			ENABLE_MULTIPLAYER.set(true);

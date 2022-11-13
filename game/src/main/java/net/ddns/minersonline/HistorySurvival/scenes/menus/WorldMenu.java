@@ -5,17 +5,26 @@ import imgui.type.ImBoolean;
 import imgui.type.ImString;
 import net.ddns.minersonline.HistorySurvival.DelayedTask;
 import net.ddns.minersonline.HistorySurvival.Game;
+import net.ddns.minersonline.HistorySurvival.GameSettings;
 import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceLocation;
 import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceType;
 import net.ddns.minersonline.HistorySurvival.api.data.resources.types.TextureResource;
 import net.ddns.minersonline.HistorySurvival.network.ClientMain;
 import net.ddns.minersonline.HistorySurvival.network.Packet;
 import net.ddns.minersonline.HistorySurvival.network.packets.server.PingResponsePacket;
+import net.ddns.minersonline.HistorySurvival.scenes.MainScene;
 import net.ddns.minersonline.HistorySurvival.scenes.MenuScene;
 import net.ddns.minersonline.HistorySurvival.scenes.SceneMetaData;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+import static net.ddns.minersonline.HistorySurvival.network.Utils.gson;
 
 public class WorldMenu {
 	public transient static ImBoolean ENABLE_WORLD_OPTIONS = new ImBoolean(false);
@@ -29,6 +38,25 @@ public class WorldMenu {
 			new ResourceLocation("grass"),
 			TextureResource.TextureFormat.PNG
 	).getTextureId();
+
+	public static void init() {
+		File dir = new File(GameSettings.gameDir+"/saves/");
+		WORLDS.clear();
+		for (File file : Objects.requireNonNull(dir.listFiles())) {
+			if (file.isDirectory()) {
+				File levelFile = new File(file.getAbsolutePath()+"/level.json");
+				if (levelFile.exists()) {
+					try {
+						String level = new String(Files.readAllBytes(levelFile.toPath()));
+						SceneMetaData data = gson.fromJson(level, SceneMetaData.class);
+						WORLDS.add(data);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
 
 	public static void run(ImBoolean enable) {
 		if (enable.get()) {
@@ -58,14 +86,14 @@ public class WorldMenu {
 				if (ImGui.button("Join World")) {
 					MenuScene.ENABLE_ERRORS.set(false);
 					DelayedTask task = () -> Game.queue.add(() -> {
-//						ClientMain client = new ClientMain(world.ip, Integer.parseInt(world.port));
-//						try {
-//							client.call(2, null);
-//						} catch (Exception e) {
-//							MenuScene.ENABLE_ERRORS.set(true);
-//							e.printStackTrace();
-//							MenuScene.ERROR = e;
-//						}
+						MainScene scene = new MainScene(
+								Game.getStartSceneScene(),
+								Game.modelLoader,
+								Game.masterRenderer,
+								world
+						);
+						scene.load(GameSettings.gameDir+"/saves/"+world.name);
+						Game.setCurrentScene(scene);
 					});
 					Game.addTask(task);
 				}
