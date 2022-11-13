@@ -71,11 +71,12 @@ task RunGame(type: JavaExec) {
         def access = properties.getProperty('access') //Player access token
         def user = properties.getProperty('user') //Player display name
         def uuid = properties.getProperty('uuid') //Player uuid name
+        def gameDir = project.rootProject.file("run_client").absolutePath.toString()
         if (properties.containsKey("auth")) {
             environment "AUTH_URL", properties.getProperty('auth')
         }
 
-        args "--accessToken", access, "--username", user, "--uuid", uuid
+        args "--accessToken", access, "--username", user, "--uuid", uuid, "--gameDir", gameDir
     }
 }
 

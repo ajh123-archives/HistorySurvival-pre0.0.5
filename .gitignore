@@ -21,3 +21,6 @@ logs
 /local.properties
 *.log
 imgui.ini
+
+# Game
+/run_client

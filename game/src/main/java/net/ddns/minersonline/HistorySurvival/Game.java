@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.commons.cli.*;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -346,6 +347,9 @@ public class Game extends GameHook {
 		String assetsDir = cmd.getOptionValue("assetsDir");
 		String demo = cmd.getOptionValue("demo");
 		String devDir = cmd.getOptionValue("dev");
+
+		Files.createDirectories(Paths.get(gameDir));
+		Files.createDirectories(Paths.get(gameDir+"/saves"));
 
 		GameSettings.username = username;
 		GameSettings.version = version;
