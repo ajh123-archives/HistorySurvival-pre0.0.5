@@ -1,4 +1,4 @@
-package net.ddns.minersonline.HistorySurvival;
+package net.ddns.minersonline.HistorySurvival.scenes.menus;
 
 
 public class SavedServer {

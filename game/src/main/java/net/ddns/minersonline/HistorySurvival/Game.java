@@ -29,6 +29,7 @@ import net.ddns.minersonline.HistorySurvival.engine.worldOld.water.WaterFrameBuf
 import net.ddns.minersonline.HistorySurvival.engine.worldOld.water.WaterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.worldOld.water.WaterShader;
 import net.ddns.minersonline.HistorySurvival.gameplay.GamePlugin;
+import net.ddns.minersonline.HistorySurvival.network.Utils;
 import net.ddns.minersonline.HistorySurvival.scenes.MenuScene;
 import org.joml.Vector4f;
 import org.lwjgl.Version;
@@ -340,7 +341,7 @@ public class Game extends GameHook {
 		}
 
 		String username = cmd.getOptionValue("username");
-		String version = cmd.getOptionValue("version", "0.0.3");
+		String version = cmd.getOptionValue("version", VERSION);
 		String gameDir = cmd.getOptionValue("gameDir");
 		String uuid = cmd.getOptionValue("uuid");
 		String accessToken = cmd.getOptionValue("accessToken");

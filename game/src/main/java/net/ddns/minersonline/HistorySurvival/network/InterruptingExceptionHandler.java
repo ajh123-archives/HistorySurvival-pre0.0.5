@@ -13,7 +13,7 @@ public class InterruptingExceptionHandler extends ChannelInboundHandlerAdapter {
 		DelayedTask task = () -> Game.queue.add(() -> {
 			Scene scene = Game.currentScene;
 			MenuScene menuScene = (MenuScene) scene.getPrevScene();
-			menuScene.error = cause;
+			MenuScene.ERROR = cause;
 			MenuScene.ENABLE_ERRORS.set(true);
 			Game.setCurrentScene(scene.getPrevScene());
 		});

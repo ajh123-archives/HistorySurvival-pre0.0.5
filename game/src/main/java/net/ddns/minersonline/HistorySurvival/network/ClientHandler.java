@@ -68,7 +68,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 			Utils.ENCRYPTION_MODE = Utils.EncryptionMode.NONE;
 			DelayedTask task = () -> Game.queue.add(() -> {
 				MenuScene menuScene = (MenuScene) Game.getStartSceneScene();
-				menuScene.error = new Exception("Server closed the connection");
+				MenuScene.ERROR = new Exception("Server closed the connection");
 				MenuScene.ENABLE_ERRORS.set(true);
 				Game.setCurrentScene(menuScene);
 			});
@@ -176,7 +176,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 					DelayedTask task = () -> Game.queue.add(() -> {
 						Scene scene = Game.currentScene;
 						MenuScene menuScene = (MenuScene) scene.getPrevScene();
-						menuScene.error = new Exception("Malformed Join Game Packet");
+						MenuScene.ERROR = new Exception("Malformed Join Game Packet");
 						Game.setCurrentScene(scene.getPrevScene());
 					});
 					Game.addTask(task);
@@ -195,7 +195,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 						DelayedTask task2 = () -> Game.queue.add(() -> {
 							Scene scene = Game.currentScene;
 							MenuScene menuScene = (MenuScene) scene.getPrevScene();
-							menuScene.error = new Exception("Malformed Disconnect Packet");
+							MenuScene.ERROR = new Exception("Malformed Disconnect Packet");
 							Game.setCurrentScene(scene.getPrevScene());
 						});
 						Game.addTask(task2);

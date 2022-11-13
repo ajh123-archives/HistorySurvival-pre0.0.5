@@ -273,7 +273,7 @@ public abstract class Scene {
 					if (version.equalsIgnoreCase("0.0.2") || version.equalsIgnoreCase("0.0.1")){
 						DelayedTask task = () -> Game.queue.add(() -> {
 							MenuScene menuScene = (MenuScene) Game.getStartSceneScene();
-							menuScene.error = new Exception("Worlds from versions before 0.0.3 are incompatible.");
+							MenuScene.ERROR = new Exception("Worlds from versions before 0.0.3 are incompatible.");
 							MenuScene.ENABLE_ERRORS.set(true);
 							Game.setCurrentScene(menuScene);
 						});
@@ -283,7 +283,7 @@ public abstract class Scene {
 				} else {
 					DelayedTask task = () -> Game.queue.add(() -> {
 						MenuScene menuScene = (MenuScene) Game.getStartSceneScene();
-						menuScene.error = new Exception("Worlds from versions before 0.0.3 are incompatible.");
+						MenuScene.ERROR = new Exception("Worlds from versions before 0.0.3 are incompatible.");
 						MenuScene.ENABLE_ERRORS.set(true);
 						Game.setCurrentScene(menuScene);
 					});
