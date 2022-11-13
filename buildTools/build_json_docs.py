@@ -32,6 +32,8 @@ for name in projects:
         if name == "game":
             file = os.path.join(realPath, "Game.java")
             with open(file) as javaCode:
+                out["package"] = ""
+                out["imports"] = []
                 lines = javaCode.readlines()
                 data = "".join(lines)
                 tokens = javalang.tokenizer.tokenize(data)
@@ -53,6 +55,7 @@ for name in projects:
                 identifier_count = 0
                 indentifier_threshold = 0
                 is_generic = False
+                in_package = False
                 found = []
                 className = ""
                 for token in tokens:
@@ -63,6 +66,18 @@ for name in projects:
                     if isReadyForClass and token.value == "class":
                         isInClass = True
                         isReadyForClass = False
+                    if not isInClass:
+                        if token.value == "package":
+                            in_package = True
+                        if token.value == ";" and in_package:
+                            in_package = False
+
+                        # if lines[line - 1].startswith("import"):
+                        #     imports = lines[line - 1]
+                        #     imports = imports.replace("import ", "", 1)
+                        #     imports = imports.replace(";", "", 1)
+                        #     out["imports"].append(imports)
+
                     if isInClass:
                         if isinstance(token, javalang.tokenizer.Modifier):
                             gotName = False
@@ -98,7 +113,15 @@ for name in projects:
                             indentifier_threshold += 1
 
                         if isinstance(token, javalang.tokenizer.Identifier) or is_primitive and not is_generic:
-                            if "{" in lines[line - 1] and "=" not in lines[line - 1]:
+                            if isInClass:
+                                if className == "":
+                                    className = token.value
+                                    out["classes"] = {
+                                        className: {
+                                            "functions": {}
+                                        }
+                                    }
+                            if "{" in lines[line - 1] and "=" not in lines[line - 1] and className != "":
                                 identifier_count += 1
                                 data = lines[line - 1].split("(")
                                 beforeParams = data[0]
@@ -150,7 +173,7 @@ for name in projects:
                                     if not redefining and inFunc and name not in found:
                                         try:
                                             docBlock: javalang.javadoc.DocBlock = javalang.javadoc.parse(prevDoc)
-                                            out[name] = {
+                                            out["classes"][className]["functions"][name] = {
                                                 "desc": docBlock.description,
                                                 "modifiers": modifiers.copy(),
                                                 "line": funcLine,
@@ -159,7 +182,7 @@ for name in projects:
                                                 "throws": throws
                                             }
                                         except ValueError:
-                                            out[name] = {
+                                            out["classes"][className]["functions"][name] = {
                                                 "desc": "",
                                                 "modifiers": modifiers.copy(),
                                                 "line": funcLine,
