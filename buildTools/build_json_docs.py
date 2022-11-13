@@ -1,6 +1,5 @@
 import argparse
 import json
-from operator import mod
 import os
 import javalang
 
@@ -11,6 +10,8 @@ args = parser.parse_args()
 
 projectsList = list(args.projects)
 projectsList[0] = "{"
+del projectsList[1]
+del projectsList[-1]
 projectsList[len(projectsList) - 1] = "}"
 projectsStr = "".join(projectsList)
 projectsStr = projectsStr.replace("\'", "\"")
@@ -58,6 +59,7 @@ for name in projects:
                 in_package = False
                 found = []
                 className = ""
+                out["classes"] = {}
                 for token in tokens:
                     doc = token.javadoc
                     line, column = token.position
@@ -100,17 +102,36 @@ for name in projects:
 
                         is_primitive = False
                         splitAt = -1
-                        if inFunc:
-                            splitAt = lines[line - 1].find("(")
-                            if column < splitAt and (
-                                    token.value == "void" or isinstance(token, javalang.tokenizer.BasicType)
-                            ):
-                                is_primitive = True
-                                identifier_count += 1
+                        if className != "":
+                            if inFunc:
+                                splitAt = lines[line - 1].find("(")
+                                if column < splitAt and (
+                                        token.value == "void" or isinstance(token, javalang.tokenizer.BasicType)
+                                ):
+                                    is_primitive = True
+                                    identifier_count += 1
+                                    indentifier_threshold += 1
+
+                            if is_primitive:
                                 indentifier_threshold += 1
 
-                        if is_primitive:
-                            indentifier_threshold += 1
+                        if isinstance(token, javalang.tokenizer.Identifier) and className == "":
+                            className = token.value
+                            classData = lines[line - 1].split(className, 1)
+                            left = " ".join(classData[0].split()).replace("{", "").replace("}", "").split(" ")
+                            right = " ".join(classData[1].split()).replace("{", "").replace("}", "").split(" ")
+
+                            classModifiers = left.copy()
+                            del classModifiers[-1]
+
+                            out["classes"][className] = {
+                                "line": line,
+                                "type": left[-1],
+                                "modifers": classModifiers,
+                                "extends": "",
+                                "implements": "",
+                                "functions": {}
+                            }
 
                         if isinstance(token, javalang.tokenizer.Identifier) or is_primitive and not is_generic:
                             if isInClass:
