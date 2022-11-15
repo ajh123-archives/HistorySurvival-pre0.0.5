@@ -13,6 +13,7 @@ import net.ddns.minersonline.HistorySurvival.api.data.models.ModelTexture;
 import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
 import net.ddns.minersonline.HistorySurvival.api.ecs.Component;
 import net.ddns.minersonline.HistorySurvival.api.ecs.GameObject;
+import net.ddns.minersonline.HistorySurvival.api.ecs.PlayerComponent;
 import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
 import net.ddns.minersonline.HistorySurvival.engine.DisplayManager;
 import net.ddns.minersonline.HistorySurvival.engine.GameObjectManager;
@@ -70,7 +71,6 @@ public abstract class Scene {
 			metaData.gameObjects.add(go);
 			go.start();
 		}
-		System.out.println("Added "+go.getId());
 	}
 
 	public final void putGameObject(int index, GameObject go){
@@ -275,6 +275,29 @@ public abstract class Scene {
 				DelayedTask task = () -> Game.queue.add(() -> {
 					SceneMetaData scene = gson.fromJson(file, SceneMetaData.class);
 
+					File playersPath = new File(Paths.get(path+"/players").toString());
+					if (playersPath.exists() && playersPath.isDirectory()) {
+						File playerFile = Objects.requireNonNull(playersPath.listFiles())[0];
+						if (playerFile.isFile() && playerFile.exists()) {
+							try {
+								String data = new String(Files.readAllBytes(playerFile.toPath()));
+								PlayerComponent player = gson.fromJson(data, PlayerComponent.class);
+								GameObject playerObject = GameObjectManager.getGameObjectByFirstComponent(PlayerComponent.class);
+
+								TransformComponent transformComponent = playerObject.getComponent(TransformComponent.class);
+								if (transformComponent != null) {
+									transformComponent.position.set(player.transformComponent.position);
+									transformComponent.rotation.set(player.transformComponent.rotation);
+									transformComponent.scale = player.transformComponent.scale;
+								}
+
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+
+
 					File objectsPath = new File(Paths.get(path+"/objects").toString());
 					if (objectsPath.exists() && objectsPath.isDirectory()) {
 						for (File objectFile : Objects.requireNonNull(objectsPath.listFiles())) {
@@ -293,7 +316,7 @@ public abstract class Scene {
 					}
 
 					for (GameObject go : scene.gameObjects) {
-						if (go.getComponent(ControllableComponent.class) == null) {
+						if (go.getComponent(PlayerComponent.class) == null) {
 							addGameObject(go);
 							go.start();
 						}
@@ -319,11 +342,20 @@ public abstract class Scene {
 			levelWriter.close();
 
 			for (GameObject object : this.metaData.gameObjects) {
-				if (object.getComponent(ControllableComponent.class) == null) {
+				if (object.getComponent(PlayerComponent.class) == null) {
 					Files.createDirectories(Paths.get(path+"/objects"));
 					FileWriter objectWriter = new FileWriter(path+"/objects/"+object.getId()+".json");
 					objectWriter.write(gson.toJson(object));
-					objectWriter.close();
+			 		objectWriter.close();
+				} else {
+					PlayerComponent player = object.getComponent(PlayerComponent.class);
+
+					if (player != null && player.profile != null) {
+						Files.createDirectories(Paths.get(path + "/players"));
+						FileWriter objectWriter = new FileWriter(path + "/players/" + player.profile.getRawId() + ".json");
+						objectWriter.write(gson.toJson(player));
+						objectWriter.close();
+					}
 				}
 			}
 		} catch (IOException e){

@@ -1,6 +1,5 @@
 package net.ddns.minersonline.HistorySurvival.engine.entities;
 
-import net.ddns.minersonline.HistorySurvival.api.auth.GameProfile;
 import net.ddns.minersonline.HistorySurvival.api.ecs.Component;
 import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
 import net.ddns.minersonline.HistorySurvival.api.voxel.VoxelChunk;
@@ -22,18 +21,16 @@ public class ControllableComponent extends Component {
 	public float currentTurnSpeed;
 	public float upwardsSpeed;
 	public boolean isJump;
-	public transient GameProfile profile;
 
 	private transient TransformComponent transformComponent;
 
 	public ControllableComponent() {}
 
-	public ControllableComponent(VoxelWorld world, float currentSpeed, float currentTurnSpeed, float upwardsSpeed, boolean isJump, GameProfile profile) {
+	public ControllableComponent(VoxelWorld world, float currentSpeed, float currentTurnSpeed, float upwardsSpeed, boolean isJump) {
 		this.currentSpeed = currentSpeed;
 		this.currentTurnSpeed = currentTurnSpeed;
 		this.upwardsSpeed = upwardsSpeed;
 		this.isJump = isJump;
-		this.profile = profile;
 		this.world = world;
 	}
 

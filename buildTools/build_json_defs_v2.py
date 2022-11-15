@@ -79,7 +79,7 @@ out = {
         "client": {
             "sha1": sha1sum(os.path.join(args.gameJarDir, args.gameJar)),
             "size": os.stat(os.path.join(args.gameJarDir, args.gameJar)).st_size,
-            "url": "https://minersonline.ddns.net/files/history_survival/packages/" + args.ver + "/" + args.gameJar
+            "url": "https://minersonline.tk/files/history_survival/packages/" + args.ver + "/" + args.gameJar
         }
     },
     "id": "hs-" + args.ver,
@@ -128,7 +128,7 @@ def build_lib(name: str, ver: str, file: str):
         "path": "HistorySurvival/" + file,
         "sha1": sha1sum(os.path.join(lib_dir, file)),
         "size": os.stat(os.path.join(lib_dir, file)).st_size,
-        "url": "https://minersonline.ddns.net/files/libs/" + file
+        "url": "https://minersonline.tk/files/libs/" + file
     }
 
     if has_natives:

@@ -3,8 +3,11 @@ package net.ddns.minersonline.HistorySurvival.scenes;
 import imgui.ImGui;
 import imgui.type.ImBoolean;
 import net.ddns.minersonline.HistorySurvival.Game;
+import net.ddns.minersonline.HistorySurvival.GameSettings;
 import net.ddns.minersonline.HistorySurvival.Scene;
 import net.ddns.minersonline.HistorySurvival.api.GameHook;
+import net.ddns.minersonline.HistorySurvival.api.auth.GameProfile;
+import net.ddns.minersonline.HistorySurvival.api.ecs.PlayerComponent;
 import net.ddns.minersonline.HistorySurvival.engine.GameObjectManager;
 import net.ddns.minersonline.HistorySurvival.engine.entities.ControllableComponent;
 import net.ddns.minersonline.HistorySurvival.api.ecs.GameObject;
@@ -80,6 +83,7 @@ public class MainScene extends Scene {
 
 			if (!levelLoaded) {
 				player = new GameObject();
+				player.addComponent(new PlayerComponent(new GameProfile(GameSettings.uuid, GameSettings.username)));
 				player.addComponent(new ControllableComponent(metaData.world));
 				player.addComponent(new MeshComponent(ModelType.PLAYER_MODEL.create()));
 				player.addComponent(new TransformComponent(new Vector3f(worldCenter), new Vector3f(0, 0, 0), .6f));
@@ -89,7 +93,6 @@ public class MainScene extends Scene {
 			} else {
 				camera = new Camera(getPlayer());
 			}
-			System.out.println(camera);
 			metaData.name = worldData.name;
 			metaData.world.start(getPlayer());
 
@@ -154,7 +157,7 @@ public class MainScene extends Scene {
 
 	@Override
 	public TransformComponent getPlayer() {
-		GameObject player = GameObjectManager.getGameObjectByFirstComponent(ControllableComponent.class);
+		GameObject player = GameObjectManager.getGameObjectByFirstComponent(PlayerComponent.class);
 		if(player == null){return new TransformComponent();}
 		ControllableComponent component = player.getComponent(ControllableComponent.class);
 		if (component != null) {
