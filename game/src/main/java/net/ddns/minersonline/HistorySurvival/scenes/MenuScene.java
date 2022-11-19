@@ -42,6 +42,8 @@ public class MenuScene extends Scene {
 	public transient static ImBoolean ENABLE_ERRORS = new ImBoolean(false);
 
 	public transient static Throwable ERROR = null;
+	public transient static boolean THROWN = false;
+
 
 	public MenuScene(Game game, ModelLoader modelLoader, MasterRenderer masterRenderer, GuiRenderer guiRenderer) {
 		super();
@@ -66,7 +68,7 @@ public class MenuScene extends Scene {
 	}
 
 	@Override
-	public void gui(ImBoolean debugAllowed) {
+	public void gui(ImBoolean debugAllowed) throws Throwable {
 		ImGui.setNextWindowSize(500, 440);
 		ImGui.begin("Menu");
 
@@ -101,6 +103,10 @@ public class MenuScene extends Scene {
 			String stackTrace = sw.toString();
 			ImGui.textWrapped(stackTrace);
 			ImGui.end();
+			if (!THROWN) {
+				THROWN = true;
+				throw ERROR;
+			}
 		}
 	}
 

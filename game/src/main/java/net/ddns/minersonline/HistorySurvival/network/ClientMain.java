@@ -6,6 +6,12 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import net.ddns.minersonline.HistorySurvival.Game;
+import net.ddns.minersonline.HistorySurvival.scenes.MenuScene;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.net.ConnectException;
+import java.util.UUID;
 
 public class ClientMain {
 	String host;
@@ -16,7 +22,11 @@ public class ClientMain {
 		this.port = port;
 	}
 
-	public void call(int state, PacketHandler handler) throws Exception {
+	public void call(int state) {
+		call(state, true, null);
+	}
+
+	public UUID call(int state, boolean canThrow, @Nullable PacketHandler handler) {
 		Runnable r = () -> {
 			try {
 				EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -31,7 +41,7 @@ public class ClientMain {
 					b.option(ChannelOption.RCVBUF_ALLOCATOR, new AdaptiveRecvByteBufAllocator(1024,16*1024,1024*1024));
 					b.handler(new ChannelInitializer<SocketChannel>() {
 						@Override
-						public void initChannel(SocketChannel ch) throws Exception {
+						public void initChannel(@NotNull SocketChannel ch) {
 							ch.pipeline().addLast(
 									new PacketEncoder(),
 									new PacketDecoder(),
@@ -49,14 +59,32 @@ public class ClientMain {
 					workerGroup.shutdownGracefully();
 				}
 			} catch (Exception e){
-				Game.logger.error("An error occurred!", e);
+				// Ignore warnings here! There can be a ConnectException!
+				if (e instanceof ConnectException) {
+					MenuScene.THROWN = true;
+					MenuScene.ERROR = e;
+					MenuScene.ENABLE_ERRORS.set(true);
+					return;
+				}
+				if (canThrow) {
+					MenuScene.THROWN = false;
+					MenuScene.ERROR = e;
+					MenuScene.ENABLE_ERRORS.set(true);
+				}
 			}
 		};
 
 		Game.executor.submit(r);
+		if (handler != null) {
+			return handler.getId();
+		}
+		return null;
 	}
 
 	public interface PacketHandler {
 		void run(ChannelHandlerContext ctx, int state, Packet message);
+		default UUID getId() {
+			return UUID.randomUUID();
+		}
 	}
 }

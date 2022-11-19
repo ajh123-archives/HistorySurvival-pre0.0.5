@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.commons.cli.*;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -117,7 +118,7 @@ public class Game extends GameHook {
 	}
 
 
-	private void start() {
+	private void start() throws Throwable {
 		setInstance(this);
 		LOADER = new ResourceLoaderImpl();
 		Configuration.DEBUG_MEMORY_ALLOCATOR.set(true);
@@ -361,7 +362,11 @@ public class Game extends GameHook {
 		GameSettings.demo = demo;
 		GameSettings.dev = devDir;
 
-		new Game().start();
+		try {
+			new Game().start();
+		} catch (Throwable e) {
+			CrashReports.crash(e);
+		}
 	}
 
 	@Override

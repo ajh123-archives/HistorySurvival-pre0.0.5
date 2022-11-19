@@ -72,40 +72,42 @@ public class WorldMenu {
 
 			ImGui.separator();
 
-			ImGui.beginListBox("Worlds", ImGui.getContentRegionAvail().x, ImGui.getContentRegionAvail().y);
-			for (int i = 0; i < WORLDS.size(); i++) {
-				SceneMetaData world = WORLDS.get(i);
+			boolean ok = ImGui.beginListBox("Worlds", ImGui.getContentRegionAvail().x, ImGui.getContentRegionAvail().y);
+			if (ok) {
+				for (int i = 0; i < WORLDS.size(); i++) {
+					SceneMetaData world = WORLDS.get(i);
 
-				ImGui.beginChild("Worlds/list/" + i + 1, ImGui.getContentRegionAvail().x, 100);
-				ImGui.columns(2, "Worlds/list", false);
-				ImGui.setColumnWidth(ImGui.getColumnIndex(), 80);
+					ImGui.beginChild("Worlds/list/" + i + 1, ImGui.getContentRegionAvail().x, 100);
+					ImGui.columns(2, "Worlds/list", false);
+					ImGui.setColumnWidth(ImGui.getColumnIndex(), 80);
 
-				ImGui.image(iconId, 64, 64);
-				ImGui.nextColumn();
-				ImGui.text("World: " + world.name);
-				if (ImGui.button("Join World")) {
-					MenuScene.ENABLE_ERRORS.set(false);
-					DelayedTask task = () -> Game.queue.add(() -> {
-						MainScene scene = new MainScene(
-								Game.getStartSceneScene(),
-								Game.modelLoader,
-								Game.masterRenderer,
-								world
-						);
-						scene.load(GameSettings.gameDir+"/saves/"+world.name);
-						Game.setCurrentScene(scene);
-					});
-					Game.addTask(task);
+					ImGui.image(iconId, 64, 64);
+					ImGui.nextColumn();
+					ImGui.text("World: " + world.name);
+					if (ImGui.button("Join World")) {
+						MenuScene.ENABLE_ERRORS.set(false);
+						DelayedTask task = () -> Game.queue.add(() -> {
+							MainScene scene = new MainScene(
+									Game.getStartSceneScene(),
+									Game.modelLoader,
+									Game.masterRenderer,
+									world
+							);
+							scene.load(GameSettings.gameDir + "/saves/" + world.name);
+							Game.setCurrentScene(scene);
+						});
+						Game.addTask(task);
+					}
+					ImGui.sameLine();
+					if (ImGui.button("Delete World")) {
+						WORLDS.remove(i);
+						currentWorld = null;
+					}
+					ImGui.endChild();
 				}
-				ImGui.sameLine();
-				if (ImGui.button("Delete World")) {
-					WORLDS.remove(i);
-					currentWorld = null;
-				}
-				ImGui.endChild();
+
+				ImGui.endListBox();
 			}
-
-			ImGui.endListBox();
 
 			ImGui.end();
 		}

@@ -95,7 +95,7 @@ public abstract class Scene {
 
 	protected transient Scene prevScene = null;
 
-	public void gui(ImBoolean debugAllowed){}
+	public void gui(ImBoolean debugAllowed) throws Throwable {}
 
 	public static boolean ENABLE_SCENE_DEBUGGER = false;
 	public static boolean ENABLE_DEMO = false;
@@ -122,7 +122,7 @@ public abstract class Scene {
 		this.prevScene = prevScene;
 	}
 
-	public final void renderDebug(){
+	public final void renderDebug() throws Throwable {
 		if (ImGui.beginMainMenuBar())
 		{
 			if (ImGui.beginMenu("File"))
@@ -255,6 +255,7 @@ public abstract class Scene {
 					String version = jsonScene.get("version").getAsString();
 					if (version.equalsIgnoreCase("0.0.2") || version.equalsIgnoreCase("0.0.1")){
 						DelayedTask task = () -> Game.queue.add(() -> {
+							MenuScene.THROWN = true;
 							MenuScene.ERROR = new Exception("Worlds from versions before 0.0.3 are incompatible.");
 							MenuScene.ENABLE_ERRORS.set(true);
 							Game.setCurrentScene(Game.getStartSceneScene());
@@ -264,6 +265,7 @@ public abstract class Scene {
 					}
 				} else {
 					DelayedTask task = () -> Game.queue.add(() -> {
+						MenuScene.THROWN = true;
 						MenuScene.ERROR = new Exception("Worlds from versions before 0.0.3 are incompatible.");
 						MenuScene.ENABLE_ERRORS.set(true);
 						Game.setCurrentScene(Game.getStartSceneScene());
@@ -334,32 +336,28 @@ public abstract class Scene {
 		GameObjectManager.reset();
 	}
 
-	public void save(String path){
-		try {
-			Files.createDirectories(Paths.get(path));
-			FileWriter levelWriter = new FileWriter(path+"/level.json");
-			levelWriter.write(gson.toJson(this.metaData));
-			levelWriter.close();
+	public void save(String path) throws IOException {
+		Files.createDirectories(Paths.get(path));
+		FileWriter levelWriter = new FileWriter(path+"/level.json");
+		levelWriter.write(gson.toJson(this.metaData));
+		levelWriter.close();
 
-			for (GameObject object : this.metaData.gameObjects) {
-				if (object.getComponent(PlayerComponent.class) == null) {
-					Files.createDirectories(Paths.get(path+"/objects"));
-					FileWriter objectWriter = new FileWriter(path+"/objects/"+object.getId()+".json");
-					objectWriter.write(gson.toJson(object));
-			 		objectWriter.close();
-				} else {
-					PlayerComponent player = object.getComponent(PlayerComponent.class);
+		for (GameObject object : this.metaData.gameObjects) {
+			if (object.getComponent(PlayerComponent.class) == null) {
+				Files.createDirectories(Paths.get(path+"/objects"));
+				FileWriter objectWriter = new FileWriter(path+"/objects/"+object.getId()+".json");
+				objectWriter.write(gson.toJson(object));
+				objectWriter.close();
+			} else {
+				PlayerComponent player = object.getComponent(PlayerComponent.class);
 
-					if (player != null && player.profile != null) {
-						Files.createDirectories(Paths.get(path + "/players"));
-						FileWriter objectWriter = new FileWriter(path + "/players/" + player.profile.getRawId() + ".json");
-						objectWriter.write(gson.toJson(player));
-						objectWriter.close();
-					}
+				if (player != null && player.profile != null) {
+					Files.createDirectories(Paths.get(path + "/players"));
+					FileWriter objectWriter = new FileWriter(path + "/players/" + player.profile.getRawId() + ".json");
+					objectWriter.write(gson.toJson(player));
+					objectWriter.close();
 				}
 			}
-		} catch (IOException e){
-			Game.logger.info("An error occurred! :(", e);
 		}
 	}
 

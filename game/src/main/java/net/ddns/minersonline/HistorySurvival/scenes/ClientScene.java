@@ -1,26 +1,26 @@
 package net.ddns.minersonline.HistorySurvival.scenes;
 
+import imgui.ImGui;
 import imgui.type.ImBoolean;
 import net.ddns.minersonline.HistorySurvival.Game;
+import net.ddns.minersonline.HistorySurvival.GameSettings;
 import net.ddns.minersonline.HistorySurvival.Scene;
 import net.ddns.minersonline.HistorySurvival.api.GameHook;
+import net.ddns.minersonline.HistorySurvival.api.auth.GameProfile;
+import net.ddns.minersonline.HistorySurvival.api.ecs.PlayerComponent;
+import net.ddns.minersonline.HistorySurvival.engine.GameObjectManager;
+import net.ddns.minersonline.HistorySurvival.engine.entities.ControllableComponent;
 import net.ddns.minersonline.HistorySurvival.api.ecs.GameObject;
 import net.ddns.minersonline.HistorySurvival.api.ecs.MeshComponent;
 import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
-import net.ddns.minersonline.HistorySurvival.api.registries.ModelType;
-import net.ddns.minersonline.HistorySurvival.commands.ChatSystem;
-import net.ddns.minersonline.HistorySurvival.engine.GameObjectManager;
 import net.ddns.minersonline.HistorySurvival.engine.MasterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
-import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
-import net.ddns.minersonline.HistorySurvival.engine.entities.ControllableComponent;
-import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
-import net.ddns.minersonline.HistorySurvival.engine.guis.GuiRenderer;
+import net.ddns.minersonline.HistorySurvival.engine.entities.*;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleMaster;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleSystem;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleTexture;
-import net.ddns.minersonline.HistorySurvival.network.ClientHandler;
+import net.ddns.minersonline.HistorySurvival.api.registries.ModelType;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.slf4j.Logger;
@@ -33,79 +33,87 @@ public class ClientScene extends Scene {
 	private transient static final Logger logger = LoggerFactory.getLogger(MainScene.class);
 	private transient ModelLoader modelLoader;
 	private transient MasterRenderer masterRenderer;
-	private transient GuiRenderer guiRenderer;
+	private transient SceneMetaData worldData;
 
 	private transient List<Light> lights = new ArrayList<>();
 	private transient List<GuiTexture> guis = new ArrayList<>();
 
 	private transient GameObject player;
 	private transient Camera camera;
-	private transient ChatSystem chatSystem;
 	private transient Light sun;
 
 	private transient Vector3f worldCenter;
 
 	private transient ParticleSystem particleSystem;
-	private transient Game game;
 
-	private final transient ClientHandler network;
-
-	public ClientScene(ClientHandler handler) {
+	public ClientScene() {
 		super();
 		levelLoaded = true;
 		isRunning = false;
-		network = handler;
 	}
 
-	public ClientScene(ClientHandler handler, Scene prevScene, Game game, ModelLoader modelLoader, MasterRenderer masterRenderer, GuiRenderer guiRenderer) {
-		this(handler);
-		this.levelLoaded = false;
+
+	public void setModelLoader(ModelLoader modelLoader) {
+		this.modelLoader = modelLoader;
+	}
+
+	public void setMasterRenderer(MasterRenderer masterRenderer) {
+		this.masterRenderer = masterRenderer;
+	}
+
+	public ClientScene(Scene prevScene, ModelLoader modelLoader, MasterRenderer masterRenderer, SceneMetaData from) {
+		this();
+		levelLoaded = false;
 		this.masterRenderer = masterRenderer;
 		this.modelLoader = modelLoader;
-		this.guiRenderer = guiRenderer;
-		this.game = game;
 		this.prevScene = prevScene;
+		this.worldData = from;
 	}
 
 	@Override
 	public void init() {
-		masterRenderer.setBackgroundColour(new Vector3f(0.65f, 0.9f, 0.97f));
-		ENABLE_FILES = false;
+		if (!hasInited) {
+			masterRenderer.setBackgroundColour(new Vector3f(0.65f, 0.9f, 0.97f));
+			ENABLE_FILES = true;
 
-		sun = new Light(new Vector3f(3000, 2000, 2000), new Vector3f(0.6f, 0.6f, 0.6f));
-		lights.add(sun);
+			sun = new Light(new Vector3f(3000, 2000, 2000), new Vector3f(0.6f, 0.6f, 0.6f));
+			lights.add(sun);
 
-		worldCenter = new Vector3f(0, 0, 0);
+			worldCenter = new Vector3f(0, 0, 0);
 
-		if(!levelLoaded) {
-			player = new GameObject();
-			player.addComponent(new ControllableComponent(metaData.world));
-			player.addComponent(new MeshComponent(ModelType.PLAYER_MODEL.create()));
-			player.addComponent(new TransformComponent(new Vector3f(worldCenter), new Vector3f(0, 0, 0), .6f));
-			putGameObject(network.entityId, player);
+			if (!levelLoaded) {
+				player = new GameObject();
+				player.addComponent(new PlayerComponent(new GameProfile(GameSettings.uuid, GameSettings.username)));
+				player.addComponent(new ControllableComponent(metaData.world));
+				player.addComponent(new MeshComponent(ModelType.PLAYER_MODEL.create()));
+				player.addComponent(new TransformComponent(new Vector3f(worldCenter), new Vector3f(0, 0, 0), .6f));
+				addGameObject(player);
 
-			camera = new Camera(player.getComponent(TransformComponent.class));
-		} else {
-			camera = new Camera(getPlayer());
+				camera = new Camera(player.getComponent(TransformComponent.class));
+			} else {
+				camera = new Camera(getPlayer());
+			}
+			metaData.name = worldData.name;
+			metaData.world.start(getPlayer());
+
+
+			GuiTexture gui = new GuiTexture(GameHook.getLoader().loadTexture("health.png"), new Vector2f(-0.75f, -0.85f), new Vector2f(0.25f, 0.15f));
+			guis.add(gui);
+
+			ParticleTexture particleTexture = new ParticleTexture(GameHook.getLoader().loadTexture("grass.png", false, "assets/history_survival/voxels/textures/"), 1, false);
+			particleSystem = new ParticleSystem(particleTexture, 50, 0, 0.3f, 4, 2);
+			particleSystem.randomizeRotation();
+			particleSystem.setDirection(new Vector3f(0, 1, 0), 0.1f);
+			particleSystem.setLifeError(0.1f);
+			particleSystem.setSpeedError(0.4f);
+			particleSystem.setScaleError(0.8f);
+
+
+			getPlayer().position.y = 30;
+			hasInited = true;
 		}
-
-		GuiTexture gui = new GuiTexture(GameHook.getLoader().loadTexture("health.png"), new Vector2f(-0.75f, -0.85f), new Vector2f(0.25f, 0.15f));
-		guis.add(gui);
-
-		ParticleTexture particleTexture = new ParticleTexture(GameHook.getLoader().loadTexture("grass.png"), 1, false);
-		particleSystem = new ParticleSystem(particleTexture, 50, 0, 0.3f, 4, 2);
-		particleSystem.randomizeRotation();
-		particleSystem.setDirection(new Vector3f(0, 1, 0), 0.1f);
-		particleSystem.setLifeError(0.1f);
-		particleSystem.setSpeedError(0.4f);
-		particleSystem.setScaleError(0.8f);
-
-		network.state = 3;
-
-		network.setHandler((ctx, state, packet)->{
-
-		});
 	}
+
 
 	@Override
 	public void update(float deltaTime) {
@@ -123,16 +131,19 @@ public class ClientScene extends Scene {
 
 	@Override
 	public void gui(ImBoolean debugAllowed) {
-
+		if(debugAllowed.get()) {
+			ImGui.begin("Hello?");
+			ImGui.end();
+		}
 	}
 
 	@Override
 	public void stop() {
+		metaData.world.stop();
 		ParticleMaster.stop();
-		//chatSystem.setInChat(false);
-		//chatSystem.cleanUp();
+//		chatSystem.setInChat(false);
+//		chatSystem.cleanUp();
 	}
-
 
 	@Override
 	public Camera getCamera() {
@@ -146,7 +157,7 @@ public class ClientScene extends Scene {
 
 	@Override
 	public TransformComponent getPlayer() {
-		GameObject player = GameObjectManager.getGameObject(network.entityId);
+		GameObject player = GameObjectManager.getGameObjectByFirstComponent(PlayerComponent.class);
 		if(player == null){return new TransformComponent();}
 		ControllableComponent component = player.getComponent(ControllableComponent.class);
 		if (component != null) {
@@ -158,7 +169,6 @@ public class ClientScene extends Scene {
 		}
 		return player.getComponent(TransformComponent.class);
 	}
-
 
 	@Override
 	public List<Light> getLights() {

@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import javax.crypto.Cipher;
 import java.nio.charset.StandardCharsets;
 import java.security.PublicKey;
-import java.util.Arrays;
+import java.util.*;
 
 public class ClientHandler extends ChannelInboundHandlerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(ClientHandler.class);
@@ -41,14 +41,16 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 	public GameProfile profile;
 	public int entityId = -1;
 	public ChannelHandlerContext ctx;
-	public ClientMain.PacketHandler handler;
+	public static final Map<UUID, ClientMain.PacketHandler> HANDLERS = new HashMap<>();
 
 	public ClientHandler(String serverAddress, Integer serverPort, int state, ClientMain.PacketHandler handler) {
 		this.serverAddress = serverAddress;
 		this.serverPort = serverPort;
 		Utils.ENCRYPTION_MODE = Utils.EncryptionMode.NONE;
 		this.state = state;
-		this.handler = handler;
+		if (handler != null) {
+			HANDLERS.put(handler.getId(), handler);
+		}
 	}
 
 	@Override
@@ -82,9 +84,6 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 		Packet packet = (Packet) msg;
 		MenuScene menu = (MenuScene) Game.getStartSceneScene();
 		logger.debug("Got "+packet.getId());
-		if (handler != null){
-			handler.run(ctx, state, packet);
-		}
 
 		if((menu.getGame().getCurrentScene() instanceof ClientScene)){
 			ctx.close();
@@ -159,23 +158,14 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 				JoinGamePacket joinGamePacket = Packet.cast(packet, JoinGamePacket.class);
 				if(joinGamePacket != null){
 					entityId = joinGamePacket.getEntityId();
-					ClientScene scene = new ClientScene(
-							this,
-							menu,
-							menu.getGame(),
-							menu.getModelLoader(),
-							menu.getMasterRenderer(),
-							menu.getGuiRenderer()
-					);
-
+					ClientScene scene = new ClientScene();
 					DelayedTask task = () -> Game.queue.add(() -> Game.setCurrentScene(scene));
 					Game.addTask(task);
-//					ctx.writeAndFlush(new AlivePacket());
+					ctx.writeAndFlush(new AlivePacket());
 				} else {
 					ctx.close();
 					DelayedTask task = () -> Game.queue.add(() -> {
 						Scene scene = Game.currentScene;
-						MenuScene menuScene = (MenuScene) scene.getPrevScene();
 						MenuScene.ERROR = new Exception("Malformed Join Game Packet");
 						Game.setCurrentScene(scene.getPrevScene());
 					});
@@ -194,7 +184,6 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 					if (disconnectPacket != null) {
 						DelayedTask task2 = () -> Game.queue.add(() -> {
 							Scene scene = Game.currentScene;
-							MenuScene menuScene = (MenuScene) scene.getPrevScene();
 							MenuScene.ERROR = new Exception("Malformed Disconnect Packet");
 							Game.setCurrentScene(scene.getPrevScene());
 						});
@@ -204,18 +193,19 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 				Game.addTask(task, 4);
 			}
 		}
-		if (state == 3){
-			if (packet.getId().equals("updateEntity")) {
-				logger.info("Received update");
-				UpdateEntityPacket updateEntityPacket = Packet.cast(packet, UpdateEntityPacket.class);
-				if (updateEntityPacket != null) {
-					logger.info("Update entity "+updateEntityPacket.getEntityId());
-				}
+
+		for (ClientMain.PacketHandler handler : HANDLERS.values()) {
+			if (handler != null) {
+				handler.run(ctx, state, packet);
 			}
 		}
 	}
 
-	public void setHandler(ClientMain.PacketHandler handler) {
-		this.handler = handler;
+	public static void addHandler(ClientMain.PacketHandler handler) {
+		HANDLERS.put(handler.getId(), handler);
+	}
+
+	public static void delHandler(UUID handler) {
+		HANDLERS.remove(handler);
 	}
 }
