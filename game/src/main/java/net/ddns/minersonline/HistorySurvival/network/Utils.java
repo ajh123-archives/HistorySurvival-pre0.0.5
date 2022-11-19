@@ -17,7 +17,7 @@ import java.security.PublicKey;
 public class Utils {
 	public static String GAME_ID = Defaults.DEFAULT_NAMESPACE;
 	public static String GAME = "History Survival";
-	public static String VERSION = "0.0.3";
+	public static String VERSION = "0.0.4";
 	public static Gson gson;
 
 	public static String URL = "https://minersonline.tk/api/";
