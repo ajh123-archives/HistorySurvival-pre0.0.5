@@ -133,12 +133,14 @@ public class DisplayManager {
 		glfwSetCursorEnterCallback(window, null);
 		glfwSetMonitorCallback(null);
 
+		mouse.destroy();
+		keyboard.close();
+		guiManager.dispose();
+
 		GL.setCapabilities(null);
 		glfwWindowShouldClose(window);
 		glfwDestroyWindow(window);
 		glfwTerminate();
-		mouse.destroy();
-		keyboard.close();
 	}
 
 	public static boolean shouldDisplayClose() {

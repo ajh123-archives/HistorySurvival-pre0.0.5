@@ -63,7 +63,7 @@ public class ClientMain {
 				if (e instanceof ConnectException) {
 					MenuScene.THROWN = true;
 					MenuScene.ERROR = e;
-					MenuScene.ENABLE_ERRORS.set(true);
+					MenuScene.ENABLE_ERRORS.set(false);
 					return;
 				}
 				if (canThrow) {

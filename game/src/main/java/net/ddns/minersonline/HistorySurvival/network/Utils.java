@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
 import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceLocation;
+import net.ddns.minersonline.HistorySurvival.api.data.text.ChatColor;
 import net.ddns.minersonline.HistorySurvival.api.ecs.Component;
 import net.ddns.minersonline.HistorySurvival.api.ecs.GameObject;
 import net.ddns.minersonline.HistorySurvival.api.util.Defaults;
@@ -36,6 +37,7 @@ public class Utils {
 		gsonBuilder.registerTypeAdapter(Voxel.class, new Voxel.JSON());
 		gsonBuilder.registerTypeAdapter(World.class, new World.JSON());
 		gsonBuilder.registerTypeAdapter(ResourceLocation.class, new ResourceLocation.Serializer());
+		gsonBuilder.registerTypeAdapter(ChatColor.class, new ChatColor.JSON());
 		gson = gsonBuilder.create();
 	}
 	public static String JOIN_URL = URL+"session/hs/join";

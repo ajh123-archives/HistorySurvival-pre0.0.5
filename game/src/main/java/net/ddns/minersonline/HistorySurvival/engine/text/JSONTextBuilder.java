@@ -73,8 +73,7 @@ public class JSONTextBuilder {
 		String color_char = " ";
 		color_char.toCharArray()[0] = ChatColor.COLOR_CHAR;
 		if(JSON.getColor()!=null) {
-			char chat_color = JSON.getColor().replaceAll(color_char, "").toCharArray()[1];
-			ChatColor text_color = ChatColor.getByChar(chat_color);
+			ChatColor text_color = JSON.getColor();
 			text.setColour(text_color.color.getRed() / 255f, text_color.color.getGreen() / 255f, text_color.color.getBlue() / 255f);
 			text.setOutlineColor((text_color.color.getRed() / 255f) / 2, (text_color.color.getGreen() / 255f) / 2, (text_color.color.getBlue() / 255f) / 2);
 		}

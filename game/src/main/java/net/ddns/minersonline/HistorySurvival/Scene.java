@@ -10,16 +10,16 @@ import imgui.extension.imguifiledialog.flag.ImGuiFileDialogFlags;
 import imgui.flag.ImGuiCond;
 import imgui.type.ImBoolean;
 import net.ddns.minersonline.HistorySurvival.api.data.models.ModelTexture;
-import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
 import net.ddns.minersonline.HistorySurvival.api.ecs.Component;
 import net.ddns.minersonline.HistorySurvival.api.ecs.GameObject;
 import net.ddns.minersonline.HistorySurvival.api.ecs.PlayerComponent;
 import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
+import net.ddns.minersonline.HistorySurvival.commands.ChatSystem;
 import net.ddns.minersonline.HistorySurvival.engine.DisplayManager;
 import net.ddns.minersonline.HistorySurvival.engine.GameObjectManager;
 import net.ddns.minersonline.HistorySurvival.engine.TextureLoader;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
-import net.ddns.minersonline.HistorySurvival.engine.entities.ControllableComponent;
+import net.ddns.minersonline.HistorySurvival.engine.entities.CommandExecutor;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
 import net.ddns.minersonline.HistorySurvival.api.voxel.VoxelWorld;
@@ -31,7 +31,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -45,9 +44,11 @@ public abstract class Scene {
 	protected static ImVec2 barSize;
 	protected static ImVec2 barPos;
 	protected SceneMetaData metaData;
+	protected ChatSystem chatSystem;
 
 	public Scene() {
 		metaData = new SceneMetaData();
+		chatSystem = new ChatSystem();
 	}
 
 	public void init(){}
@@ -87,7 +88,8 @@ public abstract class Scene {
 		return metaData.world;
 	}
 	public abstract Camera getCamera();
-	public abstract TransformComponent getPlayer();
+	public abstract TransformComponent getTransform();
+	public abstract PlayerComponent getPlayer();
 
 	public abstract List<GuiTexture> getGUIs();
 	public abstract List<Light> getLights();
@@ -97,9 +99,9 @@ public abstract class Scene {
 
 	public void gui(ImBoolean debugAllowed) throws Throwable {}
 
-	public static boolean ENABLE_SCENE_DEBUGGER = false;
-	public static boolean ENABLE_DEMO = false;
-	public static boolean ENABLE_FILE_DEMO = false;
+	public static ImBoolean ENABLE_SCENE_DEBUGGER = new ImBoolean(false);
+	public static ImBoolean ENABLE_DEMO = new ImBoolean(false);
+	public static ImBoolean ENABLE_FILE_DEMO = new ImBoolean(false);
 
 	private static Map<String, String> demo_selection = null;
 	private static long demo_userData = 0;
@@ -146,13 +148,13 @@ public abstract class Scene {
 			if (ImGui.beginMenu("Debug"))
 			{
 				if (ImGui.menuItem("Scene Debug", null, ENABLE_SCENE_DEBUGGER)){
-					ENABLE_SCENE_DEBUGGER = !ENABLE_SCENE_DEBUGGER;
+					ENABLE_SCENE_DEBUGGER.set(true);
 				}
 				if (ImGui.menuItem("Demo Window", null, ENABLE_DEMO)){
-					ENABLE_DEMO = !ENABLE_DEMO;
+					ENABLE_DEMO.set(true);
 				}
 				if (ImGui.menuItem("File Demo Window", null, ENABLE_FILE_DEMO)){
-					ENABLE_FILE_DEMO = !ENABLE_FILE_DEMO;
+					ENABLE_FILE_DEMO.set(true);
 				}
 				ImGui.endMenu();
 			}
@@ -161,16 +163,21 @@ public abstract class Scene {
 			ImGui.endMainMenuBar();
 		}
 
-		gui(new ImBoolean(ENABLE_SCENE_DEBUGGER));
+		gui(ENABLE_SCENE_DEBUGGER);
 
-		if(ENABLE_SCENE_DEBUGGER)
-		ShowInspector(new ImBoolean(ENABLE_SCENE_DEBUGGER));
+		if (ENABLE_SCENE_DEBUGGER.get()) {
+			ShowInspector(ENABLE_SCENE_DEBUGGER);
+		}
+		if (ENABLE_DEMO.get()) {
+			ImGui.showDemoWindow(ENABLE_DEMO);
+		}
+		if (ENABLE_FILE_DEMO.get()) {
+			showFileDemo(ENABLE_FILE_DEMO);
+		}
 
-		if(ENABLE_DEMO)
-		ImGui.showDemoWindow(new ImBoolean(ENABLE_DEMO));
-
-		if(ENABLE_FILE_DEMO)
-		showFileDemo(new ImBoolean(ENABLE_FILE_DEMO));
+		if (getPlayer() != null) {
+			chatSystem.update(new ImBoolean(true), getPlayer().gameObject.getComponent(CommandExecutor.class));
+		}
 	}
 
 	int selected = 0;

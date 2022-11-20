@@ -1,26 +1,19 @@
 package net.ddns.minersonline.HistorySurvival;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.builder.RequiredArgumentBuilder;
-import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.tree.CommandNode;
-import net.ddns.minersonline.HistorySurvival.api.EventHandler;
 import net.ddns.minersonline.HistorySurvival.api.GameHook;
 import net.ddns.minersonline.HistorySurvival.api.commands.CommandSender;
 import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
 import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceType;
-import net.ddns.minersonline.HistorySurvival.api.data.text.JSONTextComponent;
+import net.ddns.minersonline.HistorySurvival.api.events.CommandRegisterEvent;
 import net.ddns.minersonline.HistorySurvival.api.registries.ModelType;
 import net.ddns.minersonline.HistorySurvival.api.registries.VoxelType;
 import net.ddns.minersonline.HistorySurvival.api.voxel.VoxelChunkMesh;
+import net.ddns.minersonline.HistorySurvival.commands.HelpCommand;
 import net.ddns.minersonline.HistorySurvival.engine.*;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.particles.ParticleMaster;
-import net.ddns.minersonline.HistorySurvival.api.data.text.ChatColor;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.io.Keyboard;
 import net.ddns.minersonline.HistorySurvival.engine.io.Mouse;
@@ -43,7 +36,6 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.commons.cli.*;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -54,8 +46,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Predicate;
 
-import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
-import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
 import static net.ddns.minersonline.HistorySurvival.network.Utils.VERSION;
 
 public class Game extends GameHook {
@@ -75,37 +65,6 @@ public class Game extends GameHook {
 	public static ModelLoader modelLoader = new ModelLoader();
 	public static final ExecutorService executor = Executors.newCachedThreadPool();
 
-
-	/**
-	 * Testing
-	 */
-	private void helpCommand(CommandContext<CommandSender> c) {
-		CommandContext<CommandSender> context = (CommandContext<CommandSender>) (CommandContext<? extends Object>) c;
-		CommandSender sender = context.getSource();
-		Collection<CommandNode<CommandSender>> commands = context.getRootNode().getChildren();
-		try {
-			int page = getInteger(c, "page");
-			sender.sendMessage(new JSONTextComponent("Help page ("+page+")\n"));
-		} catch (IllegalArgumentException ignored){
-			JSONTextComponent header = new JSONTextComponent(" Help page (0) ");
-			header.setColor(ChatColor.DARK_GREEN.toString());
-
-			JSONTextComponent prefix = new JSONTextComponent("=====");
-			prefix.setColor(ChatColor.GOLD.toString());
-			JSONTextComponent suffix = new JSONTextComponent("\n");
-
-			sender.sendMessage(prefix);
-			sender.sendMessage(header);
-			sender.sendMessage(prefix);
-			sender.sendMessage(suffix);
-
-			for(CommandNode<CommandSender> command : commands){
-				sender.sendMessage(new JSONTextComponent("/"+command.getName()));
-			}
-		}
-
-	}
-
 	private static void init(){
 		modelLoader = new ModelLoader();
 		masterRenderer = new MasterRenderer(modelLoader);
@@ -121,6 +80,7 @@ public class Game extends GameHook {
 	private void start() throws Throwable {
 		setInstance(this);
 		LOADER = new ResourceLoaderImpl();
+		gson = Utils.gson;
 		Configuration.DEBUG_MEMORY_ALLOCATOR.set(true);
 
 		List<Path> pluginDirs = new ArrayList<>();
@@ -154,31 +114,13 @@ public class Game extends GameHook {
 		pluginManager.loadPlugins();
 		pluginManager.startPlugins();
 
-		this.dispatcher.register(LiteralArgumentBuilder.<CommandSender>literal("help")
-		.then(
-			RequiredArgumentBuilder.<CommandSender, Integer>argument("page", IntegerArgumentType.integer())
-			.executes(c -> {
-				helpCommand(c);
-				return 1;
-			})
-		)
-		.then(
-			RequiredArgumentBuilder.<CommandSender, String>argument("comm", StringArgumentType.string())
-			.executes(c -> {
-				helpCommand(c);
-				return 1;
-			})
-		)
-		.executes(c -> {
-			helpCommand(c);
-			return 1;
-		}));
+		HelpCommand.register(dispatcher);
 
 
 		DisplayManager.createDisplay();
 		DisplayManager.setShowFPSTitle(false);
 
-		List<EventHandler> eventHandlers = pluginManager.getExtensions(EventHandler.class);
+		List<CommandRegisterEvent> eventHandlers = pluginManager.getExtensions(CommandRegisterEvent.class);
 
 		logger.info("OpenGL: " + DisplayManager.getOpenGlVersionMessage());
 		logger.info("LWJGL: " + Version.getVersion());
@@ -190,14 +132,13 @@ public class Game extends GameHook {
 		init();
 
 		currentScene = new MenuScene(this, modelLoader, masterRenderer, guiRenderer);
-		//currentScene = new MainScene(null,this, modelLoader, masterRenderer, guiRenderer);
 		currentScene.init();
 		currentScene.start();
 		startScene = currentScene;
 
-		for (EventHandler handler : eventHandlers) {
+		for (CommandRegisterEvent handler : eventHandlers) {
 			if(!Objects.equals(handler.getClass().getClassLoader().getName(), "app")) {
-				handler.hello();
+				handler.register(getDispatcher());
 			}
 		}
 

@@ -466,32 +466,35 @@ public class GuiManager {
         io.setNavInputs(emptyNavInputs);
 
         final ByteBuffer buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1);
-        final int buttonsCount = buttons.limit();
 
-        final FloatBuffer axis = glfwGetJoystickAxes(GLFW_JOYSTICK_1);
-        final int axisCount = axis.limit();
+        if (buttons != null) {
+            final int buttonsCount = buttons.limit();
 
-        mapButton(ImGuiNavInput.Activate, 0, buttons, buttonsCount, io);   // Cross / A
-        mapButton(ImGuiNavInput.Cancel, 1, buttons, buttonsCount, io);     // Circle / B
-        mapButton(ImGuiNavInput.Menu, 2, buttons, buttonsCount, io);       // Square / X
-        mapButton(ImGuiNavInput.Input, 3, buttons, buttonsCount, io);      // Triangle / Y
-        mapButton(ImGuiNavInput.DpadLeft, 13, buttons, buttonsCount, io);  // D-Pad Left
-        mapButton(ImGuiNavInput.DpadRight, 11, buttons, buttonsCount, io); // D-Pad Right
-        mapButton(ImGuiNavInput.DpadUp, 10, buttons, buttonsCount, io);    // D-Pad Up
-        mapButton(ImGuiNavInput.DpadDown, 12, buttons, buttonsCount, io);  // D-Pad Down
-        mapButton(ImGuiNavInput.FocusPrev, 4, buttons, buttonsCount, io);  // L1 / LB
-        mapButton(ImGuiNavInput.FocusNext, 5, buttons, buttonsCount, io);  // R1 / RB
-        mapButton(ImGuiNavInput.TweakSlow, 4, buttons, buttonsCount, io);  // L1 / LB
-        mapButton(ImGuiNavInput.TweakFast, 5, buttons, buttonsCount, io);  // R1 / RB
-        mapAnalog(ImGuiNavInput.LStickLeft, 0, -0.3f, -0.9f, axis, axisCount, io);
-        mapAnalog(ImGuiNavInput.LStickRight, 0, +0.3f, +0.9f, axis, axisCount, io);
-        mapAnalog(ImGuiNavInput.LStickUp, 1, +0.3f, +0.9f, axis, axisCount, io);
-        mapAnalog(ImGuiNavInput.LStickDown, 1, -0.3f, -0.9f, axis, axisCount, io);
+            final FloatBuffer axis = glfwGetJoystickAxes(GLFW_JOYSTICK_1);
+            final int axisCount = axis.limit();
 
-        if (axisCount > 0 && buttonsCount > 0) {
-            io.addBackendFlags(ImGuiBackendFlags.HasGamepad);
-        } else {
-            io.removeBackendFlags(ImGuiBackendFlags.HasGamepad);
+            mapButton(ImGuiNavInput.Activate, 0, buttons, buttonsCount, io);   // Cross / A
+            mapButton(ImGuiNavInput.Cancel, 1, buttons, buttonsCount, io);     // Circle / B
+            mapButton(ImGuiNavInput.Menu, 2, buttons, buttonsCount, io);       // Square / X
+            mapButton(ImGuiNavInput.Input, 3, buttons, buttonsCount, io);      // Triangle / Y
+            mapButton(ImGuiNavInput.DpadLeft, 13, buttons, buttonsCount, io);  // D-Pad Left
+            mapButton(ImGuiNavInput.DpadRight, 11, buttons, buttonsCount, io); // D-Pad Right
+            mapButton(ImGuiNavInput.DpadUp, 10, buttons, buttonsCount, io);    // D-Pad Up
+            mapButton(ImGuiNavInput.DpadDown, 12, buttons, buttonsCount, io);  // D-Pad Down
+            mapButton(ImGuiNavInput.FocusPrev, 4, buttons, buttonsCount, io);  // L1 / LB
+            mapButton(ImGuiNavInput.FocusNext, 5, buttons, buttonsCount, io);  // R1 / RB
+            mapButton(ImGuiNavInput.TweakSlow, 4, buttons, buttonsCount, io);  // L1 / LB
+            mapButton(ImGuiNavInput.TweakFast, 5, buttons, buttonsCount, io);  // R1 / RB
+            mapAnalog(ImGuiNavInput.LStickLeft, 0, -0.3f, -0.9f, axis, axisCount, io);
+            mapAnalog(ImGuiNavInput.LStickRight, 0, +0.3f, +0.9f, axis, axisCount, io);
+            mapAnalog(ImGuiNavInput.LStickUp, 1, +0.3f, +0.9f, axis, axisCount, io);
+            mapAnalog(ImGuiNavInput.LStickDown, 1, -0.3f, -0.9f, axis, axisCount, io);
+
+            if (axisCount > 0 && buttonsCount > 0) {
+                io.addBackendFlags(ImGuiBackendFlags.HasGamepad);
+            } else {
+                io.removeBackendFlags(ImGuiBackendFlags.HasGamepad);
+            }
         }
     }
 

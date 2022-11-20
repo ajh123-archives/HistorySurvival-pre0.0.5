@@ -87,14 +87,15 @@ public class MainScene extends Scene {
 				player.addComponent(new ControllableComponent(metaData.world));
 				player.addComponent(new MeshComponent(ModelType.PLAYER_MODEL.create()));
 				player.addComponent(new TransformComponent(new Vector3f(worldCenter), new Vector3f(0, 0, 0), .6f));
+				player.addComponent(new CommandExecutor());
 				addGameObject(player);
 
 				camera = new Camera(player.getComponent(TransformComponent.class));
 			} else {
-				camera = new Camera(getPlayer());
+				camera = new Camera(getTransform());
 			}
 			metaData.name = worldData.name;
-			metaData.world.start(getPlayer());
+			metaData.world.start(getTransform());
 
 
 			GuiTexture gui = new GuiTexture(GameHook.getLoader().loadTexture("health.png"), new Vector2f(-0.75f, -0.85f), new Vector2f(0.25f, 0.15f));
@@ -109,7 +110,7 @@ public class MainScene extends Scene {
 			particleSystem.setScaleError(0.8f);
 
 
-			getPlayer().position.y = 30;
+			getTransform().position.y = 30;
 			hasInited = true;
 		}
 	}
@@ -156,7 +157,7 @@ public class MainScene extends Scene {
 	}
 
 	@Override
-	public TransformComponent getPlayer() {
+	public TransformComponent getTransform() {
 		GameObject player = GameObjectManager.getGameObjectByFirstComponent(PlayerComponent.class);
 		if(player == null){return new TransformComponent();}
 		ControllableComponent component = player.getComponent(ControllableComponent.class);
@@ -168,6 +169,12 @@ public class MainScene extends Scene {
 			camera.setPlayer(transformComponent);
 		}
 		return player.getComponent(TransformComponent.class);
+	}
+
+	@Override
+	public PlayerComponent getPlayer() {
+		GameObject player = GameObjectManager.getGameObjectByFirstComponent(PlayerComponent.class);
+		return player.getComponent(PlayerComponent.class);
 	}
 
 	@Override

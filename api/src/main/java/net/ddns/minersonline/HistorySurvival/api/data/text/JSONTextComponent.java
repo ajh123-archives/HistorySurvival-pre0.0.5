@@ -1,6 +1,7 @@
 package net.ddns.minersonline.HistorySurvival.api.data.text;
 
 import com.mojang.brigadier.Message;
+import net.ddns.minersonline.HistorySurvival.api.GameHook;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class JSONTextComponent implements Message {
 	private JSONScore score;
 	private String selector;
 	private String keybind;
-	private String color;
+	private ChatColor color;
 	private boolean bold;
 	private boolean italic;
 	private boolean underline;
@@ -26,7 +27,7 @@ public class JSONTextComponent implements Message {
 	private JSONHoverEvent hoverEvent;
 	private List<JSONTextComponent> extra;
 
-	public JSONTextComponent(String text, String translate, List<String> with, JSONScore score, String selector, String keybind, String color, boolean bold, boolean italic, boolean underline, boolean strikethrough, boolean obfuscated, String insertion, JSONClickEvent clickEvent, JSONHoverEvent hoverEvent, List<JSONTextComponent> extra) {
+	public JSONTextComponent(String text, String translate, List<String> with, JSONScore score, String selector, String keybind, ChatColor color, boolean bold, boolean italic, boolean underline, boolean strikethrough, boolean obfuscated, String insertion, JSONClickEvent clickEvent, JSONHoverEvent hoverEvent, List<JSONTextComponent> extra) {
 		this.text = text;
 		this.translate = translate;
 		this.with = with;
@@ -131,11 +132,11 @@ public class JSONTextComponent implements Message {
 		this.keybind = keybind;
 	}
 
-	public String getColor() {
+	public ChatColor getColor() {
 		return color;
 	}
 
-	public void setColor(String color) {
+	public void setColor(ChatColor color) {
 		this.color = color;
 	}
 
@@ -214,5 +215,13 @@ public class JSONTextComponent implements Message {
 	@Override
 	public String getString() {
 		return text;
+	}
+
+	public String toJSON() {
+		return GameHook.gson.toJson(this);
+	}
+
+	public static JSONTextComponent fromJSON(String json) {
+		return GameHook.gson.fromJson(json, JSONTextComponent.class);
 	}
 }

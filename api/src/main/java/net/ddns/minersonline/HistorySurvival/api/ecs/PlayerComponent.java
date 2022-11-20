@@ -2,7 +2,7 @@ package net.ddns.minersonline.HistorySurvival.api.ecs;
 
 import net.ddns.minersonline.HistorySurvival.api.auth.GameProfile;
 
-public class PlayerComponent extends Component{
+public class PlayerComponent extends Component {
 	public GameProfile profile;
 
 	public TransformComponent transformComponent;

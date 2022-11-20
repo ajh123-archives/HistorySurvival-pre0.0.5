@@ -3,6 +3,7 @@ package net.ddns.minersonline.HistorySurvival.scenes;
 import imgui.ImGui;
 import imgui.type.ImBoolean;
 import net.ddns.minersonline.HistorySurvival.*;
+import net.ddns.minersonline.HistorySurvival.api.ecs.PlayerComponent;
 import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
 import net.ddns.minersonline.HistorySurvival.engine.MasterRenderer;
 import net.ddns.minersonline.HistorySurvival.engine.ModelLoader;
@@ -127,10 +128,14 @@ public class MenuScene extends Scene {
 	}
 
 	@Override
-	public TransformComponent getPlayer() {
+	public TransformComponent getTransform() {
 		return null;
 	}
 
+	@Override
+	public PlayerComponent getPlayer() {
+		return null;
+	}
 
 	@Override
 	public List<Light> getLights() {

@@ -1,13 +1,12 @@
 package net.ddns.minersonline.HistorySurvival.api.data.text;
 
 import com.google.common.base.Preconditions;
+import com.google.gson.*;
 import org.joml.Vector3f;
 
 import java.awt.Color;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
+import java.lang.reflect.Type;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -15,7 +14,6 @@ import java.util.regex.Pattern;
  */
 public final class ChatColor
 {
-
 	/**
 	 * The special character which prefixes all chat colour codes. Use this if
 	 * you need to dynamically convert colour codes from your custom format.
@@ -136,7 +134,7 @@ public final class ChatColor
 	/**
 	 * The RGB color of the ChatColor. null for non-colors (formatting)
 	 */
-	public final Color color;
+	public transient final Color color;
 
 	private ChatColor(char code, String name)
 	{
@@ -335,5 +333,19 @@ public final class ChatColor
 		int green = (value & 0xFF00) >> 8;
 		int blue = (value & 0xFF);
 		return new Vector3f(red, green, blue);
+	}
+
+	public static class JSON implements JsonDeserializer<ChatColor>, JsonSerializer<ChatColor> {
+		@Override
+		public ChatColor deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+			JsonPrimitive jsonObject = json.getAsJsonPrimitive();
+			String name = jsonObject.getAsString();
+			return ChatColor.of(name);
+		}
+
+		@Override
+		public JsonElement serialize(ChatColor src, Type typeOfSrc, JsonSerializationContext context) {
+			return new JsonPrimitive(src.name);
+		}
 	}
 }

@@ -1,5 +1,6 @@
 package net.ddns.minersonline.HistorySurvival.api;
 
+import com.google.gson.Gson;
 import com.mojang.brigadier.CommandDispatcher;
 import net.ddns.minersonline.HistorySurvival.api.commands.CommandSender;
 import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceLoader;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 public abstract class GameHook {
 	protected static GameHook instance = null;
 	protected static ResourceLoader LOADER = null;
+	public static Gson gson;
 
 	/**
 	 * A function that should be used to get the current instance of the game
