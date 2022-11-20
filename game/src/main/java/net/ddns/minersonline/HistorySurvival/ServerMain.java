@@ -169,6 +169,7 @@ public class ServerMain extends GameHook {
 		try {
 			ServerBootstrap b = new ServerBootstrap();
 			  logicThread = new Thread(() -> {
+				  logger.info("Server started on port "+port);
 				while (running){
 					try {
 						update();

@@ -1,9 +1,6 @@
 package net.ddns.minersonline.HistorySurvival.network.packets.server;
 
-import io.netty.buffer.ByteBuf;
 import net.ddns.minersonline.HistorySurvival.api.ecs.GameObject;
-import net.ddns.minersonline.HistorySurvival.api.entities.Entity;
-import net.ddns.minersonline.HistorySurvival.api.entities.PlayerEntity;
 import net.ddns.minersonline.HistorySurvival.network.Packet;
 import net.ddns.minersonline.HistorySurvival.network.Utils;
 import net.ddns.minersonline.HistorySurvival.network.packets.PacketValue;

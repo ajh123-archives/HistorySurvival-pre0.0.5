@@ -1,6 +1,6 @@
 package net.ddns.minersonline.HistorySurvival.network.packets;
 
-import net.ddns.minersonline.HistorySurvival.api.entities.PlayerEntity;
+import net.ddns.minersonline.HistorySurvival.api.ecs.PlayerComponent;
 import net.ddns.minersonline.HistorySurvival.engine.GameObjectManager;
 import net.ddns.minersonline.HistorySurvival.network.Packet;
 import net.ddns.minersonline.HistorySurvival.network.Utils;
@@ -19,7 +19,7 @@ public class DisconnectPacket extends Packet {
 	@PacketValue
 	private String title = "";
 
-	public DisconnectPacket(String reason, String title, @Nullable PlayerEntity entity, Utils.EncryptionMode mode) {
+	public DisconnectPacket(String reason, String title, PlayerComponent entity, Utils.EncryptionMode mode) {
 		super(Utils.GAME_ID, "disconnect", mode);
 		CompoundTag data = new CompoundTag();
 		data.putString("reason", reason);
@@ -28,8 +28,8 @@ public class DisconnectPacket extends Packet {
 		this.title = title;
 		this.reason = reason;
 		if(entity != null) {
-			GameObjectManager.getGameObjects().remove(entity.getId());
-			logger.info("Disconnected "+entity.getProfile().getName()+" with "+this.title+":"+this.reason);
+			GameObjectManager.getGameObjects().remove(entity.gameObject);
+			logger.info("Disconnected "+entity.profile.getName()+" with "+this.title+":"+this.reason);
 		}
 	}
 

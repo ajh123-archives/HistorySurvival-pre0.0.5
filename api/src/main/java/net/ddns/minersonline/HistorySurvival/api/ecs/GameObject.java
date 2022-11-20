@@ -1,18 +1,15 @@
 package net.ddns.minersonline.HistorySurvival.api.ecs;
 
 import com.google.gson.*;
-import net.ddns.minersonline.HistorySurvival.api.commands.CommandSender;
-import net.ddns.minersonline.HistorySurvival.api.data.text.JSONTextComponent;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class GameObject implements CommandSender {
+public class GameObject {
 	private int id;
 	private final List<Component> components = new ArrayList<>();
-	private transient ChatHandler messageHandler;
 
 	public GameObject() {}
 
@@ -68,20 +65,6 @@ public class GameObject implements CommandSender {
 		this.id = id;
 	}
 
-
-	@Override
-	public final void sendMessage(JSONTextComponent message) {
-		if(this.messageHandler != null) {
-			this.messageHandler.run(message);
-		}
-	}
-
-	public final void onChatMessage(ChatHandler handler){
-		this.messageHandler = handler;
-	}
-	public interface ChatHandler {
-		void run(JSONTextComponent message);
-	}
 
 	public static class JSON implements JsonDeserializer<GameObject> {
 		@Override

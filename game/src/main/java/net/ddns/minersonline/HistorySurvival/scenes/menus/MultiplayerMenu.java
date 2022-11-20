@@ -113,8 +113,6 @@ public class MultiplayerMenu {
 							ClientMain client = new ClientMain(server.ip, Integer.parseInt(server.port));
 							try {
 								client.call(2);
-								ChatSystem.clear();
-								ChatSystem.network = client.getNetwork();
 							} catch (Exception e) {
 								MenuScene.THROWN = true;
 								MenuScene.ENABLE_ERRORS.set(true);
@@ -188,8 +186,6 @@ public class MultiplayerMenu {
 					ClientMain client = new ClientMain(ip.get(), Integer.parseInt(port.get()));
 					try {
 						client.call(2);
-						ChatSystem.clear();
-						ChatSystem.network = client.getNetwork();
 					} catch (Exception e) {
 						MenuScene.THROWN = false;
 						MenuScene.ENABLE_ERRORS.set(true);

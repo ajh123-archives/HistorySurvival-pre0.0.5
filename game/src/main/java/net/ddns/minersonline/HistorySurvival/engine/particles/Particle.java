@@ -3,9 +3,11 @@ package net.ddns.minersonline.HistorySurvival.engine.particles;
 
 import net.ddns.minersonline.HistorySurvival.engine.DisplayManager;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
-import net.ddns.minersonline.HistorySurvival.engine.entities.ClientPlayer;
+import net.ddns.minersonline.HistorySurvival.engine.entities.ControllableComponent;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+
+import java.awt.*;
 
 public class Particle {
 
@@ -70,7 +72,7 @@ public class Particle {
 	}
 
 	public boolean update(Camera camera, float deltaTime) {
-		velocity.y += ClientPlayer.GRAVITY * gravityEffect * deltaTime;
+		velocity.y += ControllableComponent.GRAVITY * gravityEffect * deltaTime;
 		Vector3f change = new Vector3f(velocity);
 		change.mul((float) DisplayManager.getDeltaInSeconds());
 		position.add(change);

@@ -83,10 +83,6 @@ public class ClientMain {
 		return null;
 	}
 
-	public ClientHandler getNetwork() {
-		return network;
-	}
-
 	public interface PacketHandler {
 		void run(ChannelHandlerContext ctx, int state, Packet message);
 		default UUID getId() {

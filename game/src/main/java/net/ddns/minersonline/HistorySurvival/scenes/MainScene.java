@@ -87,7 +87,7 @@ public class MainScene extends Scene {
 				player.addComponent(new ControllableComponent(metaData.world));
 				player.addComponent(new MeshComponent(ModelType.PLAYER_MODEL.create()));
 				player.addComponent(new TransformComponent(new Vector3f(worldCenter), new Vector3f(0, 0, 0), .6f));
-				player.addComponent(new ClientCommandExecutor());
+				player.addComponent(new ClientCommandExecutor(player));
 				addGameObject(player);
 
 				camera = new Camera(player.getComponent(TransformComponent.class));

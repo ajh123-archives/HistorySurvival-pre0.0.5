@@ -49,6 +49,19 @@ public class InfoCommand extends Command {
 		JSONTextComponent component5 = new JSONTextComponent();
 		component5.setText("\tVersion: "+ Utils.VERSION);
 		sender.sendMessage(component5);
+
+		JSONTextComponent component6 = new JSONTextComponent();
+		component6.setText("Your info");
+		component6.setColor(ChatColor.GREEN);
+		sender.sendMessage(component6);
+
+		JSONTextComponent component7 = new JSONTextComponent();
+		component7.setText("\tName: "+ sender.getProfile().getName());
+		sender.sendMessage(component7);
+
+		JSONTextComponent component8 = new JSONTextComponent();
+		component8.setText("\tID: "+ sender.getProfile().getID());
+		sender.sendMessage(component8);
 	}
 
 	public static void register(CommandDispatcher<CommandSender> dispatcher) {

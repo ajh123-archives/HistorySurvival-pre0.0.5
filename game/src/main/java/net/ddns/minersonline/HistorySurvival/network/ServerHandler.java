@@ -16,11 +16,11 @@ import net.ddns.minersonline.HistorySurvival.api.data.text.ChatColor;
 import net.ddns.minersonline.HistorySurvival.api.data.text.JSONTextComponent;
 import net.ddns.minersonline.HistorySurvival.api.ecs.GameObject;
 import net.ddns.minersonline.HistorySurvival.api.ecs.MeshComponent;
+import net.ddns.minersonline.HistorySurvival.api.ecs.PlayerComponent;
 import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
 import net.ddns.minersonline.HistorySurvival.api.registries.ModelType;
 import net.ddns.minersonline.HistorySurvival.commands.ServerCommandExecutor;
 import net.ddns.minersonline.HistorySurvival.engine.GameObjectManager;
-import net.ddns.minersonline.HistorySurvival.engine.entities.ControllableComponent;
 import net.ddns.minersonline.HistorySurvival.network.packets.AlivePacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.DisconnectPacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.client.EncryptionResponsePacket;
@@ -28,7 +28,6 @@ import net.ddns.minersonline.HistorySurvival.network.packets.auth.client.Handsha
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.client.LoginStartPacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.server.EncryptionRequestPacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.server.LoginSuccessPacket;
-import net.ddns.minersonline.HistorySurvival.network.packets.server.JoinGamePacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.server.MessageClientPacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.server.PingResponsePacket;
 import org.apache.http.HttpResponse;
@@ -73,8 +72,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 		}
 		ctx.channel().attr(AttributeKey.valueOf("object")).set(null);
 		Object obj = ctx.channel().attr(AttributeKey.valueOf("profile")).get();
-		if (obj instanceof GameProfile) {
-			GameProfile profile = (GameProfile) obj;
+		if (obj instanceof GameProfile profile) {
 			logger.info(profile.getName()+" has left the game");
 		}
 	}
@@ -130,8 +128,6 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 					if (encryptionResponsePacket != null) {
 						if (encryptionResponsePacket.getVerifyToken().equals(ServerMain.verifyToken)) {
 							HttpClient httpClient = HttpClientBuilder.create().build();
-							boolean loggedIn = false;
-							GameProfile profile = null;
 							try {
 								Cipher cipher = Cipher.getInstance(Utils.ENC_ALGO);
 								cipher.init(Cipher.DECRYPT_MODE, ServerMain.privateKey);
@@ -150,22 +146,48 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 
 								String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
 								if (!responseBody.equals("{}")){
-									loggedIn = true;
 									Gson gson = new Gson();
-									profile = gson.fromJson(responseBody, GameProfile.class);
+									GameProfile profile = gson.fromJson(responseBody, GameProfile.class);
 									ctx.channel().attr(AttributeKey.valueOf("encryption")).set(Utils.EncryptionMode.SERVER);
 									Utils.ENC_PRIVATE = ServerMain.privateKey;
 									Utils.ENC_PUBLIC = ServerMain.publicKey;
 
-									ctx.writeAndFlush(new LoginSuccessPacket(
-											profile.getName(),
-											profile.getID().toString(),
-											encryption
-									));
+									GameObject player = new GameObject();
+									player.addComponent(new TransformComponent());
+									player.addComponent(new MeshComponent(ModelType.PLAYER_MODEL.create()));
+									player.addComponent(new PlayerComponent(new GameProfile(profile.getRawId(), profile.getName())));
+									player.addComponent(new ServerCommandExecutor(ctx, player));
+									GameObjectManager.addGameObject(player);
+									ctx.channel().attr(AttributeKey.valueOf("object")).set(player);
+									ctx.channel().attr(AttributeKey.valueOf("profile")).set(profile);
 
+									logger.info("UUID of player "+profile.getName()+" is "+profile.getID());
+									String remote = ((InetSocketAddress)ctx.channel().remoteAddress()).getAddress().getHostAddress();
+									int port = ((InetSocketAddress)ctx.channel().remoteAddress()).getPort();
+
+									TransformComponent pos = player.getComponent(TransformComponent.class);
+									if (pos != null) {
+										logger.info(profile.getName()+"[/"+remote+":"+port+"] logged in with entity id "+player.getId()+" at "+pos.position);
+										ctx.channel().attr(AttributeKey.valueOf("entityId")).set(player.getId());
+										ctx.channel().attr(AttributeKey.valueOf("state")).set(3);
+										ctx.writeAndFlush(new LoginSuccessPacket(
+												player,
+												profile.getName(),
+												profile.getID().toString(),
+												Utils.EncryptionMode.SERVER
+										));
+									} else {
+										ctx.writeAndFlush(new DisconnectPacket(
+												"Transform Component is null.",
+												"Couldn't spawn player",
+												null,
+												encryption
+										));
+										ctx.close();
+									}
 								} else {
 									ctx.writeAndFlush(new DisconnectPacket(
-											"Unable to login",
+											"Unable to login. Try restarting your game and launcher.",
 											"Authentication Error",
 											null,
 											encryption
@@ -174,53 +196,6 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 								}
 
 							} catch (Exception ignored) {}
-
-							if (loggedIn && profile != null) {
-								ctx.channel().attr(AttributeKey.valueOf("profile")).set(profile);
-								logger.info("UUID of player "+profile.getName()+" is "+profile.getID());
-								String remote = ((InetSocketAddress)ctx.channel().remoteAddress()).getAddress().getHostAddress();
-								int port = ((InetSocketAddress)ctx.channel().remoteAddress()).getPort();
-
-								GameObject player = new GameObject();
-								player.addComponent(new TransformComponent());
-								player.addComponent(new MeshComponent(ModelType.PLAYER_MODEL.create()));
-								player.addComponent(new ControllableComponent());
-								player.addComponent(new ServerCommandExecutor(ctx));
-								GameObjectManager.addGameObject(player);
-								ctx.channel().attr(AttributeKey.valueOf("object")).set(player);
-
-								TransformComponent pos = player.getComponent(TransformComponent.class);
-								if (pos != null) {
-									logger.info(profile.getName()+"[/"+remote+":"+port+"] logged in with entity id "+player.getId()+" at "+pos.position);
-									ctx.channel().attr(AttributeKey.valueOf("entityId")).set(player.getId());
-
-									ctx.writeAndFlush(new JoinGamePacket(
-											player,
-											encryption
-									));
-								} else {
-									ctx.writeAndFlush(new DisconnectPacket(
-											"Incorrect GameObject",
-											"NullPointerException: player.pos is null",
-											null,
-											encryption
-									));
-									ctx.close();
-								}
-
-								try {
-									Thread.sleep(10);
-								} catch (InterruptedException ignored) {}
-								ctx.channel().attr(AttributeKey.valueOf("state")).set(3);
-							} else {
-								ctx.writeAndFlush(new DisconnectPacket(
-										"Incorrect profile data",
-										"Authentication Error",
-										null,
-										encryption
-								));
-								ctx.close();
-							}
 						} else {
 							ctx.writeAndFlush(new DisconnectPacket(
 									"Incorrect verify token",
@@ -265,10 +240,10 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 						}
 						logger.info("[Chat] " + userName + " executed command " + message);
 					} else {
-						logger.info("[Chat] "+"<" + userName + "> " + message);
+						logger.info("[Chat] " + "<" + userName + "> " + message);
 						JSONTextComponent data = new JSONTextComponent();
 						data.setText("<" + userName + "> " + message);
-						ctx.writeAndFlush(new MessageClientPacket(data, encryption));
+						channelGroup.writeAndFlush(new MessageClientPacket(data, encryption));
 					}
 				}
 			}

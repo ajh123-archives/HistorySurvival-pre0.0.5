@@ -1,5 +1,6 @@
 package net.ddns.minersonline.HistorySurvival.network.packets.auth.server;
 
+import net.ddns.minersonline.HistorySurvival.api.ecs.GameObject;
 import net.ddns.minersonline.HistorySurvival.network.Packet;
 import net.ddns.minersonline.HistorySurvival.network.Utils;
 import net.ddns.minersonline.HistorySurvival.network.packets.PacketValue;
@@ -12,9 +13,13 @@ public class LoginSuccessPacket extends Packet {
 	@PacketValue
 	private String uuid = "";
 
-	public LoginSuccessPacket(String name, String uuid, Utils.EncryptionMode mode) {
+	@PacketValue
+	private int entityId;
+
+	public LoginSuccessPacket(GameObject entity, String name, String uuid, Utils.EncryptionMode mode) {
 		super(Utils.GAME_ID, "loginSuccess", mode);
 		CompoundTag data = new CompoundTag();
+		data.putInt("entityId", entity.getId());
 		data.putString("name", name);
 		data.putString("uuid", uuid);
 		setValue(data);
@@ -30,5 +35,9 @@ public class LoginSuccessPacket extends Packet {
 
 	public String getUuid() {
 		return uuid;
+	}
+
+	public int getEntityId() {
+		return entityId;
 	}
 }
