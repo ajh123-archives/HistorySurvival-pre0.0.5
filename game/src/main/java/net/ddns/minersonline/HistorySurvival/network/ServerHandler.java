@@ -1,26 +1,37 @@
 package net.ddns.minersonline.HistorySurvival.network;
 
 import com.google.gson.Gson;
+import com.mojang.brigadier.ParseResults;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.util.AttributeKey;
 import net.ddns.minersonline.HistorySurvival.BrokenHash;
 import net.ddns.minersonline.HistorySurvival.ServerMain;
+import net.ddns.minersonline.HistorySurvival.api.GameHook;
 import net.ddns.minersonline.HistorySurvival.api.auth.GameProfile;
+import net.ddns.minersonline.HistorySurvival.api.commands.CommandSender;
+import net.ddns.minersonline.HistorySurvival.api.data.text.ChatColor;
+import net.ddns.minersonline.HistorySurvival.api.data.text.JSONTextComponent;
 import net.ddns.minersonline.HistorySurvival.api.ecs.GameObject;
 import net.ddns.minersonline.HistorySurvival.api.ecs.MeshComponent;
 import net.ddns.minersonline.HistorySurvival.api.ecs.TransformComponent;
 import net.ddns.minersonline.HistorySurvival.api.registries.ModelType;
+import net.ddns.minersonline.HistorySurvival.commands.ServerCommandExecutor;
 import net.ddns.minersonline.HistorySurvival.engine.GameObjectManager;
+import net.ddns.minersonline.HistorySurvival.engine.entities.CommandExecutor;
 import net.ddns.minersonline.HistorySurvival.engine.entities.ControllableComponent;
+import net.ddns.minersonline.HistorySurvival.network.packets.AlivePacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.DisconnectPacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.client.EncryptionResponsePacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.client.HandshakePacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.client.LoginStartPacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.server.EncryptionRequestPacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.server.LoginSuccessPacket;
+import net.ddns.minersonline.HistorySurvival.network.packets.client.MessageServerPacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.server.JoinGamePacket;
+import net.ddns.minersonline.HistorySurvival.network.packets.server.MessageClientPacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.server.PingResponsePacket;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -42,7 +53,6 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 	private final ChannelGroup channelGroup;
 
 	public ServerHandler(ChannelGroup channelGroup) {
-		Utils.ENCRYPTION_MODE = Utils.EncryptionMode.NONE;
 		this.channelGroup = channelGroup;
 	}
 
@@ -53,6 +63,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 		ctx.channel().attr(AttributeKey.valueOf("userName")).set(null);
 		ctx.channel().attr(AttributeKey.valueOf("object")).set(null);
 		ctx.channel().attr(AttributeKey.valueOf("profile")).set(null);
+		ctx.channel().attr(AttributeKey.valueOf("encryption")).set(Utils.EncryptionMode.NONE);
 	}
 
 	@Override
@@ -72,6 +83,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void channelRead(@NotNull ChannelHandlerContext ctx, @NotNull Object msg){
+		Utils.EncryptionMode encryption = (Utils.EncryptionMode) ctx.channel().attr(AttributeKey.valueOf("encryption")).get();
 		Packet requestData = (Packet) msg;
 		logger.debug("Got "+requestData.getId());
 		if (requestData.getOwner().equals(Utils.GAME_ID)) {
@@ -87,13 +99,14 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 				ctx.writeAndFlush(responseData);
 			}
 			if (requestData.getId().equals("alive")) {
-				//ctx.writeAndFlush(new AlivePacket());
+				ctx.writeAndFlush(new AlivePacket(encryption));
 				//TODO: check frequency of alive packets then kick player if they don't send enough alive packets
 			}
 			if (((Integer)ctx.channel().attr(AttributeKey.valueOf("state")).get()) == 1){
 				if (requestData.getId().equals("startPing")) {
 					ctx.writeAndFlush(new PingResponsePacket(
-						"Placing pickles on the sea floor!"
+						"Placing pickles on the sea floor!",
+						encryption
 					));
 					ctx.close();
 				}
@@ -108,7 +121,8 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 						ctx.writeAndFlush(new EncryptionRequestPacket(
 								ServerMain.serverId,
 								ServerMain.publicKey.getEncoded(),
-								ServerMain.verifyToken
+								ServerMain.verifyToken,
+								encryption
 						));
 					}
 				}
@@ -141,20 +155,22 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 									loggedIn = true;
 									Gson gson = new Gson();
 									profile = gson.fromJson(responseBody, GameProfile.class);
-									Utils.ENCRYPTION_MODE = Utils.EncryptionMode.SERVER;
+									ctx.channel().attr(AttributeKey.valueOf("encryption")).set(Utils.EncryptionMode.SERVER);
 									Utils.ENC_PRIVATE = ServerMain.privateKey;
 									Utils.ENC_PUBLIC = ServerMain.publicKey;
 
 									ctx.writeAndFlush(new LoginSuccessPacket(
 											profile.getName(),
-											profile.getID().toString()
+											profile.getID().toString(),
+											encryption
 									));
 
 								} else {
 									ctx.writeAndFlush(new DisconnectPacket(
 											"Unable to login",
 											"Authentication Error",
-											null
+											null,
+											encryption
 									));
 									ctx.close();
 								}
@@ -171,6 +187,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 								player.addComponent(new TransformComponent());
 								player.addComponent(new MeshComponent(ModelType.PLAYER_MODEL.create()));
 								player.addComponent(new ControllableComponent());
+								player.addComponent(new ServerCommandExecutor(ctx));
 								GameObjectManager.addGameObject(player);
 								ctx.channel().attr(AttributeKey.valueOf("object")).set(player);
 
@@ -180,13 +197,15 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 									ctx.channel().attr(AttributeKey.valueOf("entityId")).set(player.getId());
 
 									ctx.writeAndFlush(new JoinGamePacket(
-											player
+											player,
+											encryption
 									));
 								} else {
 									ctx.writeAndFlush(new DisconnectPacket(
 											"Incorrect GameObject",
 											"NullPointerException: player.pos is null",
-											null
+											null,
+											encryption
 									));
 									ctx.close();
 								}
@@ -199,7 +218,8 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 								ctx.writeAndFlush(new DisconnectPacket(
 										"Incorrect profile data",
 										"Authentication Error",
-										null
+										null,
+										encryption
 								));
 								ctx.close();
 							}
@@ -207,7 +227,8 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 							ctx.writeAndFlush(new DisconnectPacket(
 									"Incorrect verify token",
 									"Authentication Error",
-									null
+									null,
+									encryption
 							));
 							ctx.close();
 						}
@@ -215,9 +236,41 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 						ctx.writeAndFlush(new DisconnectPacket(
 								"Malformed encryption response",
 								"Authentication Error",
-								null
+								null,
+								encryption
 						));
 						ctx.close();
+					}
+				}
+			}
+			if (((Integer)ctx.channel().attr(AttributeKey.valueOf("state")).get()) == 3) {
+				String userName = (String) ctx.channel().attr(AttributeKey.valueOf("userName")).get();
+
+				if (requestData.getId().equals("msgServer")) {
+					GameObject obj = (GameObject) ctx.channel().attr(AttributeKey.valueOf("object")).get();
+					CommandSender executor = obj.getComponent(ServerCommandExecutor.class);
+					String message = requestData.getData().getString("text");
+					if (message.length() > 0 && message.charAt(0) == '/') {
+						String command = message.replaceFirst("/", "");
+						ParseResults<CommandSender> parse = GameHook.getInstance().getDispatcher().parse(command, executor);
+						try {
+							GameHook.getInstance().getDispatcher().execute(parse);
+						} catch (CommandSyntaxException e) {
+							JSONTextComponent msg2 = new JSONTextComponent();
+							msg2.setColor(ChatColor.RED);
+							msg2.setText(e.getMessage() + "\n");
+							ctx.writeAndFlush(new MessageClientPacket(msg2, encryption));
+							JSONTextComponent msg3 = new JSONTextComponent();
+							msg3.setColor(ChatColor.RED);
+							msg3.setText(message + "\n");
+							ctx.writeAndFlush(new MessageClientPacket(msg3, encryption));
+						}
+						logger.info("[Chat] " + userName + " executed command " + message);
+					} else {
+						logger.info("[Chat] "+"<" + userName + "> " + message);
+						JSONTextComponent data = new JSONTextComponent();
+						data.setText("<" + userName + "> " + message);
+						ctx.writeAndFlush(new MessageClientPacket(data, encryption));
 					}
 				}
 			}

@@ -10,8 +10,8 @@ public class LoginStartPacket extends Packet {
 	private String name = "";
 
 
-	public LoginStartPacket(String name) {
-		super(Utils.GAME_ID, "loginStart");
+	public LoginStartPacket(String name, Utils.EncryptionMode mode) {
+		super(Utils.GAME_ID, "loginStart", mode);
 		CompoundTag data = new CompoundTag();
 		data.putString("name", name);
 		setValue(data);

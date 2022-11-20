@@ -16,6 +16,7 @@ import java.util.UUID;
 public class ClientMain {
 	String host;
 	int port;
+	public ClientHandler network;
 
 	public ClientMain(String host, int port) {
 		this.host = host;
@@ -27,6 +28,7 @@ public class ClientMain {
 	}
 
 	public UUID call(int state, boolean canThrow, @Nullable PacketHandler handler) {
+		network = new ClientHandler(host, port, state, handler);
 		Runnable r = () -> {
 			try {
 				EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -45,7 +47,7 @@ public class ClientMain {
 							ch.pipeline().addLast(
 									new PacketEncoder(),
 									new PacketDecoder(),
-									new ClientHandler(host, port, state, handler),
+									network,
 									new InterruptingExceptionHandler()
 							);
 							ch.pipeline().addFirst(new OutboundExceptionRouter());
@@ -79,6 +81,10 @@ public class ClientMain {
 			return handler.getId();
 		}
 		return null;
+	}
+
+	public ClientHandler getNetwork() {
+		return network;
 	}
 
 	public interface PacketHandler {

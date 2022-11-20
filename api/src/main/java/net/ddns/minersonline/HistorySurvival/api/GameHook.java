@@ -38,5 +38,5 @@ public abstract class GameHook {
 		return LOADER;
 	}
 
-	public abstract void hello();
+	public abstract EnvironmentType getType();
 }

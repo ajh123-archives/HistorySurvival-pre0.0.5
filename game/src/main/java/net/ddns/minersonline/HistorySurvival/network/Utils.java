@@ -69,6 +69,11 @@ public class Utils {
 	 **/
 	public static String ENC_ALGO = "RSA";
 	public static String KEY_ENC_ALGO = "RSA";
+
+	/**
+	 * Do not use on a server!
+	 *
+	 */
 	public static EncryptionMode ENCRYPTION_MODE;
 
 	/** Only used in {@link Utils.EncryptionMode#SERVER} **/

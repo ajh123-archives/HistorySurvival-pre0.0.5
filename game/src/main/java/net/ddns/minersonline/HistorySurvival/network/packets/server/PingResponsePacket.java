@@ -12,8 +12,8 @@ public class PingResponsePacket extends Packet {
 	public PingResponsePacket() {
 	}
 
-	public PingResponsePacket(String json) {
-		super(Utils.GAME_ID, "pingResponse");
+	public PingResponsePacket(String json, Utils.EncryptionMode mode) {
+		super(Utils.GAME_ID, "pingResponse", mode);
 		this.json = json;
 		CompoundTag data = new CompoundTag();
 		data.putString("json", json);

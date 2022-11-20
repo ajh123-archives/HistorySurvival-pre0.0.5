@@ -19,8 +19,8 @@ public class DisconnectPacket extends Packet {
 	@PacketValue
 	private String title = "";
 
-	public DisconnectPacket(String reason, String title, @Nullable PlayerEntity entity) {
-		super(Utils.GAME_ID, "disconnect");
+	public DisconnectPacket(String reason, String title, @Nullable PlayerEntity entity, Utils.EncryptionMode mode) {
+		super(Utils.GAME_ID, "disconnect", mode);
 		CompoundTag data = new CompoundTag();
 		data.putString("reason", reason);
 		data.putString("title", title);

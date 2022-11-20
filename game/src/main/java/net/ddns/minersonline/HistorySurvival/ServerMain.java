@@ -9,24 +9,35 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import net.ddns.minersonline.HistorySurvival.api.EnvironmentType;
 import net.ddns.minersonline.HistorySurvival.api.GameHook;
 import net.ddns.minersonline.HistorySurvival.api.commands.CommandSender;
 import net.ddns.minersonline.HistorySurvival.api.data.resources.EmptyLoader;
+import net.ddns.minersonline.HistorySurvival.api.events.CommandRegisterEvent;
 import net.ddns.minersonline.HistorySurvival.api.registries.ModelType;
-import net.ddns.minersonline.HistorySurvival.network.GenerateKeys;
-import net.ddns.minersonline.HistorySurvival.network.PacketDecoder;
-import net.ddns.minersonline.HistorySurvival.network.PacketEncoder;
-import net.ddns.minersonline.HistorySurvival.network.ServerHandler;
+import net.ddns.minersonline.HistorySurvival.commands.HelpCommand;
+import net.ddns.minersonline.HistorySurvival.engine.utils.ClassUtils;
+import net.ddns.minersonline.HistorySurvival.gameplay.GamePlugin;
+import net.ddns.minersonline.HistorySurvival.network.*;
+import org.pf4j.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import static net.ddns.minersonline.HistorySurvival.network.Utils.VERSION;
 
 public class ServerMain extends GameHook {
 	private static final Logger logger = LoggerFactory.getLogger(ServerMain.class);
+	private final CommandDispatcher<CommandSender> dispatcher = new CommandDispatcher<>();
 	private final int port;
 
 	private static GenerateKeys keys;
@@ -43,6 +54,41 @@ public class ServerMain extends GameHook {
 		this.port = port;
 		LOADER = new EmptyLoader();
 		ModelType.init();
+		gson = Utils.gson;
+		setInstance(this);
+
+		List<Path> pluginDirs = new ArrayList<>();
+		pluginDirs.add(Paths.get(Objects.requireNonNull(ClassUtils.GetClassContainer(GamePlugin.class)).substring(10)).getParent());
+
+
+		// create the plugin manager
+		final PluginManager pluginManager = new DefaultPluginManager(pluginDirs) {
+			@Override
+			protected PluginLoader createPluginLoader() {
+				// load only jar plugins
+				return new JarPluginLoader(this);
+			}
+
+			@Override
+			protected PluginDescriptorFinder createPluginDescriptorFinder() {
+				// read plugin descriptor from jar's manifest
+				return new ManifestPluginDescriptorFinder();
+			}
+		};
+		pluginManager.setSystemVersion(VERSION);
+
+		pluginManager.loadPlugins();
+		pluginManager.startPlugins();
+
+		HelpCommand.register(dispatcher);
+
+		List<CommandRegisterEvent> eventHandlers = pluginManager.getExtensions(CommandRegisterEvent.class);
+
+		for (CommandRegisterEvent handler : eventHandlers) {
+			if(!Objects.equals(handler.getClass().getClassLoader().getName(), "app")) {
+				handler.register(getDispatcher());
+			}
+		}
 	}
 
 	public static void update(){
@@ -145,11 +191,11 @@ public class ServerMain extends GameHook {
 
 	@Override
 	public CommandDispatcher<CommandSender> getDispatcher() {
-		return null;
+		return dispatcher;
 	}
 
 	@Override
-	public void hello() {
-
+	public EnvironmentType getType() {
+		return EnvironmentType.SERVER;
 	}
 }

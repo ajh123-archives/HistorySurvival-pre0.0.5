@@ -87,6 +87,7 @@ public class ClientScene extends Scene {
 				player.addComponent(new ControllableComponent(metaData.world));
 				player.addComponent(new MeshComponent(ModelType.PLAYER_MODEL.create()));
 				player.addComponent(new TransformComponent(new Vector3f(worldCenter), new Vector3f(0, 0, 0), .6f));
+				player.addComponent(new PlayerComponent());
 				player.addComponent(new CommandExecutor());
 				addGameObject(player);
 
@@ -94,9 +95,6 @@ public class ClientScene extends Scene {
 			} else {
 				camera = new Camera(getTransform());
 			}
-			metaData.name = worldData.name;
-			metaData.world.start(getTransform());
-
 
 			GuiTexture gui = new GuiTexture(GameHook.getLoader().loadTexture("health.png"), new Vector2f(-0.75f, -0.85f), new Vector2f(0.25f, 0.15f));
 			guis.add(gui);

@@ -9,6 +9,7 @@ import net.ddns.minersonline.HistorySurvival.GameSettings;
 import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceLocation;
 import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceType;
 import net.ddns.minersonline.HistorySurvival.api.data.resources.types.TextureResource;
+import net.ddns.minersonline.HistorySurvival.commands.ChatSystem;
 import net.ddns.minersonline.HistorySurvival.network.ClientHandler;
 import net.ddns.minersonline.HistorySurvival.network.ClientMain;
 import net.ddns.minersonline.HistorySurvival.network.Packet;
@@ -112,11 +113,13 @@ public class MultiplayerMenu {
 							ClientMain client = new ClientMain(server.ip, Integer.parseInt(server.port));
 							try {
 								client.call(2);
+								ChatSystem.network = client.getNetwork();
 							} catch (Exception e) {
 								MenuScene.THROWN = true;
 								MenuScene.ENABLE_ERRORS.set(true);
 								e.printStackTrace();
 								MenuScene.ERROR = e;
+								ChatSystem.network = null;
 							}
 						});
 						Game.addTask(task);
@@ -184,11 +187,13 @@ public class MultiplayerMenu {
 					ClientMain client = new ClientMain(ip.get(), Integer.parseInt(port.get()));
 					try {
 						client.call(2);
+						ChatSystem.network = client.getNetwork();
 					} catch (Exception e) {
 						MenuScene.THROWN = false;
 						MenuScene.ENABLE_ERRORS.set(true);
 						e.printStackTrace();
 						MenuScene.ERROR = e;
+						ChatSystem.network = null;
 					}
 				});
 				Game.addTask(task);

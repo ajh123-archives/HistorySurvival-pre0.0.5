@@ -12,8 +12,8 @@ public class LoginSuccessPacket extends Packet {
 	@PacketValue
 	private String uuid = "";
 
-	public LoginSuccessPacket(String name, String uuid) {
-		super(Utils.GAME_ID, "loginSuccess");
+	public LoginSuccessPacket(String name, String uuid, Utils.EncryptionMode mode) {
+		super(Utils.GAME_ID, "loginSuccess", mode);
 		CompoundTag data = new CompoundTag();
 		data.putString("name", name);
 		data.putString("uuid", uuid);

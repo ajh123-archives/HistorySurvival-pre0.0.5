@@ -18,8 +18,8 @@ public class EncryptionResponsePacket extends Packet {
 	@PacketValue
 	private String verifyToken = "";
 
-	public EncryptionResponsePacket(byte[] sharedSecret, String verifyToken) {
-		super(Utils.GAME_ID, "encryptionResponse");
+	public EncryptionResponsePacket(byte[] sharedSecret, String verifyToken, Utils.EncryptionMode mode) {
+		super(Utils.GAME_ID, "encryptionResponse", mode);
 
 		sharedSecretLength = sharedSecret.length;
 		verifyTokenLength = verifyToken.length();

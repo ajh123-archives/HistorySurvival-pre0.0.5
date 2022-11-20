@@ -24,10 +24,12 @@ public class Packet {
 	private NamedTag value = null;
 	private String owner = "";
 	private String id = "";
+	public Utils.EncryptionMode encrypt = Utils.EncryptionMode.NONE;
 
-	public Packet(String owner, String id) {
+	public Packet(String owner, String id, Utils.EncryptionMode mode) {
 		this.owner = owner;
 		this.id = id;
+		this.encrypt = mode;
 	}
 
 	public Packet() {
@@ -38,6 +40,7 @@ public class Packet {
 		this.value = from.value;
 		this.owner = from.owner;
 		this.id = from.id;
+		this.encrypt = from.encrypt;
 	}
 
 	public NamedTag getRaw() {
@@ -76,14 +79,14 @@ public class Packet {
 		this.length = length;
 	}
 
-	public static Packet fromBytes(ByteBuf in) throws IOException, IllegalBlockSizeException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException {
+	public static Packet fromBytes(ByteBuf in, Utils.EncryptionMode mode) throws IOException, IllegalBlockSizeException, InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException {
 		Cipher cipher = Cipher.getInstance(Utils.ENC_ALGO);
 		byte[] bytes;
 		byte[] old_bytes = new byte[0];
 		int length = 0;
 
 		try {
-			if (Utils.ENCRYPTION_MODE != Utils.EncryptionMode.NONE) {
+			if (mode!= Utils.EncryptionMode.NONE) {
 				int sec_key_length = in.readInt();
 				byte[] sec_bytes = new byte[sec_key_length];
 				ByteBuf buf = in.readBytes(sec_key_length);
@@ -99,11 +102,11 @@ public class Packet {
 
 				byte[] sec_bytes_dec = new byte[0];
 
-				if (Utils.ENCRYPTION_MODE == Utils.EncryptionMode.CLIENT) {
+				if (mode == Utils.EncryptionMode.CLIENT) {
 					cipher.init(Cipher.DECRYPT_MODE, Utils.ENC_PUBLIC);
 					sec_bytes_dec = cipher.doFinal(sec_bytes);
 				}
-				if (Utils.ENCRYPTION_MODE == Utils.EncryptionMode.SERVER) {
+				if (mode == Utils.EncryptionMode.SERVER) {
 					cipher.init(Cipher.DECRYPT_MODE, Utils.ENC_PRIVATE);
 					sec_bytes_dec = cipher.doFinal(sec_bytes);
 				}
@@ -141,7 +144,7 @@ public class Packet {
 		byte[] data = new NBTSerializer().toBytes(value);
 		Cipher cipher = Cipher.getInstance(Utils.ENC_ALGO);
 
-		if(Utils.ENCRYPTION_MODE != Utils.EncryptionMode.NONE){
+		if(encrypt != Utils.EncryptionMode.NONE){
 			KeyGenerator generator = KeyGenerator.getInstance("AES");
 			generator.init(128); // The AES key size in number of bits
 			SecretKey secKey = generator.generateKey();
@@ -151,11 +154,11 @@ public class Packet {
 			byte[] byteCipherText = aesCipher.doFinal(data);
 			byte[] secData = new byte[0];
 
-			if(Utils.ENCRYPTION_MODE == Utils.EncryptionMode.CLIENT){
+			if(encrypt == Utils.EncryptionMode.CLIENT){
 				cipher.init(Cipher.ENCRYPT_MODE, Utils.ENC_PUBLIC);
 				secData = cipher.doFinal(secKey.getEncoded());
 			}
-			if(Utils.ENCRYPTION_MODE == Utils.EncryptionMode.SERVER){
+			if(encrypt == Utils.EncryptionMode.SERVER){
 				cipher.init(Cipher.ENCRYPT_MODE, Utils.ENC_PRIVATE);
 				secData = cipher.doFinal(secKey.getEncoded());
 			}

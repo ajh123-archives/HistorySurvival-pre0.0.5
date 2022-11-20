@@ -9,9 +9,6 @@ import net.ddns.minersonline.HistorySurvival.GameSettings;
 import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceLocation;
 import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceType;
 import net.ddns.minersonline.HistorySurvival.api.data.resources.types.TextureResource;
-import net.ddns.minersonline.HistorySurvival.network.ClientMain;
-import net.ddns.minersonline.HistorySurvival.network.Packet;
-import net.ddns.minersonline.HistorySurvival.network.packets.server.PingResponsePacket;
 import net.ddns.minersonline.HistorySurvival.scenes.MainScene;
 import net.ddns.minersonline.HistorySurvival.scenes.MenuScene;
 import net.ddns.minersonline.HistorySurvival.scenes.SceneMetaData;
@@ -19,7 +16,6 @@ import net.ddns.minersonline.HistorySurvival.scenes.SceneMetaData;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -88,7 +84,7 @@ public class WorldMenu {
 						MenuScene.ENABLE_ERRORS.set(false);
 						DelayedTask task = () -> Game.queue.add(() -> {
 							MainScene scene = new MainScene(
-									Game.getStartSceneScene(),
+									Game.getStartScene(),
 									Game.modelLoader,
 									Game.masterRenderer,
 									world

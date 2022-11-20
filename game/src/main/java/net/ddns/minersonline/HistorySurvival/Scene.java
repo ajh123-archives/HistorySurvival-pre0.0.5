@@ -23,6 +23,7 @@ import net.ddns.minersonline.HistorySurvival.engine.entities.CommandExecutor;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
 import net.ddns.minersonline.HistorySurvival.api.voxel.VoxelWorld;
+import net.ddns.minersonline.HistorySurvival.scenes.ClientScene;
 import net.ddns.minersonline.HistorySurvival.scenes.MenuScene;
 import net.ddns.minersonline.HistorySurvival.scenes.SceneMetaData;
 import org.lwjgl.glfw.GLFW;
@@ -265,7 +266,7 @@ public abstract class Scene {
 							MenuScene.THROWN = true;
 							MenuScene.ERROR = new Exception("Worlds from versions before 0.0.3 are incompatible.");
 							MenuScene.ENABLE_ERRORS.set(true);
-							Game.setCurrentScene(Game.getStartSceneScene());
+							Game.setCurrentScene(Game.getStartScene());
 						});
 						Game.addTask(task);
 						return;
@@ -275,7 +276,7 @@ public abstract class Scene {
 						MenuScene.THROWN = true;
 						MenuScene.ERROR = new Exception("Worlds from versions before 0.0.3 are incompatible.");
 						MenuScene.ENABLE_ERRORS.set(true);
-						Game.setCurrentScene(Game.getStartSceneScene());
+						Game.setCurrentScene(Game.getStartScene());
 					});
 					Game.addTask(task);
 					return;
@@ -341,6 +342,11 @@ public abstract class Scene {
 	public void exit(){
 		metaData.gameObjects.clear();
 		GameObjectManager.reset();
+		if (this instanceof ClientScene) {
+			if (ChatSystem.network != null) {
+				ChatSystem.network.ctx.close();
+			}
+		}
 	}
 
 	public void save(String path) throws IOException {

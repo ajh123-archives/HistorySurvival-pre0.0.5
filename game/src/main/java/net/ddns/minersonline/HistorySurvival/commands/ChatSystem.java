@@ -15,6 +15,10 @@ import net.ddns.minersonline.HistorySurvival.api.data.text.ChatColor;
 import net.ddns.minersonline.HistorySurvival.engine.TextBuilder;
 import net.ddns.minersonline.HistorySurvival.engine.entities.CommandExecutor;
 import net.ddns.minersonline.HistorySurvival.api.data.text.JSONTextComponent;
+import net.ddns.minersonline.HistorySurvival.network.ClientHandler;
+import net.ddns.minersonline.HistorySurvival.network.Utils;
+import net.ddns.minersonline.HistorySurvival.network.packets.client.MessageServerPacket;
+import net.ddns.minersonline.HistorySurvival.scenes.ClientScene;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +26,7 @@ import java.util.List;
 public class ChatSystem {
 	private static final List<JSONTextComponent> chat = new ArrayList<>();
 	private static final ImString message = new ImString();
+	public static ClientHandler network = null;
 
 
 	public ChatSystem() {}
@@ -49,27 +54,31 @@ public class ChatSystem {
 			ImGui.separator();
 
 			if (ImGui.inputText("Input", message, ImGuiInputTextFlags.EnterReturnsTrue)) {
-				if (executor != null) {
-					if (message.get().charAt(0) == '/') {
-						String command = message.get().replaceFirst("/", "");
-						ParseResults<CommandSender> parse = GameHook.getInstance().getDispatcher().parse(command, executor);
-						try {
-							GameHook.getInstance().getDispatcher().execute(parse);
-						} catch (CommandSyntaxException e) {
-							JSONTextComponent msg = new JSONTextComponent();
-							msg.setColor(ChatColor.RED);
-							msg.setText(e.getMessage() + "\n");
-							chat.add(msg);
-							JSONTextComponent msg2 = new JSONTextComponent();
-							msg2.setColor(ChatColor.RED);
-							msg2.setText(message + "\n");
-							chat.add(msg2);
+				if (network == null) {
+					if (executor != null) {
+						if (message.get().charAt(0) == '/') {
+							String command = message.get().replaceFirst("/", "");
+							ParseResults<CommandSender> parse = GameHook.getInstance().getDispatcher().parse(command, executor);
+							try {
+								GameHook.getInstance().getDispatcher().execute(parse);
+							} catch (CommandSyntaxException e) {
+								JSONTextComponent msg = new JSONTextComponent();
+								msg.setColor(ChatColor.RED);
+								msg.setText(e.getMessage() + "\n");
+								chat.add(msg);
+								JSONTextComponent msg2 = new JSONTextComponent();
+								msg2.setColor(ChatColor.RED);
+								msg2.setText(message + "\n");
+								chat.add(msg2);
+							}
+						} else {
+							JSONTextComponent component = new JSONTextComponent();
+							component.setText("<" + GameSettings.username + ">" + message.get());
+							addChatMessage(component);
 						}
-					} else {
-						JSONTextComponent component = new JSONTextComponent();
-						component.setText("<"+ GameSettings.username +">" + message.get());
-						addChatMessage(component);
 					}
+				} else {
+					network.ctx.writeAndFlush(new MessageServerPacket(message.get(), Utils.ENCRYPTION_MODE));
 				}
 				message.clear();
 			}

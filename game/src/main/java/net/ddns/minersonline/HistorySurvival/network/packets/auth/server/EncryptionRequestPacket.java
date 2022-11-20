@@ -21,8 +21,8 @@ public class EncryptionRequestPacket extends Packet {
 	@PacketValue
 	private String verifyToken = "";
 
-	public EncryptionRequestPacket(String serverId, byte[] publicKey, String verifyToken) {
-		super(Utils.GAME_ID, "encryptionRequest");
+	public EncryptionRequestPacket(String serverId, byte[] publicKey, String verifyToken, Utils.EncryptionMode mode) {
+		super(Utils.GAME_ID, "encryptionRequest", mode);
 
 		publicKeyLength = publicKey.length;
 		verifyTokenLength = verifyToken.length();

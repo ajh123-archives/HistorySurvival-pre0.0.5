@@ -16,8 +16,8 @@ public class UpdateEntityPacket extends Packet {
 	@PacketValue
 	private String entityData;
 
-	public UpdateEntityPacket(GameObject entity) {
-		super(Utils.GAME_ID, "updateEntity");
+	public UpdateEntityPacket(GameObject entity, Utils.EncryptionMode mode) {
+		super(Utils.GAME_ID, "updateEntity", mode);
 		this.entityData = Utils.gson.toJson(entity);
 		this.entityId = entity.getId();
 		CompoundTag data = new CompoundTag();

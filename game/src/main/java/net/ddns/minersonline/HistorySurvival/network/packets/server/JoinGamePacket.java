@@ -11,8 +11,8 @@ public class JoinGamePacket extends Packet {
 	@PacketValue
 	private int entityId;
 
-	public JoinGamePacket(GameObject entity) {
-		super(Utils.GAME_ID, "joinGame");
+	public JoinGamePacket(GameObject entity, Utils.EncryptionMode mode) {
+		super(Utils.GAME_ID, "joinGame", mode);
 		CompoundTag data = new CompoundTag();
 		data.putInt("entityId", entity.getId());
 		setValue(data);

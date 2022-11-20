@@ -4,6 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import net.ddns.minersonline.HistorySurvival.*;
 import net.ddns.minersonline.HistorySurvival.api.auth.GameProfile;
+import net.ddns.minersonline.HistorySurvival.commands.ChatSystem;
 import net.ddns.minersonline.HistorySurvival.network.packets.AlivePacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.DisconnectPacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.client.EncryptionResponsePacket;
@@ -13,9 +14,10 @@ import net.ddns.minersonline.HistorySurvival.network.packets.auth.server.Encrypt
 import net.ddns.minersonline.HistorySurvival.network.packets.auth.server.LoginSuccessPacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.client.StartPingPacket;
 import net.ddns.minersonline.HistorySurvival.network.packets.server.JoinGamePacket;
-import net.ddns.minersonline.HistorySurvival.network.packets.server.UpdateEntityPacket;
+import net.ddns.minersonline.HistorySurvival.network.packets.server.MessageClientPacket;
 import net.ddns.minersonline.HistorySurvival.scenes.ClientScene;
 import net.ddns.minersonline.HistorySurvival.scenes.MenuScene;
+import net.ddns.minersonline.HistorySurvival.scenes.SceneMetaData;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -26,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.crypto.Cipher;
+import java.net.ConnectException;
 import java.nio.charset.StandardCharsets;
 import java.security.PublicKey;
 import java.util.*;
@@ -55,11 +58,11 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) {
-		ctx.writeAndFlush(new HandshakePacket(serverAddress, serverPort, state));
+		ctx.writeAndFlush(new HandshakePacket(serverAddress, serverPort, state, Utils.ENCRYPTION_MODE));
 		if (state == 2) {
-			ctx.writeAndFlush(new LoginStartPacket(GameSettings.username));
+			ctx.writeAndFlush(new LoginStartPacket(GameSettings.username, Utils.ENCRYPTION_MODE));
 		} else {
-			ctx.writeAndFlush(new StartPingPacket());
+			ctx.writeAndFlush(new StartPingPacket(Utils.ENCRYPTION_MODE));
 		}
 		this.ctx = ctx;
 	}
@@ -69,10 +72,10 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 		if (state == 2 || state == 3) {
 			Utils.ENCRYPTION_MODE = Utils.EncryptionMode.NONE;
 			DelayedTask task = () -> Game.queue.add(() -> {
-				MenuScene menuScene = (MenuScene) Game.getStartSceneScene();
-				MenuScene.ERROR = new Exception("Server closed the connection");
+				MenuScene.THROWN = true;
+				MenuScene.ERROR = new ConnectException("Channel is inactive");
 				MenuScene.ENABLE_ERRORS.set(true);
-				Game.setCurrentScene(menuScene);
+				Game.setCurrentScene(Game.getStartScene());
 			});
 			Game.addTask(task);
 		}
@@ -82,12 +85,8 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 	@Override
 	public void channelRead(@NotNull ChannelHandlerContext ctx, @NotNull Object msg) {
 		Packet packet = (Packet) msg;
-		MenuScene menu = (MenuScene) Game.getStartSceneScene();
-		logger.debug("Got "+packet.getId());
-
-		if((menu.getGame().getCurrentScene() instanceof ClientScene)){
-			ctx.close();
-			return;
+		if (!packet.getId().equals("alive")) {
+			logger.debug("Got " + packet.getId());
 		}
 
 		if (packet.getOwner().equals(Utils.GAME_ID)) {
@@ -134,7 +133,8 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 
 									ctx.writeAndFlush(new EncryptionResponsePacket(
 											enc_secret,
-											verifyToken
+											verifyToken,
+											Utils.ENCRYPTION_MODE
 									));
 
 									Utils.ENCRYPTION_MODE = Utils.EncryptionMode.CLIENT;
@@ -153,21 +153,29 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 				logger.debug(packet.getId());
 				logger.debug(packet.getData().valueToString());
 			}
-			if (packet.getId().equals("joinGame")) {
+			if (state == 2 && packet.getId().equals("joinGame")) {
 				Game.logger.info("Joined game!");
 				JoinGamePacket joinGamePacket = Packet.cast(packet, JoinGamePacket.class);
 				if(joinGamePacket != null){
 					entityId = joinGamePacket.getEntityId();
-					ClientScene scene = new ClientScene();
-					DelayedTask task = () -> Game.queue.add(() -> Game.setCurrentScene(scene));
+					DelayedTask task = () -> Game.queue.add(() -> {
+						ClientScene scene = new ClientScene(
+								Game.getStartScene(),
+								Game.modelLoader,
+								Game.masterRenderer,
+								new SceneMetaData()
+						);
+						scene.start();
+						Game.setCurrentScene(scene);
+					});
 					Game.addTask(task);
-					ctx.writeAndFlush(new AlivePacket());
+					state = 3;
+					ctx.writeAndFlush(new AlivePacket(Utils.ENCRYPTION_MODE));
 				} else {
 					ctx.close();
 					DelayedTask task = () -> Game.queue.add(() -> {
-						Scene scene = Game.currentScene;
 						MenuScene.ERROR = new Exception("Malformed Join Game Packet");
-						Game.setCurrentScene(scene.getPrevScene());
+						Game.setCurrentScene(Game.getStartScene());
 					});
 					Game.addTask(task);
 				}
@@ -175,22 +183,37 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 		}
 		if (state == 1 || state == 2 || state == 3){
 			if (packet.getId().equals("alive")) {
-				ctx.writeAndFlush(new AlivePacket());
+				ctx.writeAndFlush(new AlivePacket(Utils.ENCRYPTION_MODE));
 			}
 			if (packet.getId().equals("disconnect")) {
 				ctx.close();
 				DisconnectPacket disconnectPacket = Packet.cast(packet, DisconnectPacket.class);
 				DelayedTask task = () -> Game.queue.add(() -> {
-					if (disconnectPacket != null) {
-						DelayedTask task2 = () -> Game.queue.add(() -> {
-							Scene scene = Game.currentScene;
+					DelayedTask task2;
+					if (disconnectPacket == null) {
+						task2 = () -> Game.queue.add(() -> {
 							MenuScene.ERROR = new Exception("Malformed Disconnect Packet");
-							Game.setCurrentScene(scene.getPrevScene());
+							Game.setCurrentScene(Game.getStartScene());
 						});
-						Game.addTask(task2);
+					} else {
+						task2 = () -> Game.queue.add(() -> {
+							MenuScene.THROWN = true;
+							MenuScene.ERROR = new Exception("Server closed the connection [" + disconnectPacket.getReason() + "]");
+							Game.setCurrentScene(Game.getStartScene());
+						});
 					}
+					Game.addTask(task2);
 				});
 				Game.addTask(task, 4);
+			}
+		}
+
+		if (state == 3) {
+			if (packet.getId().equals("msgClient")) {
+				MessageClientPacket messageClientPacket = Packet.cast(packet, MessageClientPacket.class);
+				if (messageClientPacket != null) {
+					ChatSystem.addChatMessage(messageClientPacket.getText());
+				}
 			}
 		}
 

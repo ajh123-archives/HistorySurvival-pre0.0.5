@@ -18,8 +18,8 @@ public class HandshakePacket extends Packet {
 	@PacketValue
 	private Integer	 nextState = -1;
 
-	public HandshakePacket(String serverAddress, Integer serverPort, Integer nextState) {
-		super(Utils.GAME_ID, "handshake");
+	public HandshakePacket(String serverAddress, Integer serverPort, Integer nextState, Utils.EncryptionMode mode) {
+		super(Utils.GAME_ID, "handshake", mode);
 		CompoundTag data = new CompoundTag();
 		data.putString("protocolVersion", protocolVersion);
 		data.putString("serverAddress", serverAddress);

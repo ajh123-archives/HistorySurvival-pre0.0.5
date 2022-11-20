@@ -1,6 +1,7 @@
 package net.ddns.minersonline.HistorySurvival;
 
 import com.mojang.brigadier.CommandDispatcher;
+import net.ddns.minersonline.HistorySurvival.api.EnvironmentType;
 import net.ddns.minersonline.HistorySurvival.api.GameHook;
 import net.ddns.minersonline.HistorySurvival.api.commands.CommandSender;
 import net.ddns.minersonline.HistorySurvival.api.data.models.TexturedModel;
@@ -81,7 +82,7 @@ public class Game extends GameHook {
 		setInstance(this);
 		LOADER = new ResourceLoaderImpl();
 		gson = Utils.gson;
-		Configuration.DEBUG_MEMORY_ALLOCATOR.set(true);
+//		Configuration.DEBUG_MEMORY_ALLOCATOR.set(true);
 
 		List<Path> pluginDirs = new ArrayList<>();
 		if(GameSettings.assetsDir!=null)
@@ -315,11 +316,6 @@ public class Game extends GameHook {
 		return dispatcher;
 	}
 
-	@Override
-	public void hello() {
-		logger.info("Hello!");
-	}
-
 	public static void setCurrentScene(Scene scene) {
 		if(scene.equals(currentScene)){return;}
 		currentScene.stop();
@@ -347,7 +343,7 @@ public class Game extends GameHook {
 		return currentScene;
 	}
 
-	public static Scene getStartSceneScene(){
+	public static Scene getStartScene(){
 		return startScene;
 	}
 
@@ -362,5 +358,10 @@ public class Game extends GameHook {
 	@Override
 	public Logger getLogger() {
 		return logger;
+	}
+
+	@Override
+	public EnvironmentType getType() {
+		return EnvironmentType.CLIENT;
 	}
 }
