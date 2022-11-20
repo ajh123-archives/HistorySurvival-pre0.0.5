@@ -69,9 +69,4 @@ task plugin(type: Jar) {
     archiveExtension ='zip'
 }
 
-task assemblePlugin(type: Copy) {
-    from plugin
-    into pluginsDir
-}
-
-build.dependsOn assemblePlugin
+build.dependsOn plugin
