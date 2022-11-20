@@ -88,7 +88,7 @@ public class ClientScene extends Scene {
 				player.addComponent(new MeshComponent(ModelType.PLAYER_MODEL.create()));
 				player.addComponent(new TransformComponent(new Vector3f(worldCenter), new Vector3f(0, 0, 0), .6f));
 				player.addComponent(new PlayerComponent());
-				player.addComponent(new CommandExecutor());
+				player.addComponent(new ClientCommandExecutor());
 				addGameObject(player);
 
 				camera = new Camera(player.getComponent(TransformComponent.class));

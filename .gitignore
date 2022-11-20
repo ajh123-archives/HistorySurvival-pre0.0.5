@@ -24,4 +24,5 @@ imgui.ini
 
 # Game
 /run_client
+/run_server
 /gameplay/plugins

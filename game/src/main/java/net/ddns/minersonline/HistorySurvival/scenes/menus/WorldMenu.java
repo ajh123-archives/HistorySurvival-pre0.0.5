@@ -9,6 +9,7 @@ import net.ddns.minersonline.HistorySurvival.GameSettings;
 import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceLocation;
 import net.ddns.minersonline.HistorySurvival.api.data.resources.ResourceType;
 import net.ddns.minersonline.HistorySurvival.api.data.resources.types.TextureResource;
+import net.ddns.minersonline.HistorySurvival.commands.ChatSystem;
 import net.ddns.minersonline.HistorySurvival.scenes.MainScene;
 import net.ddns.minersonline.HistorySurvival.scenes.MenuScene;
 import net.ddns.minersonline.HistorySurvival.scenes.SceneMetaData;
@@ -83,6 +84,7 @@ public class WorldMenu {
 					if (ImGui.button("Join World")) {
 						MenuScene.ENABLE_ERRORS.set(false);
 						DelayedTask task = () -> Game.queue.add(() -> {
+							ChatSystem.clear();
 							MainScene scene = new MainScene(
 									Game.getStartScene(),
 									Game.modelLoader,

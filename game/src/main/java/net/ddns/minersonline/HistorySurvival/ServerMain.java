@@ -16,13 +16,16 @@ import net.ddns.minersonline.HistorySurvival.api.data.resources.EmptyLoader;
 import net.ddns.minersonline.HistorySurvival.api.events.CommandRegisterEvent;
 import net.ddns.minersonline.HistorySurvival.api.registries.ModelType;
 import net.ddns.minersonline.HistorySurvival.commands.HelpCommand;
+import net.ddns.minersonline.HistorySurvival.commands.InfoCommand;
 import net.ddns.minersonline.HistorySurvival.engine.utils.ClassUtils;
 import net.ddns.minersonline.HistorySurvival.gameplay.GamePlugin;
 import net.ddns.minersonline.HistorySurvival.network.*;
+import org.apache.commons.cli.*;
 import org.pf4j.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
@@ -58,8 +61,11 @@ public class ServerMain extends GameHook {
 		setInstance(this);
 
 		List<Path> pluginDirs = new ArrayList<>();
+		if(GameSettings.gameDir!=null)
+			pluginDirs.add(Paths.get(GameSettings.gameDir+"/plugins"));
 		pluginDirs.add(Paths.get(Objects.requireNonNull(ClassUtils.GetClassContainer(GamePlugin.class)).substring(10)).getParent());
 
+		logger.info("Plugins dir: " + pluginDirs);
 
 		// create the plugin manager
 		final PluginManager pluginManager = new DefaultPluginManager(pluginDirs) {
@@ -81,6 +87,7 @@ public class ServerMain extends GameHook {
 		pluginManager.startPlugins();
 
 		HelpCommand.register(dispatcher);
+		InfoCommand.register(dispatcher);
 
 		List<CommandRegisterEvent> eventHandlers = pluginManager.getExtensions(CommandRegisterEvent.class);
 
@@ -107,8 +114,6 @@ public class ServerMain extends GameHook {
 	}
 
 	public static void main(String[] args) throws Exception {
-		int port = args.length > 0 ? Integer.parseInt(args[0]) : 36676;
-
 		try {
 			keys = new GenerateKeys(2048);
 			keys.createKeys();
@@ -117,6 +122,39 @@ public class ServerMain extends GameHook {
 		}
 		publicKey = keys.getPublicKey();
 		privateKey = keys.getPrivateKey();
+
+		Options options = new Options();
+
+		Option pr = new Option(null, "port", true, "Server Port");
+		options.addOption(pr);
+		Option bn = new Option(null, "bind", true, "Bind address");
+		options.addOption(bn);
+		Option gd = new Option(null, "gameDir", true, "Game Directory");
+		options.addOption(gd);
+
+
+		CommandLineParser parser = new DefaultParser();
+		HelpFormatter formatter = new HelpFormatter();
+		CommandLine cmd = null;//not a good practice, it serves it purpose
+
+		try {
+			cmd = parser.parse(options, args);
+		} catch (ParseException e) {
+			System.out.println(e.getMessage());
+			formatter.printHelp("game", options);
+
+			System.exit(1);
+		}
+
+		String sPort = cmd.getOptionValue("port", "36676");
+		String sBind = cmd.getOptionValue("bind");
+		String gameDir = cmd.getOptionValue("gameDir");
+
+		Files.createDirectories(Paths.get(gameDir));
+
+		GameSettings.gameDir = gameDir;
+
+		int port = Integer.parseInt(sPort);
 
 		new ServerMain(port).run();
 	}

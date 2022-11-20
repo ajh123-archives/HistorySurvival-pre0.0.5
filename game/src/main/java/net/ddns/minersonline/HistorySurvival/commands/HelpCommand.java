@@ -41,7 +41,7 @@ public class HelpCommand extends Command {
 		sender.sendMessage(suffix);
 
 		for(CommandNode<CommandSender> command : commands){
-			sender.sendMessage(new JSONTextComponent("/"+command.getName()));
+			sender.sendMessage(new JSONTextComponent("/"+command.getName()+" "+command.getExamples()));
 		}
 	}
 

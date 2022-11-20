@@ -19,7 +19,7 @@ import net.ddns.minersonline.HistorySurvival.engine.DisplayManager;
 import net.ddns.minersonline.HistorySurvival.engine.GameObjectManager;
 import net.ddns.minersonline.HistorySurvival.engine.TextureLoader;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
-import net.ddns.minersonline.HistorySurvival.engine.entities.CommandExecutor;
+import net.ddns.minersonline.HistorySurvival.engine.entities.ClientCommandExecutor;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
 import net.ddns.minersonline.HistorySurvival.engine.guis.GuiTexture;
 import net.ddns.minersonline.HistorySurvival.api.voxel.VoxelWorld;
@@ -177,7 +177,7 @@ public abstract class Scene {
 		}
 
 		if (getPlayer() != null) {
-			chatSystem.update(new ImBoolean(true), getPlayer().gameObject.getComponent(CommandExecutor.class));
+			chatSystem.update(new ImBoolean(true), getPlayer().gameObject.getComponent(ClientCommandExecutor.class));
 		}
 	}
 

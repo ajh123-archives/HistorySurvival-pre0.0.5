@@ -11,6 +11,7 @@ import net.ddns.minersonline.HistorySurvival.api.registries.ModelType;
 import net.ddns.minersonline.HistorySurvival.api.registries.VoxelType;
 import net.ddns.minersonline.HistorySurvival.api.voxel.VoxelChunkMesh;
 import net.ddns.minersonline.HistorySurvival.commands.HelpCommand;
+import net.ddns.minersonline.HistorySurvival.commands.InfoCommand;
 import net.ddns.minersonline.HistorySurvival.engine.*;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Camera;
 import net.ddns.minersonline.HistorySurvival.engine.entities.Light;
@@ -116,6 +117,7 @@ public class Game extends GameHook {
 		pluginManager.startPlugins();
 
 		HelpCommand.register(dispatcher);
+		InfoCommand.register(dispatcher);
 
 
 		DisplayManager.createDisplay();

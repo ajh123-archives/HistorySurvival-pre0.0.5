@@ -13,12 +13,11 @@ import net.ddns.minersonline.HistorySurvival.api.GameHook;
 import net.ddns.minersonline.HistorySurvival.api.commands.CommandSender;
 import net.ddns.minersonline.HistorySurvival.api.data.text.ChatColor;
 import net.ddns.minersonline.HistorySurvival.engine.TextBuilder;
-import net.ddns.minersonline.HistorySurvival.engine.entities.CommandExecutor;
+import net.ddns.minersonline.HistorySurvival.engine.entities.ClientCommandExecutor;
 import net.ddns.minersonline.HistorySurvival.api.data.text.JSONTextComponent;
 import net.ddns.minersonline.HistorySurvival.network.ClientHandler;
 import net.ddns.minersonline.HistorySurvival.network.Utils;
 import net.ddns.minersonline.HistorySurvival.network.packets.client.MessageServerPacket;
-import net.ddns.minersonline.HistorySurvival.scenes.ClientScene;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +30,7 @@ public class ChatSystem {
 
 	public ChatSystem() {}
 
-	public void update(ImBoolean enableChat, CommandExecutor executor){
+	public void update(ImBoolean enableChat, ClientCommandExecutor executor){
 		ImGui.setNextWindowSize(520, 220);
 		ImGui.setNextWindowBgAlpha(0.5f);
 		if (ImGui.begin(
@@ -93,5 +92,9 @@ public class ChatSystem {
 	public static void addChatMessage(JSONTextComponent text){
 		chat.add(text);
 		Game.logger.info("[Chat] "+text.getText());
+	}
+
+	public static void clear() {
+		chat.clear();
 	}
 }
