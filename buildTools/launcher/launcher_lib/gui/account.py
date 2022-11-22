@@ -56,7 +56,7 @@ class Profile:
         self.login = tk.Button(self.frame, text='Login', height=2, width=25, borderwidth=0)
         self.login['command'] = self.on_login
         self.login.grid(column=0, row=3, sticky="S", padx=0)
-        self.login.config(bg="#1e1e1e", fg="#ffffff")
+        self.login.config(bg="#008c45", fg="#ffffff")
 
         self.user = tk.Label(self.frame, text='404')
         self.user.grid(column=0, row=3, sticky="W", padx=0)

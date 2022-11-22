@@ -1,6 +1,9 @@
+from typing import List
+
 from launcher_lib import gui
 from launcher_lib import authentication
 import tkinter as tk
+from tkinter.scrolledtext import ScrolledText
 import json
 
 
@@ -36,6 +39,21 @@ class GUI(tk.Tk):
         self.profile = gui.account.Profile(self.side, self.user, self.begin_login)
         self.profile.get_frame().grid(column=0, row=0, columnspan=2)
         self.profile.get_frame().grid_propagate(0)
+
+        self.side_main.grid_rowconfigure(0, weight=1)
+        text = ScrolledText(self.side_main, state='disable', width=20, background="#333333", relief="solid", padx=0)
+        text.grid(column=0, row=0, sticky="nesw")
+
+        self.installations_list: List[gui.game.Installation] = []
+
+        for x in range(0, 50):
+            self.installations_list.append(gui.game.Installation(text, "Install "+str(x), "hs-0.0.3"))
+
+        row = 0
+        for install in self.installations_list:
+            install.get_frame().grid(column=0, row=row, sticky="nswe", pady=19, padx=10)
+            text.window_create("1."+str(row), window=install.get_frame())
+            row = row + 2
 
     def begin_login(self):
         data = {}
