@@ -1,4 +1,5 @@
 import tkinter as tk
+from ..authentication import *
 
 
 class Login(object):
@@ -44,3 +45,43 @@ class Login(object):
         output["user"] = user
         output["pass"] = password
         on_complete(self)
+
+
+class Profile:
+    def __init__(self, root, account: Account, login_function):
+        self.login_function = login_function
+        self.frame = tk.Frame(root, width=180, height=50, bg="#1e1e1e")
+        self.account: Account = account
+
+        self.login = tk.Button(self.frame, text='Login', height=2, width=25, borderwidth=0)
+        self.login['command'] = self.on_login
+        self.login.grid(column=0, row=3, sticky="S", padx=0)
+        self.login.config(bg="#1e1e1e", fg="#ffffff")
+
+        self.user = tk.Label(self.frame, text='404')
+        self.user.grid(column=0, row=3, sticky="W", padx=0)
+        self.user.config(bg="#1e1e1e", fg="#ffffff")
+        self.user.grid_forget()
+
+        self.manage = tk.Button(self.frame, text='\\/', height=2, width=2, borderwidth=0)
+        self.manage['command'] = lambda: print("1")
+        self.manage.grid(column=1, row=3, sticky="E", padx=(25, 0))
+        self.manage.config(bg="#1e1e1e", fg="#ffffff")
+        self.manage.grid_forget()
+
+        self.update(self.account)
+
+    def on_login(self):
+        if self.account is None:
+            self.login_function()
+
+    def get_frame(self) -> tk.Frame:
+        return self.frame
+
+    def update(self, account: Account):
+        self.account = account
+        if self.account is not None:
+            self.login.grid_forget()
+            self.user.config(text=self.account.selectedProfile.name+"\nMiners Online account")
+            self.user.grid(column=0, row=3, sticky="W", padx=0)
+            self.manage.grid(column=1, row=3, sticky="E", padx=(25, 0))
