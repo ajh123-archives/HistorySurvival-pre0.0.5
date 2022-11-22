@@ -21,6 +21,7 @@ logs
 /local.properties
 *.log
 imgui.ini
+__pycache__
 
 # Game
 /run_client
