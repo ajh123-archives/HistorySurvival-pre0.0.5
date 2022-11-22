@@ -1,6 +1,13 @@
 # HistorySurvival
 [![CodeQL](https://github.com/ajh123-development/HistorySurvival/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/ajh123-development/HistorySurvival/actions/workflows/codeql-analysis.yml)
 
+## Videos
+
+You may watch some of the videos made by [Minecraft ICT on YouTube](https://www.youtube.com/@minecraftict), the channel is owned by ajh123!
+Check out their [History Survival | Devlog](https://www.youtube.com/playlist?list=PL_my8olCrl67TPxaGK4g0OPohqD4Bw7Ye) playlist.
+
+## Where some of the code is from
+
 This "game" has been made partly from the tutorial series "OpenGL 3D Game Tutorials" published on YouTube by ThinMatrix.
 https://youtu.be/VS8wlS9hF8E
 
@@ -20,7 +27,7 @@ Or use left control + middle mouse button (2) to reset the camera's angle
 
 ## Multiplayer!
 This feature is sill in-development! Beware!
-Please register an account [here](https://minersonline.ddns.net/register.php) to enjoy encrypted servers!
+Please register an account [here](https://minersonline.tk/register.php) to enjoy encrypted servers!
 
 ## Dependencies - Currently inaccurate, these are possible to change quickly
 All their licenses can be found [here](3rd_party)
