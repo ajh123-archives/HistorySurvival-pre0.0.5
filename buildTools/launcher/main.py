@@ -1,5 +1,5 @@
 import authentication
-import login
+import gui
 import tkinter as tk
 import json
 
@@ -17,24 +17,22 @@ class GUI(tk.Tk):
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
 
-        b_login = tk.Button(container, text='Log in')
-        b_login['command'] = lambda: self.begin_login()
-        b_login.pack()
+        self.after(0, self.begin_login)
 
     def begin_login(self):
         data = {}
 
-        def finish_login(gui):
+        def finish_login(win: gui.Login):
             try:
                 self.user = authentication.login(data["user"], data["pass"])
                 print(self.user.user.email)
-                gui.top.destroy()
+                win.top.destroy()
             except KeyError as e:
                 pass
             except json.JSONDecodeError as e:
                 pass
 
-        login.Login(self, data, finish_login)
+        gui.Login(self, data, finish_login)
 
 
 if __name__ == "__main__":

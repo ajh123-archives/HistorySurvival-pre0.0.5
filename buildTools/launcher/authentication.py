@@ -1,7 +1,6 @@
 import requests
 import json
 import uuid
-import tkinter as tk
 
 token = uuid.uuid4()
 
