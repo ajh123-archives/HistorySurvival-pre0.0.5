@@ -23,6 +23,10 @@ class Account:
     availableProfiles = []
 
 
+class LoginException(Exception):
+    pass
+
+
 def login(email: str, password: str) -> Account:
     body = {
         "agent": {
@@ -51,7 +55,7 @@ def login(email: str, password: str) -> Account:
     acc.clientToken = data["clientToken"]
 
     if "selectedProfile" not in data:
-        raise Exception("Account does not contain a profile!")
+        raise LoginException("Account does not contain a profile!")
 
     acc.selectedProfile = Profile()
     acc.selectedProfile.id = data["selectedProfile"]["id"]
