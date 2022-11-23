@@ -3,7 +3,7 @@ import tkinter as tk
 
 class Installation:
     def __init__(self, root, name: str, ver: str):
-        self.frame = tk.Frame(root, width=120, height=70, bg="#1e1e1e")
+        self.frame = tk.Frame(root, height=70, bg="#1e1e1e")
         self.frame.grid_columnconfigure(1, weight=1)
         self.frame.grid_columnconfigure(0, weight=1)
         self.name = name
