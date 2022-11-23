@@ -2,14 +2,14 @@ import tkinter as tk
 
 
 class ScrollableFrame(tk.Frame):
-    def __init__(self, parent, **kwargs):
-        tk.Frame.__init__(self, parent)
-        self.canvas = tk.Canvas(self)
+    def __init__(self, parent, background="#ffffff", relief="solid", borderwidth=0, **kwargs):
+        tk.Frame.__init__(self, parent, background=background, relief=relief, borderwidth=borderwidth)
+        self.canvas = tk.Canvas(self, background=background, borderwidth=borderwidth, relief=relief)
         self.canvas.pack(fill="both", expand=True, side="left")
-        self.scroll = tk.Scrollbar(self, command=self.canvas.yview)
+        self.scroll = tk.Scrollbar(self, command=self.canvas.yview, relief=relief, borderwidth=borderwidth)
         self.scroll.pack(side="right", fill="y")
         self.canvas.config(yscrollcommand=self.scroll.set)
-        self.content = tk.Frame(self.canvas, **kwargs)
+        self.content = tk.Frame(self.canvas, background=background, borderwidth=borderwidth, relief=relief, **kwargs)
         self.content.bind("<Configure>", self.resize_canvas)
         self.contentWindow = self.canvas.create_window((0, 0), window=self.content, anchor="nw")
         self.content.bind("<Enter>", self.enable_scroll_canvas)
