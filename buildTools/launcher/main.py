@@ -1,9 +1,8 @@
-from typing import List
-
 from launcher_lib import gui
 from launcher_lib import authentication
 import tkinter as tk
 from tkinter import font
+from tkinter import ttk
 import json
 
 
@@ -25,19 +24,19 @@ class GUI(tk.Tk):
         self.container.grid(column=0, row=0, sticky="nsew")
         self.container.grid_rowconfigure(0, weight=1)
         self.container.grid_columnconfigure(0, weight=1)
-        self.container.configure(bg="#1e1e1e")
+        self.container.configure()
 
         self.container.grid_rowconfigure(0, weight=1)
         self.container.grid_columnconfigure(0, weight=0)
         self.side = tk.Frame(self.container, height=400, width=180)
         self.side.grid(column=0, row=0, rowspan=10, sticky="nswe")
-        self.side.configure(bg="#1e1e1e")
+        self.side.configure()
 
         self.container.grid_rowconfigure(0, weight=1)
         self.container.grid_columnconfigure(1, weight=1)
         self.side_main = tk.Frame(self.container, height=400, width=820)
         self.side_main.grid(column=1, row=0, rowspan=10, sticky="nswe")
-        self.side_main.configure(bg="#333333")
+        self.side_main.configure()
 
         self.side.grid_columnconfigure(0, weight=1)
         self.profile = gui.account.Profile(self.side, self.user, self.begin_login)
@@ -45,14 +44,11 @@ class GUI(tk.Tk):
         self.profile.get_frame().grid_propagate(0)
 
         self.side_main.grid_rowconfigure(0, weight=1)
-        text = gui.ScrollableFrame(self.side_main, background="#333333", padx=0)
+        self.side_main.grid_columnconfigure(0, weight=1)
+        text = ttk.Notebook(self.side_main)
         text.grid(column=0, row=0, sticky="nesw")
-
-        self.installations_list: List[gui.game.Installation] = []
-
-        for x in range(0, 50):
-            self.installations_list.append(gui.game.Installation(text.content, "History Survival", "Install "+str(x), "hs-0.0.3"))
-            self.installations_list[x].get_frame().pack(fill="x", expand=True, padx=(20, 25), pady=10)
+        installs = gui.InstallationsFrame(text)
+        text.add(installs, text='Home')
 
     def begin_login(self):
         data = {}
