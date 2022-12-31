@@ -11,6 +11,5 @@ pluginManagement {
 
 rootProject.name = 'HistorySurvival'
 
-include ':api'
-include ':gameplay'
 include ':game'
+include ':game:desktop', ':game:android', ':game:ios', ':game:html', ':game:core'

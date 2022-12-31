@@ -1,194 +1,113 @@
-plugins {
-    id 'ru.vyarus.mkdocs' version '2.4.0'
-}
+buildscript {
+    
 
-apply plugin: 'application'
-apply plugin: 'java'
-
-group 'net.ddns.minersonline'
-version rootProject.version
-
-mkdocs.publish {
-    docPath = '0.0.3'
-    rootRedirect = true
-}
-
-targetCompatibility = 16
-sourceCompatibility = 16
-
-repositories {
-    mavenCentral()
-    maven {
-        name = "jitpack"
-        url = "https://jitpack.io"
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        gradlePluginPortal()
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        google()
     }
-    maven {
-        name = "minecraft-libraries"
-        url = "https://libraries.minecraft.net"
-    }
-    maven {
-        name = "sonatype-nexus-snapshots"
-        url = "https://oss.sonatype.org/content/repositories/snapshots"
-    }
-//    flatDir {
-//        dirs "E:\\web\\maven\\repositories\\releases"
-//    }
-}
+    dependencies {
+        classpath 'org.wisepersist:gwt-gradle-plugin:1.1.16'
+        classpath 'org.gretty:gretty:3.0.7'
+        classpath 'com.android.tools.build:gradle:7.3.0'
+        classpath 'com.mobidevelop.robovm:robovm-gradle-plugin:2.3.16'
+        
 
-ext {
-    lwjgl_version = "3.3.1"
-    gson_version = "2.9.0"
-    commoms_cli_version = "1.5.0"
-    commoms_codec_version = "1.15"
-    httpclient_version = "4.5.13"
-    imguiVersion = '1.86.4'
-}
-
-test {
-    useJUnitPlatform()
-}
-
-run.dependsOn(':gameplay:build')
-run.dependsOn(':gameplay:assemblePlugin')
-
-configurations.all {
-    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-        if (details.requested.name == 'slf4j-log4j12') {
-            details.useTarget "org.apache.logging.log4j:log4j-slf4j-impl:2.17.2"
-        }
     }
 }
 
-task RunGame(type: JavaExec) {
-    dependsOn ':gameplay:jar'
-    classpath sourceSets.main.runtimeClasspath
-    main = "net.ddns.minersonline.HistorySurvival.Game"
-    jvmArgs "-Xms1024m", "-Xmx2048m"
+allprojects {
+    apply plugin: "eclipse"
 
-    if(project.rootProject.file('local.properties').exists()) {
-        Properties properties = new Properties()
-        properties.load(project.rootProject.file('local.properties').newDataInputStream())
-        def access = properties.getProperty('access') //Player access token
-        def user = properties.getProperty('user') //Player display name
-        def uuid = properties.getProperty('uuid') //Player uuid name
-        def gameDir = project.rootProject.file("run_client").absolutePath.toString()
-        if (properties.containsKey("auth")) {
-            environment "AUTH_URL", properties.getProperty('auth')
-        }
+    version = '1.0'
+    ext {
+        appName = "HistorySurvival"
+        gdxVersion = '1.11.0'
+        roboVMVersion = '2.3.16'
+        box2DLightsVersion = '1.5'
+        ashleyVersion = '1.7.4'
+        aiVersion = '1.8.2'
+        gdxControllersVersion = '2.2.1'
+    }
 
-        args "--accessToken", access, "--username", user, "--uuid", uuid, "--gameDir", gameDir
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        google()
+        gradlePluginPortal()
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+        maven { url "https://jitpack.io" }
     }
 }
 
-task RunServer(type: JavaExec) {
-    dependsOn ':gameplay:jar'
-    classpath sourceSets.main.runtimeClasspath
-    main = "net.ddns.minersonline.HistorySurvival.ServerMain"
+project(":game:desktop") {
+    apply plugin: "java-library"
 
-    if(project.rootProject.file('local.properties').exists()) {
-        Properties properties = new Properties()
-        properties.load(project.rootProject.file('local.properties').newDataInputStream())
-        if (properties.containsKey("auth")) {
-            environment "AUTH_URL", properties.getProperty('auth')
-        }
-    }
 
-    def gameDir = project.rootProject.file("run_server").absolutePath.toString()
-    args "--gameDir", gameDir
-}
-
-sourceSets {
-    main {
-        java.srcDir file('src/main/java')
-        resources.srcDir file('src/main/resources')
-        compileClasspath = compileClasspath + configurations.runtimeClasspath
-        runtimeClasspath = output + compileClasspath
+    dependencies {
+        implementation project(":game:core")
+        api "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+        api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+        
     }
 }
 
-dependencies {
-    implementation project(path: ':api')
-    implementation project(path: ':gameplay')
+project(":game:android") {
+    apply plugin: "com.android.application"
 
-    implementation "commons-cli:commons-cli:${commoms_cli_version}"
-    implementation "commons-codec:commons-codec:${commoms_codec_version}"
-    implementation "org.apache.httpcomponents:httpclient:${httpclient_version}"
+    configurations { natives }
 
-
-
-    implementation group: 'org.pf4j', name: 'pf4j', version: "${pf4j_version}"
-
-    implementation "org.apache.logging.log4j:log4j-slf4j-impl:2.17.2"
-    implementation group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.25'
-
-    implementation "org.lwjgl:lwjgl:$lwjgl_version"
-    implementation "org.lwjgl:lwjgl-assimp:$lwjgl_version"
-    implementation "org.lwjgl:lwjgl-glfw:$lwjgl_version"
-    implementation "org.lwjgl:lwjgl-openal:$lwjgl_version"
-    implementation "org.lwjgl:lwjgl-opengl:$lwjgl_version"
-    implementation "org.lwjgl:lwjgl-stb:$lwjgl_version"
-    implementation 'org.jetbrains:annotations:20.1.0'
-
-    runtimeOnly "org.lwjgl:lwjgl:$lwjgl_version:natives-linux"
-    runtimeOnly "org.lwjgl:lwjgl-assimp:$lwjgl_version:natives-linux"
-    runtimeOnly "org.lwjgl:lwjgl-glfw:$lwjgl_version:natives-linux"
-    runtimeOnly "org.lwjgl:lwjgl-openal:$lwjgl_version:natives-linux"
-    runtimeOnly "org.lwjgl:lwjgl-opengl:$lwjgl_version:natives-linux"
-    runtimeOnly "org.lwjgl:lwjgl-stb:$lwjgl_version:natives-linux"
-
-    runtimeOnly "org.lwjgl:lwjgl:$lwjgl_version:natives-macos"
-    runtimeOnly "org.lwjgl:lwjgl-assimp:$lwjgl_version:natives-macos"
-    runtimeOnly "org.lwjgl:lwjgl-glfw:$lwjgl_version:natives-macos"
-    runtimeOnly "org.lwjgl:lwjgl-openal:$lwjgl_version:natives-macos"
-    runtimeOnly "org.lwjgl:lwjgl-opengl:$lwjgl_version:natives-macos"
-    runtimeOnly "org.lwjgl:lwjgl-stb:$lwjgl_version:natives-macos"
-
-    runtimeOnly "org.lwjgl:lwjgl:$lwjgl_version:natives-windows"
-    runtimeOnly "org.lwjgl:lwjgl-assimp:$lwjgl_version:natives-windows"
-    runtimeOnly "org.lwjgl:lwjgl-glfw:$lwjgl_version:natives-windows"
-    runtimeOnly "org.lwjgl:lwjgl-openal:$lwjgl_version:natives-windows"
-    runtimeOnly "org.lwjgl:lwjgl-opengl:$lwjgl_version:natives-windows"
-    runtimeOnly "org.lwjgl:lwjgl-stb:$lwjgl_version:natives-windows"
-
-    implementation "org.joml:joml:${joml_version}"
-
-
-    implementation "io.github.spair:imgui-java-binding:$imguiVersion"
-    implementation "io.github.spair:imgui-java-lwjgl3:$imguiVersion"
-
-    implementation "io.github.spair:imgui-java-natives-windows:$imguiVersion"
-    implementation "io.github.spair:imgui-java-natives-linux:$imguiVersion"
-    implementation "io.github.spair:imgui-java-natives-macos:$imguiVersion"
-
-
-    implementation "com.google.code.gson:gson:${gson_version}"
-    implementation "com.google.guava:guava:${guava_version}"
-
-    implementation "com.mojang:brigadier:${brigadier_version}"
-    implementation "com.google.guava:guava:${guava_version}"
-    implementation "com.google.code.gson:gson:${gson_version}"
-
-    implementation('io.netty:netty-all:4.1.77.Final')
-    implementation 'com.github.Querz:NBT:6.1'
+    dependencies {
+        implementation project(":game:core")
+        api "com.badlogicgames.gdx:gdx-backend-android:$gdxVersion"
+        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi-v7a"
+        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-arm64-v8a"
+        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86"
+        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86_64"
+        
+    }
 }
 
-task copyToLib(type: Copy) {
-    into "$buildDir/out_libs"
-    from configurations.runtimeClasspath
+project(":game:ios") {
+    apply plugin: "java-library"
+    apply plugin: "robovm"
+
+
+    dependencies {
+        implementation project(":game:core")
+        api "com.mobidevelop.robovm:robovm-rt:$roboVMVersion"
+        api "com.mobidevelop.robovm:robovm-cocoatouch:$roboVMVersion"
+        api "com.badlogicgames.gdx:gdx-backend-robovm:$gdxVersion"
+        api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-ios"
+        
+    }
 }
 
-task buildJsonDefs(type:Exec){
-    dependsOn 'jar'
-    dependsOn 'copyToLib'
-    commandLine "python",
-            "../buildTools/build_json_defs_v2.py",
-            "$buildDir/${version}.json",
-            "$buildDir/out_libs",
-            "$project.name-${version}.jar",
-            "$buildDir/libs",
-            "$version"
+project(":game:html") {
+    apply plugin: "java-library"
+    apply plugin: "gwt"
+    apply plugin: "war"
+    apply plugin: "org.gretty"
+
+
+    dependencies {
+        implementation project(":game:core")
+        api "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion"
+        api "com.badlogicgames.gdx:gdx:$gdxVersion:sources"
+        api "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion:sources"
+        
+    }
 }
 
-processResources {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+project(":game:core") {
+    apply plugin: "java-library"
+
+
+    dependencies {
+        api "com.badlogicgames.gdx:gdx:$gdxVersion"
+        
+    }
 }
