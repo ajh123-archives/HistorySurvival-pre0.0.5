@@ -32,7 +32,7 @@ public class VoxelChunk {
 		for (int y = 0; y < height; y++) {
 			for (int z = 0; z < depth; z++) {
 				for (int x = 0; x < width; x++) {
-					set(x, y, z, new Voxel(VoxelType.AIR, new Vector3(x, y, z)));
+					set(x, y, z, VoxelType.AIR);
 				}
 			}
 		}
@@ -49,15 +49,15 @@ public class VoxelChunk {
 		return voxels[x + z * width + y * widthTimesHeight];
 	}
 
-	public void set (int x, int y, int z, Voxel voxel) {
+	public void set (int x, int y, int z, VoxelType voxel) {
 		if (x < 0 || x >= width) return;
 		if (y < 0 || y >= height) return;
 		if (z < 0 || z >= depth) return;
 		setFast(x, y, z, voxel);
 	}
 
-	public void setFast (int x, int y, int z, Voxel voxel) {
-		voxels[x + z * width + y * widthTimesHeight] = voxel;
+	public void setFast (int x, int y, int z, VoxelType voxel) {
+		voxels[x + z * width + y * widthTimesHeight] = new Voxel(voxel, new Vector3(x, y, z));
 	}
 
 	/** Creates a mesh out of the chunk, returning the number of indices produced

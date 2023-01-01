@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 
@@ -82,7 +81,7 @@ public class VoxelWorld implements RenderableProvider {
 		}
 	}
 
-	public void set (float x, float y, float z, Voxel voxel) {
+	public void set (float x, float y, float z, VoxelType voxel) {
 		int ix = (int)x;
 		int iy = (int)y;
 		int iz = (int)z;
@@ -134,11 +133,11 @@ public class VoxelWorld implements RenderableProvider {
 		if (iz < 0 || iz >= voxelsZ) return;
 		// FIXME optimize
 		for (; iy > 0; iy--) {
-			set(ix, iy, iz, new Voxel(voxel, new Vector3(x, y, z)));
+			set(ix, iy, iz, voxel);
 		}
 	}
 
-	public void setCube (float x, float y, float z, float width, float height, float depth, Voxel voxel) {
+	public void setCube (float x, float y, float z, float width, float height, float depth, VoxelType voxel) {
 		int ix = (int)x;
 		int iy = (int)y;
 		int iz = (int)z;
