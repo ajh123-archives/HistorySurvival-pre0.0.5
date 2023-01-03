@@ -16,22 +16,38 @@ import com.badlogic.gdx.graphics.g3d.utils.FirstPersonCameraController;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.ScreenUtils;
 import net.fabricmc.loader.impl.launch.knot.KnotClient;
+import org.spongepowered.asm.mixin.Implements;
 import tk.minersonline.history_survival.main.Client;
 import tk.minersonline.history_survival.voxels.PerlinNoiseGenerator;
 import tk.minersonline.history_survival.voxels.VoxelWorld;
 
-public class HistorySurvival extends ApplicationAdapter {
+public class HistorySurvival extends ApplicationAdapter implements GameInstance {
 	public static Client client;
-	public static SpriteBatch spriteBatch;
-	public static BitmapFont font;
+	public SpriteBatch spriteBatch;
+	public BitmapFont font;
+	public ModelBatch modelBatch;
+	public PerspectiveCamera camera;
+
+	private static HistorySurvival INSTANCE;
+
+	public HistorySurvival() {
+		HistorySurvival.INSTANCE = this;
+	}
 
 	@Override
 	public void create () {
 		font = new BitmapFont();
+		modelBatch = new ModelBatch();
 		spriteBatch = new SpriteBatch();
-//		String[] args = new String[0];
-//		KnotClient.main(args);
-		client = new Client();
+		camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		camera.near = 0.5f;
+		camera.far = 1000;
+
+		String[] args = new String[0];
+		KnotClient.main(args);
+// Before the fabric loader!
+//		client = new Client();
+//		client.create();
 	}
 
 	@Override
@@ -46,5 +62,9 @@ public class HistorySurvival extends ApplicationAdapter {
 		if (client != null) {
 			client.resize(width, height);
 		}
+	}
+
+	public static HistorySurvival getINSTANCE() {
+		return INSTANCE;
 	}
 }

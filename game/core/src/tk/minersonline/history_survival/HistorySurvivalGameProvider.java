@@ -38,6 +38,7 @@ public class HistorySurvivalGameProvider implements GameProvider {
 	private EnvType envType;
 	private Arguments arguments;
 	private final List<Path> gameJars = new ArrayList<>();
+	private FabricLauncher launcher;
 
 	private static final GameTransformer TRANSFORMER = new GameTransformer();
 
@@ -132,6 +133,7 @@ public class HistorySurvivalGameProvider implements GameProvider {
 	public void initialize(FabricLauncher launcher) {
 		Log.init(new Slf4jLogHandler());
 		TRANSFORMER.locateEntrypoints(launcher, gameJars);
+		this.launcher = launcher;
 	}
 
 	@Override
@@ -188,10 +190,24 @@ public class HistorySurvivalGameProvider implements GameProvider {
 		for (Path gameJar : gameJars) {
 			launcher.addToClassPath(gameJar);
 		}
+//		try {
+//			launcher.loadIntoTarget("com.badlogic.gdx.Gdx");
+//			launcher.loadIntoTarget("tk.minersonline.history_survival.HistorySurvival");
+//
+//			Class<?> hs = Class.forName("tk.minersonline.history_survival.HistorySurvival", true, launcher.getTargetClassLoader());
+//
+//			Method initMethod = hs.getDeclaredMethod("setINSTANCE", HistorySurvival.class);
+//			initMethod.setAccessible(true);
+//			initMethod.invoke(null, HistorySurvival.INSTANCE);
+//
+//		} catch (ClassNotFoundException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+//			throw new RuntimeException(e);
+//		}
 	}
 
 	@Override
 	public void launch(ClassLoader loader) {
+		launcher.setValidParentClassPath(gameJars);
 		String targetClass = "tk.minersonline.history_survival.main.ServerLauncher";
 
 		if (envType == EnvType.CLIENT) {
@@ -199,10 +215,6 @@ public class HistorySurvivalGameProvider implements GameProvider {
 		}
 
 		try {
-			for (Package pack : loader.getDefinedPackages()) {
-				System.out.println(pack.getName());
-			}
-
 			Class<?> c = loader.loadClass(targetClass);
 			Object client = c.getConstructor().newInstance();
 			Method m = c.getMethod("create");
