@@ -1,6 +1,4 @@
 buildscript {
-    
-
     repositories {
         mavenLocal()
         mavenCentral()
@@ -13,8 +11,6 @@ buildscript {
         classpath 'org.gretty:gretty:3.0.7'
         classpath 'com.android.tools.build:gradle:7.3.0'
         classpath 'com.mobidevelop.robovm:robovm-gradle-plugin:2.3.16'
-        
-
     }
 }
 
@@ -40,51 +36,20 @@ allprojects {
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
         maven { url "https://jitpack.io" }
+        maven { url "https://maven.fabricmc.net/" }
     }
 }
 
 project(":game:desktop") {
     apply plugin: "java-library"
 
-
     dependencies {
         implementation project(":game:core")
         api "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-        
     }
 }
 
-project(":game:android") {
-    apply plugin: "com.android.application"
-
-    configurations { natives }
-
-    dependencies {
-        implementation project(":game:core")
-        api "com.badlogicgames.gdx:gdx-backend-android:$gdxVersion"
-        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi-v7a"
-        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-arm64-v8a"
-        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86"
-        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86_64"
-        
-    }
-}
-
-project(":game:ios") {
-    apply plugin: "java-library"
-    apply plugin: "robovm"
-
-
-    dependencies {
-        implementation project(":game:core")
-        api "com.mobidevelop.robovm:robovm-rt:$roboVMVersion"
-        api "com.mobidevelop.robovm:robovm-cocoatouch:$roboVMVersion"
-        api "com.badlogicgames.gdx:gdx-backend-robovm:$gdxVersion"
-        api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-ios"
-        
-    }
-}
 
 project(":game:html") {
     apply plugin: "java-library"
@@ -92,22 +57,66 @@ project(":game:html") {
     apply plugin: "war"
     apply plugin: "org.gretty"
 
-
     dependencies {
         implementation project(":game:core")
         api "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion"
         api "com.badlogicgames.gdx:gdx:$gdxVersion:sources"
         api "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion:sources"
-        
     }
 }
 
 project(":game:core") {
     apply plugin: "java-library"
 
-
     dependencies {
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
-        
+        api 'net.fabricmc:fabric-loader:0.14.1'
+
+        api "org.ow2.asm:asm:${project.asm_version}"
+        api "org.ow2.asm:asm-analysis:${project.asm_version}"
+        api "org.ow2.asm:asm-commons:${project.asm_version}"
+        api "org.ow2.asm:asm-tree:${project.asm_version}"
+        api "org.ow2.asm:asm-util:${project.asm_version}"
+
+        api("net.fabricmc:sponge-mixin:${project.mixin_version}") {
+            exclude module: 'launchwrapper'
+            exclude module: 'guava'
+        }
+        api 'net.fabricmc:tiny-mappings-parser:0.3.0+build.17'
+        api 'net.fabricmc:tiny-remapper:0.8.5'
+        api 'net.fabricmc:access-widener:2.1.0'
+
+        api 'org.apache.logging.log4j:log4j-slf4j2-impl:2.19.0'
+        api 'org.apache.logging.log4j:log4j-core:2.19.0'
+        api 'org.apache.logging.log4j:log4j:2.19.0'
+        api 'io.github.classgraph:classgraph:4.8.153'
+    }
+}
+
+project(":game:server") {
+    apply plugin: "java-library"
+
+    dependencies {
+        implementation project(":game:core")
+        api 'net.fabricmc:fabric-loader:0.14.1'
+
+        api "org.ow2.asm:asm:${project.asm_version}"
+        api "org.ow2.asm:asm-analysis:${project.asm_version}"
+        api "org.ow2.asm:asm-commons:${project.asm_version}"
+        api "org.ow2.asm:asm-tree:${project.asm_version}"
+        api "org.ow2.asm:asm-util:${project.asm_version}"
+
+        api("net.fabricmc:sponge-mixin:${project.mixin_version}") {
+            exclude module: 'launchwrapper'
+            exclude module: 'guava'
+        }
+        api 'net.fabricmc:tiny-mappings-parser:0.3.0+build.17'
+        api 'net.fabricmc:tiny-remapper:0.8.5'
+        api 'net.fabricmc:access-widener:2.1.0'
+
+        api 'org.apache.logging.log4j:log4j-slf4j2-impl:2.19.0'
+        api 'org.apache.logging.log4j:log4j-core:2.19.0'
+        api 'org.apache.logging.log4j:log4j:2.19.0'
+        api 'io.github.classgraph:classgraph:4.8.153'
     }
 }

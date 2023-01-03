@@ -49,21 +49,21 @@ public class VoxelWorld implements RenderableProvider {
 				}
 			}
 		}
-		int len = CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * 6 * 6 / 3;
+		int len = CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * (6 * 6) / 3;
 		short[] indices = new short[len];
 		short j = 0;
 		for (i = 0; i < len; i += 6, j += (short)4) {
-			indices[i + 0] = (short)(j + 0);
+			indices[i] = j;
 			indices[i + 1] = (short)(j + 1);
 			indices[i + 2] = (short)(j + 2);
 			indices[i + 3] = (short)(j + 2);
 			indices[i + 4] = (short)(j + 3);
-			indices[i + 5] = (short)(j + 0);
+			indices[i + 5] = j;
 		}
 		this.meshes = new Mesh[chunksX * chunksY * chunksZ];
 		for (i = 0; i < meshes.length; i++) {
 			meshes[i] = new Mesh(true, CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * 6 * 4,
-					CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * 36 / 3, VertexAttribute.Position(), VertexAttribute.Normal());
+					CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * (6 * 6) / 3, VertexAttribute.Position(), VertexAttribute.Normal());
 			meshes[i].setIndices(indices);
 		}
 		this.dirty = new boolean[chunksX * chunksY * chunksZ];

@@ -1,0 +1,11 @@
+sourceCompatibility = 17
+dependencies {
+    implementation project(path: ':game:core')
+    implementation project(path: ':game:core')
+    implementation project(path: ':game:core')
+}
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+sourceSets.main.java.srcDirs = [ "src/" ]
+
+eclipse.project.name = appName + "-server"
