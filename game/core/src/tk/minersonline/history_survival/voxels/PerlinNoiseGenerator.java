@@ -119,7 +119,10 @@ public class PerlinNoiseGenerator {
 		for (int z = 0; z < voxelWorld.voxelsZ; z++) {
 			for (int x = 0; x < voxelWorld.voxelsX; x++) {
 				voxelWorld.setColumn(x, heightMap[idx++], z, VoxelType.STONE);
-				voxelWorld.setColumn(x, voxelWorld.getHighest(x, z), z, VoxelType.GRASS);
+				voxelWorld.set(x, voxelWorld.getHighest(x, z), z, VoxelType.GRASS);
+				voxelWorld.set(x, voxelWorld.getHighest(x, z)-2, z, VoxelType.DIRT);
+				voxelWorld.set(x, voxelWorld.getHighest(x, z)-3, z, VoxelType.DIRT);
+				voxelWorld.set(x, voxelWorld.getHighest(x, z)-4, z, VoxelType.DIRT);
 			}
 		}
 	}

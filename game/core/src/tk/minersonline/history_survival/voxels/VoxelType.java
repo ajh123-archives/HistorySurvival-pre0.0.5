@@ -7,8 +7,9 @@ import com.badlogic.gdx.math.Vector2;
 
 public enum VoxelType {
 	AIR("air", Color.CLEAR),
-	GRASS("grass", Color.GREEN),
-	STONE("stone", Color.GRAY);
+	GRASS("grass", Color.FOREST),
+	STONE("stone", Color.GRAY),
+	DIRT("dirt", Color.BROWN);
 
 	private final String name;
 	private final Color color;
@@ -23,9 +24,6 @@ public enum VoxelType {
 	}
 
 	public Color getColor() {
-//		int c = MathUtils.random(0, 2-1);
-//		if (c == 0) return Color.GREEN;
-//		return color.GRAY;
 		return this.color;
 	}
 
