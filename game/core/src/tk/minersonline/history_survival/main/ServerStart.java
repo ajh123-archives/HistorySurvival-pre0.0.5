@@ -1,19 +1,40 @@
 package tk.minersonline.history_survival.main;
 
 import com.badlogic.gdx.ApplicationAdapter;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.Listener;
+import com.esotericsoftware.kryonet.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tk.minersonline.history_survival.net.Packet;
+
+import java.io.IOException;
 
 public class ServerStart extends ApplicationAdapter {
 	private static final Logger logger = LoggerFactory.getLogger("HistorySurvival");
+	Server server;
 
 	@Override
 	public void create() {
-		logger.info("Server started");
-	}
+		try {
+			server = new Server();
+			Listener.TypeListener typeListener = new Listener.TypeListener();
 
-	@Override
-	public void render() {
+			typeListener.addTypeHandler(Packet.class, (con, msg) -> {
+				System.out.println(msg.message);
+				con.sendTCP(new Packet(msg.message));
+			});
+			server.addListener(typeListener);
+			Kryo kryo = server.getKryo();
+			kryo.register(Packet.class);
 
+			server.bind(36676, 36676);
+			server.run();
+			logger.info("Server stopped");
+		} catch (IOException e) {
+			logger.info("Server unable to bind port", e);
+		}
+		System.exit(-1);
 	}
 }

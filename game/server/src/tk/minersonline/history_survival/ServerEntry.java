@@ -10,8 +10,5 @@ public class ServerEntry {
 	public void run() {
 		ServerStart server = new ServerStart();
 		server.create();
-		while (true) {
-			server.render();
-		}
 	}
 }

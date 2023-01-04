@@ -14,10 +14,15 @@ import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.graphics.g3d.utils.FirstPersonCameraController;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryonet.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tk.minersonline.history_survival.net.Packet;
 import tk.minersonline.history_survival.voxels.PerlinNoiseGenerator;
 import tk.minersonline.history_survival.voxels.VoxelWorld;
+
+import java.io.IOException;
 
 public class HistorySurvival extends ApplicationAdapter {
 	private static final Logger logger = LoggerFactory.getLogger("HistorySurvival");
@@ -53,6 +58,19 @@ public class HistorySurvival extends ApplicationAdapter {
 		float camY = voxelWorld.getHighest(camX, camZ) + 1.5f;
 		camera.position.set(camX, camY, camZ);
 		logger.info("Game started");
+
+
+		try {
+			Client client = new Client();
+			Kryo kryo = client.getKryo();
+			kryo.register(Packet.class);
+
+			client.start();
+			client.connect(5000, "127.0.0.1", 36676, 36676);
+			client.sendTCP(new Packet("qwerty"));
+		} catch (IOException e) {
+			logger.info("Client unable to connect to port", e);
+		}
 	}
 
 	@Override

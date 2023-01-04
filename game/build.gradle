@@ -45,30 +45,9 @@ project(":game:desktop") {
 
     dependencies {
         implementation project(":game:core")
+        implementation 'net.fabricmc:fabric-loader:0.14.1'
         api "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-
-        implementation 'net.fabricmc:fabric-loader:0.14.1'
-
-        implementation "org.ow2.asm:asm:${project.asm_version}"
-        implementation "org.ow2.asm:asm-analysis:${project.asm_version}"
-        implementation "org.ow2.asm:asm-commons:${project.asm_version}"
-        implementation "org.ow2.asm:asm-tree:${project.asm_version}"
-        implementation "org.ow2.asm:asm-util:${project.asm_version}"
-
-        implementation("net.fabricmc:sponge-mixin:${project.mixin_version}") {
-            exclude module: 'launchwrapper'
-            exclude module: 'guava'
-        }
-        implementation 'net.fabricmc:tiny-mappings-parser:0.3.0+build.17'
-        implementation 'net.fabricmc:tiny-remapper:0.8.5'
-        implementation 'net.fabricmc:access-widener:2.1.0'
-
-        implementation 'org.apache.logging.log4j:log4j-slf4j2-impl:2.19.0'
-        implementation 'org.apache.logging.log4j:log4j-core:2.19.0'
-        implementation 'org.apache.logging.log4j:log4j:2.19.0'
-        implementation 'io.github.classgraph:classgraph:4.8.153'
-
         runtimeOnly project(":example_mod")
     }
 }
@@ -82,30 +61,10 @@ project(":game:html") {
 
     dependencies {
         implementation project(":game:core")
+        implementation 'net.fabricmc:fabric-loader:0.14.1'
         api "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion"
         api "com.badlogicgames.gdx:gdx:$gdxVersion:sources"
         api "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion:sources"
-
-        implementation 'net.fabricmc:fabric-loader:0.14.1'
-
-        implementation "org.ow2.asm:asm:${project.asm_version}"
-        implementation "org.ow2.asm:asm-analysis:${project.asm_version}"
-        implementation "org.ow2.asm:asm-commons:${project.asm_version}"
-        implementation "org.ow2.asm:asm-tree:${project.asm_version}"
-        implementation "org.ow2.asm:asm-util:${project.asm_version}"
-
-        implementation("net.fabricmc:sponge-mixin:${project.mixin_version}") {
-            exclude module: 'launchwrapper'
-            exclude module: 'guava'
-        }
-        implementation 'net.fabricmc:tiny-mappings-parser:0.3.0+build.17'
-        implementation 'net.fabricmc:tiny-remapper:0.8.5'
-        implementation 'net.fabricmc:access-widener:2.1.0'
-
-        implementation 'org.apache.logging.log4j:log4j-slf4j2-impl:2.19.0'
-        implementation 'org.apache.logging.log4j:log4j-core:2.19.0'
-        implementation 'org.apache.logging.log4j:log4j:2.19.0'
-        implementation 'io.github.classgraph:classgraph:4.8.153'
     }
 }
 
@@ -113,7 +72,9 @@ project(":game:core") {
     apply plugin: "java-library"
 
     dependencies {
+        implementation "com.badlogicgames.ashley:ashley:1.7.4"
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
+        implementation 'com.github.crykn:kryonet:2.22.7'
         implementation 'net.fabricmc:fabric-loader:0.14.1'
 
         implementation "org.ow2.asm:asm:${project.asm_version}"
@@ -143,26 +104,6 @@ project(":game:server") {
     dependencies {
         implementation project(":game:core")
         implementation 'net.fabricmc:fabric-loader:0.14.1'
-
-        implementation "org.ow2.asm:asm:${project.asm_version}"
-        implementation "org.ow2.asm:asm-analysis:${project.asm_version}"
-        implementation "org.ow2.asm:asm-commons:${project.asm_version}"
-        implementation "org.ow2.asm:asm-tree:${project.asm_version}"
-        implementation "org.ow2.asm:asm-util:${project.asm_version}"
-
-        implementation("net.fabricmc:sponge-mixin:${project.mixin_version}") {
-            exclude module: 'launchwrapper'
-            exclude module: 'guava'
-        }
-        implementation 'net.fabricmc:tiny-mappings-parser:0.3.0+build.17'
-        implementation 'net.fabricmc:tiny-remapper:0.8.5'
-        implementation 'net.fabricmc:access-widener:2.1.0'
-
-        implementation 'org.apache.logging.log4j:log4j-slf4j2-impl:2.19.0'
-        implementation 'org.apache.logging.log4j:log4j-core:2.19.0'
-        implementation 'org.apache.logging.log4j:log4j:2.19.0'
-        implementation 'io.github.classgraph:classgraph:4.8.153'
-
         runtimeOnly project(":example_mod")
     }
 }
