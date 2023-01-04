@@ -1,15 +1,16 @@
 package tk.minersonline.history_survival;
 
-import tk.minersonline.history_survival.main.ServerLauncher;
+import net.fabricmc.loader.impl.launch.knot.KnotServer;
+import tk.minersonline.history_survival.main.Server;
 
 public class ServerMain {
-	ServerLauncher server;
+	Server server;
 	public static void main(String[] args) {
-		new ServerMain().run();
+		KnotServer.main(args);
 	}
 
 	public void run() {
-		server = new ServerLauncher();
+		server = new Server();
 		server.create();
 		while (true) {
 			server.render();

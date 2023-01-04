@@ -10,11 +10,10 @@ public class Server extends ApplicationAdapter {
 	@Override
 	public void create() {
 		logger.info("Server started");
-		ServerLauncher.server = this;
 	}
 
 	@Override
 	public void render() {
-		logger.info("...");
+
 	}
 }

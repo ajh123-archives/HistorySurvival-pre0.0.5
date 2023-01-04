@@ -1,7 +1,5 @@
 package tk.minersonline.history_survival;
 
-import com.badlogic.gdx.Application;
-import com.badlogic.gdx.Gdx;
 import io.github.classgraph.ClassGraph;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.ObjectShare;
@@ -19,22 +17,15 @@ import net.fabricmc.loader.impl.metadata.ModDependencyImpl;
 import net.fabricmc.loader.impl.util.Arguments;
 import net.fabricmc.loader.impl.util.LoaderUtil;
 import net.fabricmc.loader.impl.util.log.Log;
-import org.spongepowered.asm.util.JavaVersion;
-import tk.minersonline.history_survival.main.Client;
 
-import java.io.File;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-public class HistorySurvivalGameProvider implements GameProvider {
+public class HistorySurvivalDefaultProvider implements GameProvider {
 	private EnvType envType;
 	private Arguments arguments;
 	private final List<Path> gameJars = new ArrayList<>();
@@ -190,29 +181,12 @@ public class HistorySurvivalGameProvider implements GameProvider {
 		for (Path gameJar : gameJars) {
 			launcher.addToClassPath(gameJar);
 		}
-//		try {
-//			launcher.loadIntoTarget("com.badlogic.gdx.Gdx");
-//			launcher.loadIntoTarget("tk.minersonline.history_survival.HistorySurvival");
-//
-//			Class<?> hs = Class.forName("tk.minersonline.history_survival.HistorySurvival", true, launcher.getTargetClassLoader());
-//
-//			Method initMethod = hs.getDeclaredMethod("setINSTANCE", HistorySurvival.class);
-//			initMethod.setAccessible(true);
-//			initMethod.invoke(null, HistorySurvival.INSTANCE);
-//
-//		} catch (ClassNotFoundException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
-//			throw new RuntimeException(e);
-//		}
 	}
 
 	@Override
 	public void launch(ClassLoader loader) {
 		launcher.setValidParentClassPath(gameJars);
-		String targetClass = "tk.minersonline.history_survival.main.ServerLauncher";
-
-		if (envType == EnvType.CLIENT) {
-			targetClass = "tk.minersonline.history_survival.main.Client";
-		}
+		String targetClass = getMainEntryPoint();
 
 		try {
 			Class<?> c = loader.loadClass(targetClass);
@@ -224,5 +198,9 @@ public class HistorySurvivalGameProvider implements GameProvider {
 		} catch (ReflectiveOperationException e) {
 			throw new FormattedException("Failed to start History Survival", e);
 		}
+	}
+
+	public String getMainEntryPoint() {
+		return "tk.minersonline.history_survival.main.Client";
 	}
 }

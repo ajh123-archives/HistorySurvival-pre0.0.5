@@ -68,6 +68,8 @@ project(":game:desktop") {
         implementation 'org.apache.logging.log4j:log4j-core:2.19.0'
         implementation 'org.apache.logging.log4j:log4j:2.19.0'
         implementation 'io.github.classgraph:classgraph:4.8.153'
+
+        runtimeOnly project(":example_mod")
     }
 }
 
@@ -160,5 +162,7 @@ project(":game:server") {
         implementation 'org.apache.logging.log4j:log4j-core:2.19.0'
         implementation 'org.apache.logging.log4j:log4j:2.19.0'
         implementation 'io.github.classgraph:classgraph:4.8.153'
+
+        runtimeOnly project(":example_mod")
     }
 }

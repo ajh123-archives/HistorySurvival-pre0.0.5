@@ -9,3 +9,4 @@ rootProject.name = 'HistorySurvival'
 
 include ':game'
 include ':game:desktop', ':game:html', ':game:core', ':game:server'
+include ':example_mod'

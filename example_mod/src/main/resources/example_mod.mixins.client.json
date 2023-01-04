@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "tk.minersonline.ExampleMod.mixins",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "VoxelMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,22 +1,24 @@
 package tk.minersonline.history_survival.voxels;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector2;
 
-public enum VoxelType {
-	AIR("air", Color.CLEAR),
-	GRASS("grass", Color.FOREST),
-	STONE("stone", Color.GRAY),
-	DIRT("dirt", Color.BROWN);
+public class VoxelType {
+	private static int IDCount = 0;
+
+	public static VoxelType AIR = new VoxelType("air", Color.CLEAR);
+	public static VoxelType GRASS = new VoxelType("grass", Color.FOREST);
+	public static VoxelType STONE = new VoxelType("stone", Color.GRAY);
+	public static VoxelType DIRT = new VoxelType("dirt", Color.BROWN);
 
 	private final String name;
 	private final Color color;
+	private final int ID;
 
-	VoxelType(String name, Color color) {
+	public VoxelType(String name, Color color) {
 		this.name = name;
 		this.color = color;
+		this.ID = IDCount;
+		IDCount++;
 	}
 
 	public String getName() {
@@ -25,6 +27,10 @@ public enum VoxelType {
 
 	public Color getColor() {
 		return this.color;
+	}
+
+	public int getIndex() {
+		return ID;
 	}
 
 	public static void init() {}

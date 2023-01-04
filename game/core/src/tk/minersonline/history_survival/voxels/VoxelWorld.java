@@ -120,7 +120,7 @@ public class VoxelWorld implements RenderableProvider {
 		// FIXME optimize
 		for (int y = voxelsY - 1; y > 0; y--) {
 			Voxel voxel = get(ix, y, iz);
-			if (voxel != null && voxel.getType().ordinal() > 0) {
+			if (voxel != null && voxel.getType().getIndex() > 0) {
 				return y + 1;
 			}
 		}
