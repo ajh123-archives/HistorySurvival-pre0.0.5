@@ -43,11 +43,11 @@ public class HistorySurvival extends ApplicationAdapter implements GameInstance 
 		camera.near = 0.5f;
 		camera.far = 1000;
 
-		String[] args = new String[0];
-		KnotClient.main(args);
+//		String[] args = new String[0];
+//		KnotClient.main(args);
 // Before the fabric loader!
-//		client = new Client();
-//		client.create();
+		client = new Client();
+		client.create();
 	}
 
 	@Override

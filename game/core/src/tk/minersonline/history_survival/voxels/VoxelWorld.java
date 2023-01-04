@@ -3,10 +3,12 @@ package tk.minersonline.history_survival.voxels;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.VertexAttribute;
+import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 
@@ -49,21 +51,25 @@ public class VoxelWorld implements RenderableProvider {
 				}
 			}
 		}
-		int len = CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * (6 * 6) / 3;
+		int len = CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * 6 * 6 / 3;
 		short[] indices = new short[len];
 		short j = 0;
-		for (i = 0; i < len; i += 6, j += (short)4) {
-			indices[i] = j;
+		for (i = 0; i < len; i += 6, j += 4) {
+			indices[i + 0] = (short)(j + 0);
 			indices[i + 1] = (short)(j + 1);
 			indices[i + 2] = (short)(j + 2);
 			indices[i + 3] = (short)(j + 2);
 			indices[i + 4] = (short)(j + 3);
-			indices[i + 5] = j;
+			indices[i + 5] = (short)(j + 0);
 		}
+
+		VertexAttribute colorAttribute = VoxelChunk.USE_PACKED_COLOR ? VertexAttribute.ColorPacked() : VertexAttribute.ColorUnpacked();
+		VertexAttributes attributes = new VertexAttributes(VertexAttribute.Position(), VertexAttribute.Normal(), colorAttribute);
+
 		this.meshes = new Mesh[chunksX * chunksY * chunksZ];
 		for (i = 0; i < meshes.length; i++) {
-			meshes[i] = new Mesh(true, CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * 6 * 4,
-					CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * (6 * 6) / 3, VertexAttribute.Position(), VertexAttribute.Normal());
+			meshes[i] = new Mesh(true, CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * attributes.vertexSize * 4,
+					CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * 36 / 3, attributes);
 			meshes[i].setIndices(indices);
 		}
 		this.dirty = new boolean[chunksX * chunksY * chunksZ];
@@ -77,7 +83,8 @@ public class VoxelWorld implements RenderableProvider {
 		this.vertices = new float[VoxelChunk.VERTEX_SIZE * 6 * CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z];
 		this.materials = new Material[chunksX * chunksY * chunksZ];
 		for (i = 0; i < materials.length; i++) {
-			materials[i] = new Material(new ColorAttribute(ColorAttribute.Diffuse, VoxelType.STONE.getColor()));
+			materials[i] = new Material(new ColorAttribute(ColorAttribute.Diffuse, MathUtils.random(0.5f, 1f),
+					MathUtils.random(0.5f, 1f), MathUtils.random(0.5f, 1f), 1));
 		}
 	}
 
@@ -168,7 +175,8 @@ public class VoxelWorld implements RenderableProvider {
 			Mesh mesh = meshes[i];
 			if (dirty[i]) {
 				int numVerts = chunk.calculateVertices(vertices);
-				numVertices[i] = numVerts / 4 * 6;
+				int vertexSize = mesh.getVertexSize() / 4; // Divide by 4 as it is in bytes
+				numVertices[i] = numVerts / 4 * vertexSize;
 				mesh.setVertices(vertices, 0, numVerts * VoxelChunk.VERTEX_SIZE);
 				dirty[i] = false;
 			}

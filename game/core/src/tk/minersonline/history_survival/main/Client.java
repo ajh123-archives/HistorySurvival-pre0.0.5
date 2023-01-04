@@ -27,7 +27,7 @@ public class Client extends ApplicationAdapter {
 	Environment lights;
 	FirstPersonCameraController controller;
 	VoxelWorld voxelWorld;
-	HistorySurvival INSTANCE = GameInstance.getINSTANCE();
+	HistorySurvival INSTANCE = HistorySurvival.getINSTANCE();
 
 	public Client() {
 //		try {

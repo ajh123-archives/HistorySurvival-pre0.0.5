@@ -2,6 +2,7 @@ package tk.minersonline.history_survival.voxels;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
 public enum VoxelType {
@@ -22,7 +23,9 @@ public enum VoxelType {
 	}
 
 	public Color getColor() {
-		return color;
+		int c = MathUtils.random(0, 2-1);
+		if (c == 0) return Color.GREEN;
+		return color.GRAY;
 	}
 
 	public static void init() {}
