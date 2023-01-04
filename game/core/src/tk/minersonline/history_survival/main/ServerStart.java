@@ -4,7 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Server extends ApplicationAdapter {
+public class ServerStart extends ApplicationAdapter {
 	private static final Logger logger = LoggerFactory.getLogger("HistorySurvival");
 
 	@Override
