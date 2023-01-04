@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Vector3;
 import java.awt.*;
 
 public class VoxelChunk {
-	public static final boolean USE_PACKED_COLOR = true;
+	public static final boolean USE_PACKED_COLOR = false;
 	public static final int VERTEX_SIZE = USE_PACKED_COLOR ? 7 : 10;
 	public final Voxel[] voxels;
 	public final int width;
@@ -322,7 +322,7 @@ public class VoxelChunk {
 	}
 
 	private static int addColorToVertices(float[] vertices, Voxel voxel, int vertexOffset) {
-		Color color = voxel.getType().getColor();
+		Color color = voxel.getColor();
 		if (USE_PACKED_COLOR) {
 			vertices[vertexOffset] = color.toFloatBits();
 			return 1;

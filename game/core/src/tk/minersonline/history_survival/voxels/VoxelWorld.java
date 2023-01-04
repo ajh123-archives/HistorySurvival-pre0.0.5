@@ -1,9 +1,6 @@
 package tk.minersonline.history_survival.voxels;
 
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Mesh;
-import com.badlogic.gdx.graphics.VertexAttribute;
-import com.badlogic.gdx.graphics.VertexAttributes;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
@@ -83,8 +80,7 @@ public class VoxelWorld implements RenderableProvider {
 		this.vertices = new float[VoxelChunk.VERTEX_SIZE * 6 * CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z];
 		this.materials = new Material[chunksX * chunksY * chunksZ];
 		for (i = 0; i < materials.length; i++) {
-			materials[i] = new Material(new ColorAttribute(ColorAttribute.Diffuse, MathUtils.random(0.5f, 1f),
-					MathUtils.random(0.5f, 1f), MathUtils.random(0.5f, 1f), 1));
+			materials[i] = new Material(new ColorAttribute(ColorAttribute.Diffuse, Color.WHITE));
 		}
 	}
 

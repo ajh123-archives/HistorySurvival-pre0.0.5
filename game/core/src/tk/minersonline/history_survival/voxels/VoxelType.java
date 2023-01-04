@@ -23,9 +23,10 @@ public enum VoxelType {
 	}
 
 	public Color getColor() {
-		int c = MathUtils.random(0, 2-1);
-		if (c == 0) return Color.GREEN;
-		return color.GRAY;
+//		int c = MathUtils.random(0, 2-1);
+//		if (c == 0) return Color.GREEN;
+//		return color.GRAY;
+		return this.color;
 	}
 
 	public static void init() {}
