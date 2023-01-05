@@ -59,7 +59,7 @@ public class HistorySurvivalDefaultProvider implements GameProvider {
 				getGameId(),
 				getNormalizedGameVersion())
 				.setName(getGameName())
-				.setDescription("Hello World program made to demonstrate the Fabric Loader")
+				.setDescription("Default data for History Survival")
 				.setEnvironment(ModEnvironment.UNIVERSAL);
 
 		String version = Runtime.version().toString();
@@ -179,9 +179,12 @@ public class HistorySurvivalDefaultProvider implements GameProvider {
 	@Override
 	public void unlockClassPath(FabricLauncher launcher) {
 		for (Path gameJar : gameJars) {
+			launcher.setAllowedPrefixes(gameJar);
 			launcher.addToClassPath(gameJar);
 		}
 	}
+
+
 
 	@Override
 	public void launch(ClassLoader loader) {

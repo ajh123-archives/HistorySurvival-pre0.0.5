@@ -2,10 +2,9 @@ package tk.minersonline.history_survival.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
@@ -14,15 +13,12 @@ import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.graphics.g3d.utils.FirstPersonCameraController;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.ScreenUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import tk.minersonline.history_survival.HistorySurvival;
 import tk.minersonline.history_survival.voxels.PerlinNoiseGenerator;
 import tk.minersonline.history_survival.voxels.VoxelWorld;
 
 public class GameScreen implements Screen {
-	private static final Logger logger = LoggerFactory.getLogger("HistorySurvival");
-	HistorySurvival game;
+	final HistorySurvival game;
 	ModelBatch modelBatch;
 	PerspectiveCamera camera;
 	Environment lights;
@@ -58,7 +54,7 @@ public class GameScreen implements Screen {
 
 	@Override
 	public void render(float delta) {
-		ScreenUtils.clear(0.4f, 0.4f, 0.4f, 1f, true);
+		ScreenUtils.clear(Color.SKY, true);
 		modelBatch.begin(camera);
 		modelBatch.render(voxelWorld, lights);
 		modelBatch.end();

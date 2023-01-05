@@ -18,7 +18,7 @@ task run(dependsOn: classes, type: JavaExec) {
         // Required to run on macOS
         jvmArgs += "-XstartOnFirstThread"
     }
-    jvmArgs += "-Dfabric.addMods=\"../../example_mod/build/libs\""
+    jvmArgs += "-Dfabric.addMods=\"../../example_mod/build/libs\" -Dfabric.development"
 }
 
 task debug(dependsOn: classes, type: JavaExec) {

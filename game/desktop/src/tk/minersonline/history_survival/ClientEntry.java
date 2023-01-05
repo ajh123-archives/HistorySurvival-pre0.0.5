@@ -8,6 +8,6 @@ public class ClientEntry {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.setForegroundFPS(60);
 		config.setTitle("HistorySurvival");
-		new Lwjgl3Application(new HistorySurvival(), config);
+		new Lwjgl3Application(HistorySurvival.INSTANCE, config);
 	}
 }
