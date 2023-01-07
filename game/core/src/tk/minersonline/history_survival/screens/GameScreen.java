@@ -2,9 +2,7 @@ package tk.minersonline.history_survival.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
@@ -12,6 +10,7 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.graphics.g3d.utils.FirstPersonCameraController;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
 import tk.minersonline.history_survival.HistorySurvival;
 import tk.minersonline.history_survival.voxels.PerlinNoiseGenerator;
@@ -63,7 +62,18 @@ public class GameScreen implements Screen {
 		game.spriteBatch.begin();
 		game.font.draw(game.spriteBatch, "fps: " + Gdx.graphics.getFramesPerSecond() + ", #visible chunks: " + voxelWorld.renderedChunks + "/"
 				+ voxelWorld.numChunks, 0, 20);
+
+		Vector3 pos = camera.position;
+		int x = (int) Math.floor(pos.x);
+		int z = (int) Math.floor(pos.z);
+		Pixmap map = PerlinNoiseGenerator.colourPixmap(voxelWorld, x-25, z-25, x+25, z+25);
+		Texture worldMap = new Texture(map);
+
+		game.spriteBatch.draw(worldMap, 0, Gdx.graphics.getHeight()-worldMap.getHeight());
+
 		game.spriteBatch.end();
+		map.dispose();
+		worldMap.dispose();
 	}
 
 	@Override

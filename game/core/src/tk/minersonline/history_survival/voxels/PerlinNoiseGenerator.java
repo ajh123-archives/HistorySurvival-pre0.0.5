@@ -1,8 +1,10 @@
 package tk.minersonline.history_survival.voxels;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 
 /** Adapted from <a href="http://devmag.org.za/2009/04/25/perlin-noise/">http://devmag.org.za/2009/04/25/perlin-noise/</a>
  * @author badlogic */
@@ -109,6 +111,44 @@ public class PerlinNoiseGenerator {
 			pixmap.getPixels().put(idx++, val);
 			pixmap.getPixels().put(idx++, val);
 			pixmap.getPixels().put(idx++, (byte)255);
+		}
+		return pixmap;
+	}
+
+	public static Pixmap colourPixmap (VoxelWorld voxelWorld, int startX, int startZ, int endX, int endZ) {
+		int scale = 5;
+		Pixmap pixmap = new Pixmap(endX * scale, endZ * scale, Format.RGBA8888);
+		for (int z = startZ; z < endZ; z++) {
+			for (int x = startX; x < endX; x++) {
+				int y = (int) Math.floor(voxelWorld.getHighest(x, z));
+				Voxel voxel = voxelWorld.get(x, y-1, z);
+				Color color = Color.BLACK;
+				if (voxel != null && voxel.getType() != VoxelType.AIR ) {
+					color = voxel.getColor().cpy();
+				}
+				color.a = 1;
+				pixmap.setColor(color);
+				pixmap.fillRectangle((x-startX)*scale, (z-startZ)*scale, scale, scale);
+				pixmap.setColor(Color.CYAN);
+
+				if (x % VoxelWorld.CHUNK_SIZE_X == 0) {
+					pixmap.drawLine((x-startX)*scale, (endX-startX)*scale, (x-startX)*scale, 0);
+				}
+				if (z % VoxelWorld.CHUNK_SIZE_Z == 0) {
+					pixmap.drawLine((endZ-startZ)*scale, (z-startZ)*scale, 0, (z-startZ)*scale);
+				}
+
+				int midX = (startX+endX)/2;
+				int minZ = (startZ+endZ)/2;
+				int camX = (midX-startX)*scale;
+				int camY = (minZ-startZ)*scale;
+				int midCamX = (camX+(scale/2));
+				int midCamY = (camY+(scale/2));
+				pixmap.setColor(Color.FIREBRICK);
+				pixmap.fillCircle(midCamX, midCamY, scale);
+				pixmap.setColor(Color.CORAL);
+				pixmap.drawCircle(midCamX, midCamY, scale);
+			}
 		}
 		return pixmap;
 	}

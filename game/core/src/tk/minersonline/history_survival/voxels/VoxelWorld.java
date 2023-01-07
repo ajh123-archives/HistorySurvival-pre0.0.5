@@ -12,6 +12,8 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 
+import java.util.ArrayList;
+
 public class VoxelWorld implements RenderableProvider {
 	public static final int CHUNK_SIZE_X = 16;
 	public static final int CHUNK_SIZE_Y = 16;
@@ -228,7 +230,6 @@ public class VoxelWorld implements RenderableProvider {
 			if (transparentNnumVertices[i] != 0) {
 				Renderable transparentRenderable = pool.obtain();
 				Material transparent = materials[i].copy();
-//				transparent.set(IntAttribute.createCullFace(GL20.GL_FRONT));
 				transparent.set(FloatAttribute.createAlphaTest(0.2f));
 				transparent.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA));
 
