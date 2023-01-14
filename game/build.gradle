@@ -49,6 +49,7 @@ project(":game:desktop") {
         api "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
         runtimeOnly project(":example_mod")
+        implementation 'net.fabricmc:fabric-loader:0.14.1'
     }
 }
 

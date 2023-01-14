@@ -2,6 +2,7 @@ package tk.minersonline.history_survival;
 
 import io.github.classgraph.ClassGraph;
 import net.fabricmc.api.EnvType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ObjectShare;
 import net.fabricmc.loader.api.VersionParsingException;
 import net.fabricmc.loader.api.metadata.ModDependency;
@@ -26,10 +27,12 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class HistorySurvivalDefaultProvider implements GameProvider {
+	private static final String[] ALLOWED_EARLY_CLASS_PREFIXES = {"net.fabricmc.loader.api.", "net.fabricmc.loader.impl."};
+	private static final String[] ALLOWED_EARLY_CLASSES = {"net.fabricmc.loader.api.FabricLoader", "net.fabricmc.loader.impl.FabricLoaderImpl"};
+	private final List<Path> validParentClassPath = new ArrayList<>();
 	private EnvType envType;
 	private Arguments arguments;
 	private final List<Path> gameJars = new ArrayList<>();
-	private FabricLauncher launcher;
 
 	private static final GameTransformer TRANSFORMER = new GameTransformer();
 
@@ -109,7 +112,9 @@ public class HistorySurvivalDefaultProvider implements GameProvider {
 
 		List<URI> classpath = new ClassGraph().getClasspathURIs();
 		for (URI url : classpath) {
-			gameJars.add(Path.of(url));
+			Path path = Path.of(url);
+			gameJars.add(path);
+			validParentClassPath.add(path);
 		}
 		ObjectShare share = FabricLoaderImpl.INSTANCE.getObjectShare();
 		share.put("fabric-loader:inputGameJars", gameJars);
@@ -122,9 +127,22 @@ public class HistorySurvivalDefaultProvider implements GameProvider {
 
 	@Override
 	public void initialize(FabricLauncher launcher) {
+		launcher.setValidParentClassPath(validParentClassPath);
+
+		for (Path gameJar : gameJars) {
+			launcher.addToClassPath(gameJar, ALLOWED_EARLY_CLASS_PREFIXES);
+		}
+//		ClassLoader loader = launcher.getTargetClassLoader();
+//		ClassLoader prev = Thread.currentThread().getContextClassLoader();
+//		System.out.println(loader);
+//		Thread.currentThread().setContextClassLoader(loader);
+//
+//		System.out.println(FabricLoader.getInstance().getAllMods());
+//
+//		Thread.currentThread().setContextClassLoader(prev);
+
 		Log.init(new Slf4jLogHandler());
 		TRANSFORMER.locateEntrypoints(launcher, gameJars);
-		this.launcher = launcher;
 	}
 
 	@Override
@@ -178,17 +196,15 @@ public class HistorySurvivalDefaultProvider implements GameProvider {
 
 	@Override
 	public void unlockClassPath(FabricLauncher launcher) {
-		for (Path gameJar : gameJars) {
-			launcher.setAllowedPrefixes(gameJar);
-			launcher.addToClassPath(gameJar);
-		}
+//		for (Path gameJar : gameJars) {
+//			launcher.setAllowedPrefixes(gameJar);
+//		}
 	}
 
 
 
 	@Override
 	public void launch(ClassLoader loader) {
-		launcher.setValidParentClassPath(gameJars);
 		String targetClass = getMainEntryPoint();
 
 		try {
@@ -204,6 +220,6 @@ public class HistorySurvivalDefaultProvider implements GameProvider {
 	}
 
 	public String getMainEntryPoint() {
-		return "tk.minersonline.history_survival.main.Client";
+		return null;
 	}
 }

@@ -22,11 +22,6 @@ public class MenuScreen implements Screen {
 		VisTable group = new VisTable();
 		group.setFillParent(true);
 
-//		if (HistorySurvival.IS_DEBUG) {
-			System.out.println("Debug");
-			System.out.println(game.getLoader().getAllMods());
-//		}
-
 		VisTextButton button = new VisTextButton("Play", new ChangeListener() {
 			@Override
 			public void changed (ChangeEvent event, Actor actor) {

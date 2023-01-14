@@ -1,5 +1,6 @@
 package tk.minersonline.history_survival.screens;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
@@ -8,7 +9,15 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
+import net.fabricmc.loader.api.metadata.ModMetadata;
+import net.fabricmc.loader.impl.ModContainerImpl;
 import tk.minersonline.history_survival.HistorySurvival;
+import tk.minersonline.history_survival.util.ClassProxy;
+
+import java.util.Collection;
+import java.util.List;
 
 public class ModsScreen implements Screen {
 	final HistorySurvival game;
@@ -29,6 +38,18 @@ public class ModsScreen implements Screen {
 			}
 		});
 
+
+		List<ModContainer> mods = HistorySurvival.INSTANCE.getLoader().getAllMods().stream().toList();
+
+		for (ModContainer mod : mods) {
+			VisTextButton btn = new VisTextButton(mod.getMetadata().getName(), new ChangeListener() {
+				@Override
+				public void changed (ChangeEvent event, Actor actor) {
+
+				}
+			});
+			group.add(btn);
+		}
 
 		group.add(button);
 
