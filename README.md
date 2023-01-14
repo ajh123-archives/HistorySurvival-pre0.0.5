@@ -15,5 +15,6 @@ Please register an account [here](https://minersonline.tk/register.php) to enjoy
 **Account registration and multiplayer is being reworked and is unusable at the moment**
 
  
- ##The Old [History Survival](https://github.com/ajh123-development/HistorySurvival/tree/ade18db7c828f26b5020bcc73b8ef14f8dbbeaf3)
-[https://github.com/gruberchris](@gruberchris) has indirectly helped with the old History Survival - they may still appear in the commit history.
+##  The Old [History Survival](https://github.com/ajh123-development/HistorySurvival/tree/ade18db7c828f26b5020bcc73b8ef14f8dbbeaf3)
+[@gruberchris](https://github.com/gruberchris) has indirectly helped with the old History Survival - they may still appear in the commit history.
+All future work is inspired by the previous versions of History Survival.
