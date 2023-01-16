@@ -3,8 +3,6 @@ package tk.minersonline.history_survival.voxels;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
 
-import java.awt.*;
-
 public class VoxelChunk {
 	public static final boolean USE_PACKED_COLOR = true;
 	public static final int VERTEX_SIZE = USE_PACKED_COLOR ? 7 : 10;
@@ -76,41 +74,41 @@ public class VoxelChunk {
 				for (int x = 0; x < width; x++, i++) {
 					Voxel voxel = voxels[i];
 					if (voxel.getType() == VoxelType.AIR) continue;
-					if (voxel.getType().isTransparent()) continue;
+					if (voxel.getType().getProperties().isTransparent()) continue;
 
 					if (y < height - 1) {
 						if (voxels[i + topOffset].getType() == VoxelType.AIR) vertexOffset = createTop(offset, x, y, z, vertices, vertexOffset, voxel);
-						if (voxels[i + topOffset].getType().isTransparent()) vertexOffset = createTop(offset, x, y, z, vertices, vertexOffset, voxel);
+						if (voxels[i + topOffset].getType().getProperties().isTransparent()) vertexOffset = createTop(offset, x, y, z, vertices, vertexOffset, voxel);
 					} else {
 						vertexOffset = createTop(offset, x, y, z, vertices, vertexOffset, voxel);
 					}
 					if (y > 0) {
 						if (voxels[i + bottomOffset].getType() == VoxelType.AIR) vertexOffset = createBottom(offset, x, y, z, vertices, vertexOffset, voxel);
-						if (voxels[i + bottomOffset].getType().isTransparent()) vertexOffset = createBottom(offset, x, y, z, vertices, vertexOffset, voxel);
+						if (voxels[i + bottomOffset].getType().getProperties().isTransparent()) vertexOffset = createBottom(offset, x, y, z, vertices, vertexOffset, voxel);
 					} else {
 						vertexOffset = createBottom(offset, x, y, z, vertices, vertexOffset, voxel);
 					}
 					if (x > 0) {
 						if (voxels[i + leftOffset].getType() == VoxelType.AIR) vertexOffset = createLeft(offset, x, y, z, vertices, vertexOffset, voxel);
-						if (voxels[i + leftOffset].getType().isTransparent()) vertexOffset = createLeft(offset, x, y, z, vertices, vertexOffset, voxel);
+						if (voxels[i + leftOffset].getType().getProperties().isTransparent()) vertexOffset = createLeft(offset, x, y, z, vertices, vertexOffset, voxel);
 					} else {
 						vertexOffset = createLeft(offset, x, y, z, vertices, vertexOffset, voxel);
 					}
 					if (x < width - 1) {
 						if (voxels[i + rightOffset].getType() == VoxelType.AIR) vertexOffset = createRight(offset, x, y, z, vertices, vertexOffset, voxel);
-						if (voxels[i + rightOffset].getType().isTransparent()) vertexOffset = createRight(offset, x, y, z, vertices, vertexOffset, voxel);
+						if (voxels[i + rightOffset].getType().getProperties().isTransparent()) vertexOffset = createRight(offset, x, y, z, vertices, vertexOffset, voxel);
 					} else {
 						vertexOffset = createRight(offset, x, y, z, vertices, vertexOffset, voxel);
 					}
 					if (z > 0) {
 						if (voxels[i + frontOffset].getType() == VoxelType.AIR) vertexOffset = createFront(offset, x, y, z, vertices, vertexOffset, voxel);
-						if (voxels[i + frontOffset].getType().isTransparent()) vertexOffset = createFront(offset, x, y, z, vertices, vertexOffset, voxel);
+						if (voxels[i + frontOffset].getType().getProperties().isTransparent()) vertexOffset = createFront(offset, x, y, z, vertices, vertexOffset, voxel);
 					} else {
 						vertexOffset = createFront(offset, x, y, z, vertices, vertexOffset, voxel);
 					}
 					if (z < depth - 1) {
 						if (voxels[i + backOffset].getType() == VoxelType.AIR) vertexOffset = createBack(offset, x, y, z, vertices, vertexOffset, voxel);
-						if (voxels[i + backOffset].getType().isTransparent()) vertexOffset = createBack(offset, x, y, z, vertices, vertexOffset, voxel);
+						if (voxels[i + backOffset].getType().getProperties().isTransparent()) vertexOffset = createBack(offset, x, y, z, vertices, vertexOffset, voxel);
 					} else {
 						vertexOffset = createBack(offset, x, y, z, vertices, vertexOffset, voxel);
 					}
@@ -129,7 +127,7 @@ public class VoxelChunk {
 			for (int z = 0; z < depth; z++) {
 				for (int x = 0; x < width; x++, i++) {
 					Voxel voxel = voxels[i];
-					if (!voxel.getType().isTransparent()) continue;
+					if (!voxel.getType().getProperties().isTransparent()) continue;
 
 					if (y < height - 1) {
 						if (voxels[i + topOffset].getType() == VoxelType.AIR) vertexOffset = createTop(offset, x, y, z, vertices, vertexOffset, voxel);
@@ -378,7 +376,7 @@ public class VoxelChunk {
 	}
 
 	private static int addColorToVertices(float[] vertices, Voxel voxel, int vertexOffset) {
-		Color color = voxel.getColor();
+		Color color = voxel.getType().getProperties().getColor();
 		if (USE_PACKED_COLOR) {
 			vertices[vertexOffset] = color.toFloatBits();
 			return 1;

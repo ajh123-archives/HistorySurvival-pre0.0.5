@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector2;
 
 /** Adapted from <a href="http://devmag.org.za/2009/04/25/perlin-noise/">http://devmag.org.za/2009/04/25/perlin-noise/</a>
  * @author badlogic */
@@ -124,7 +123,7 @@ public class PerlinNoiseGenerator {
 				Voxel voxel = voxelWorld.get(x, y-1, z);
 				Color color = Color.BLACK;
 				if (voxel != null && voxel.getType() != VoxelType.AIR ) {
-					color = voxel.getColor().cpy();
+					color = voxel.getType().getProperties().getColor().cpy();
 				}
 				color.a = 1;
 				pixmap.setColor(color);
