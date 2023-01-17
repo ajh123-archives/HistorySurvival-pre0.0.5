@@ -1,4 +1,4 @@
-package tk.minersonline.history_survival.ecs;
+package tk.minersonline.history_survival.componments;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.audio.Sound;

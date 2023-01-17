@@ -8,9 +8,9 @@ import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
-import tk.minersonline.history_survival.ecs.VoxelChunkComponent;
-import tk.minersonline.history_survival.ecs.VoxelComponent;
-import tk.minersonline.history_survival.ecs.VoxelTypeComponent;
+import tk.minersonline.history_survival.componments.VoxelChunkComponent;
+import tk.minersonline.history_survival.componments.VoxelComponent;
+import tk.minersonline.history_survival.componments.VoxelTypeComponent;
 
 public class VoxelWorld implements RenderableProvider {
 	public static final int CHUNK_SIZE_X = 16;

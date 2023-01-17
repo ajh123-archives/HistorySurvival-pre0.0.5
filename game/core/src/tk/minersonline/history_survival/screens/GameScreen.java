@@ -14,7 +14,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
 import tk.minersonline.history_survival.HistorySurvival;
 import tk.minersonline.history_survival.voxels.PerlinNoiseGenerator;
-import tk.minersonline.history_survival.ecs.VoxelComponent;
+import tk.minersonline.history_survival.componments.VoxelComponent;
 import tk.minersonline.history_survival.voxels.VoxelWorld;
 
 public class GameScreen implements Screen {
