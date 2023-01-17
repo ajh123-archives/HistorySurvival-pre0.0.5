@@ -1,5 +1,6 @@
-package tk.minersonline.history_survival.voxels.data;
+package tk.minersonline.history_survival.ecs;
 
+import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 
@@ -7,27 +8,27 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class VoxelProperties {
+public class SolidModelComponent implements Component {
 	private final Color color;
 	private final boolean transparent;
 	private final List<Sound> sounds = new ArrayList<>();
 
-	public VoxelProperties(Color color, boolean transparent) {
+	public SolidModelComponent(Color color, boolean transparent) {
 		this.color = color;
 		this.transparent = transparent;
 	}
 
-	public VoxelProperties(Color color, List<Sound> sounds) {
+	public SolidModelComponent(Color color, List<Sound> sounds) {
 		this(color, false);
 		this.sounds.addAll(sounds);
 	}
 
-	public VoxelProperties(Color color, Sound sound) {
+	public SolidModelComponent(Color color, Sound sound) {
 		this(color, false);
 		this.sounds.add(sound);
 	}
 
-	public VoxelProperties(Color color) {
+	public SolidModelComponent(Color color) {
 		this(color, false);
 	}
 

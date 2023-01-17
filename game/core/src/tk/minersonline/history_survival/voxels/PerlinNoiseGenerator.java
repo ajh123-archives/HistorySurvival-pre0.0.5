@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.math.MathUtils;
 import tk.minersonline.history_survival.ecs.VoxelComponent;
+import tk.minersonline.history_survival.ecs.VoxelTypeComponent;
 
 /** Adapted from <a href="http://devmag.org.za/2009/04/25/perlin-noise/">http://devmag.org.za/2009/04/25/perlin-noise/</a>
  * @author badlogic */
@@ -123,7 +124,7 @@ public class PerlinNoiseGenerator {
 				int y = (int) Math.floor(voxelWorld.getHighest(x, z));
 				VoxelComponent voxel = voxelWorld.get(x, y-1, z);
 				Color color = Color.BLACK;
-				if (voxel != null && voxel.getType() != VoxelType.AIR ) {
+				if (voxel != null && voxel.getType() != VoxelTypeComponent.AIR ) {
 					color = voxel.getType().getProperties().getColor().cpy();
 				}
 				color.a = 1;
@@ -158,21 +159,21 @@ public class PerlinNoiseGenerator {
 		int idx = 0;
 		for (int z = 0; z < voxelWorld.voxelsZ; z++) {
 			for (int x = 0; x < voxelWorld.voxelsX; x++) {
-				voxelWorld.setColumn(x, heightMap[idx++], z, VoxelType.STONE);
+				voxelWorld.setColumn(x, heightMap[idx++], z, VoxelTypeComponent.STONE);
 
 				float y = voxelWorld.getHighest(x, z);
-				VoxelType surface = VoxelType.GRASS;
+				VoxelTypeComponent surface = VoxelTypeComponent.GRASS;
 				if (y < 30) {
-					surface = VoxelType.SAND;
+					surface = VoxelTypeComponent.SAND;
 				}
 
 				voxelWorld.set(x, y, z, surface);
-				voxelWorld.set(x, voxelWorld.getHighest(x, z)-2, z, VoxelType.DIRT);
-				voxelWorld.set(x, voxelWorld.getHighest(x, z)-3, z, VoxelType.DIRT);
-				voxelWorld.set(x, voxelWorld.getHighest(x, z)-4, z, VoxelType.DIRT);
+				voxelWorld.set(x, voxelWorld.getHighest(x, z)-2, z, VoxelTypeComponent.DIRT);
+				voxelWorld.set(x, voxelWorld.getHighest(x, z)-3, z, VoxelTypeComponent.DIRT);
+				voxelWorld.set(x, voxelWorld.getHighest(x, z)-4, z, VoxelTypeComponent.DIRT);
 
 				if (y < 30) {
-					voxelWorld.setColumn(x, y, 29, z, VoxelType.WATER);
+					voxelWorld.setColumn(x, y, 29, z, VoxelTypeComponent.WATER);
 				}
 			}
 		}

@@ -8,14 +8,16 @@ import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
+import tk.minersonline.history_survival.ecs.VoxelChunkComponent;
 import tk.minersonline.history_survival.ecs.VoxelComponent;
+import tk.minersonline.history_survival.ecs.VoxelTypeComponent;
 
 public class VoxelWorld implements RenderableProvider {
 	public static final int CHUNK_SIZE_X = 16;
 	public static final int CHUNK_SIZE_Y = 16;
 	public static final int CHUNK_SIZE_Z = 16;
 
-	public final VoxelChunk[] chunks;
+	public final VoxelChunkComponent[] chunks;
 	public final Mesh[] meshes;
 	public final Mesh[] transparentMeshes;
 	public final Material[] materials;
@@ -34,7 +36,7 @@ public class VoxelWorld implements RenderableProvider {
 	public int numChunks;
 
 	public VoxelWorld (int chunksX, int chunksY, int chunksZ) {
-		this.chunks = new VoxelChunk[chunksX * chunksY * chunksZ];
+		this.chunks = new VoxelChunkComponent[chunksX * chunksY * chunksZ];
 		this.chunksX = chunksX;
 		this.chunksY = chunksY;
 		this.chunksZ = chunksZ;
@@ -46,7 +48,7 @@ public class VoxelWorld implements RenderableProvider {
 		for (int y = 0; y < chunksY; y++) {
 			for (int z = 0; z < chunksZ; z++) {
 				for (int x = 0; x < chunksX; x++) {
-					VoxelChunk chunk = new VoxelChunk(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z, this);
+					VoxelChunkComponent chunk = new VoxelChunkComponent(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z, this);
 					chunk.offset.set(
 							(x * VoxelComponent.VOXEL_SIZE) * CHUNK_SIZE_X,
 							(y * VoxelComponent.VOXEL_SIZE) * CHUNK_SIZE_Y,
@@ -68,7 +70,7 @@ public class VoxelWorld implements RenderableProvider {
 			indices[i + 5] = (short)(j + 0);
 		}
 
-		VertexAttribute colorAttribute = VoxelChunk.USE_PACKED_COLOR ? VertexAttribute.ColorPacked() : VertexAttribute.ColorUnpacked();
+		VertexAttribute colorAttribute = VoxelChunkComponent.USE_PACKED_COLOR ? VertexAttribute.ColorPacked() : VertexAttribute.ColorUnpacked();
 		VertexAttributes attributes = new VertexAttributes(VertexAttribute.Position(), VertexAttribute.Normal(), colorAttribute);
 
 		this.meshes = new Mesh[chunksX * chunksY * chunksZ];
@@ -95,15 +97,15 @@ public class VoxelWorld implements RenderableProvider {
 		for (i = 0; i < numTransparentVertices.length; i++)
 			numTransparentVertices[i] = 0;
 
-		this.vertices = new float[VoxelChunk.VERTEX_SIZE * 6 * CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z];
-		this.transparentVertices = new float[VoxelChunk.VERTEX_SIZE * 6 * CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z];
+		this.vertices = new float[VoxelChunkComponent.VERTEX_SIZE * 6 * CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z];
+		this.transparentVertices = new float[VoxelChunkComponent.VERTEX_SIZE * 6 * CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z];
 		this.materials = new Material[chunksX * chunksY * chunksZ];
 		for (i = 0; i < materials.length; i++) {
 			materials[i] = new Material();
 		}
 	}
 
-	public VoxelComponent set (float x, float y, float z, VoxelType voxel) {
+	public VoxelComponent set (float x, float y, float z, VoxelTypeComponent voxel) {
 		int ix = (int)x;
 		int iy = (int)y;
 		int iz = (int)z;
@@ -131,7 +133,7 @@ public class VoxelWorld implements RenderableProvider {
 				iz % CHUNK_SIZE_Z);
 	}
 
-	public VoxelChunk getChunk (float x, float y, float z) {
+	public VoxelChunkComponent getChunk (float x, float y, float z) {
 		int ix = (int)x;
 		int iy = (int)y;
 		int iz = (int)z;
@@ -152,18 +154,18 @@ public class VoxelWorld implements RenderableProvider {
 		// FIXME optimize
 		for (int y = voxelsY - 1; y > 0; y--) {
 			VoxelComponent voxel = get(ix, y, iz);
-			if (voxel != null && voxel.getType() != VoxelType.AIR) {
+			if (voxel != null && voxel.getType() != VoxelTypeComponent.AIR) {
 				return y + 1;
 			}
 		}
 		return 0;
 	}
 
-	public void setColumn (float x, float y, float z, VoxelType voxel) {
+	public void setColumn (float x, float y, float z, VoxelTypeComponent voxel) {
 		setColumn(x, 0, y, z, voxel);
 	}
 
-	public void setColumn (float x, float startY, float endY, float z, VoxelType voxel) {
+	public void setColumn (float x, float startY, float endY, float z, VoxelTypeComponent voxel) {
 		int ix = (int)x;
 		int iy = (int)endY;
 		int iz = (int)z;
@@ -176,7 +178,7 @@ public class VoxelWorld implements RenderableProvider {
 		}
 	}
 
-	public void setCube (float x, float y, float z, float width, float height, float depth, VoxelType voxel) {
+	public void setCube (float x, float y, float z, float width, float height, float depth, VoxelTypeComponent voxel) {
 		int ix = (int)x;
 		int iy = (int)y;
 		int iz = (int)z;
@@ -203,19 +205,19 @@ public class VoxelWorld implements RenderableProvider {
 	public void getRenderables (Array<Renderable> renderables, Pool<Renderable> pool) {
 		renderedChunks = 0;
 		for (int i = 0; i < chunks.length; i++) {
-			VoxelChunk chunk = chunks[i];
+			VoxelChunkComponent chunk = chunks[i];
 			Mesh mesh = meshes[i];
 			Mesh transparentMesh = transparentMeshes[i];
 			if (dirty[i]) {
 				int numVerts = chunk.calculateVertices(vertices);
 				int vertexSize = mesh.getVertexSize() / 4; // Divide by 4 as it is in bytes
 				numVertices[i] = numVerts / 4 * vertexSize;
-				mesh.setVertices(vertices, 0, numVerts * VoxelChunk.VERTEX_SIZE);
+				mesh.setVertices(vertices, 0, numVerts * VoxelChunkComponent.VERTEX_SIZE);
 
 				int transparentNumVerts = chunk.calculateTransparentVertices(transparentVertices);
 				int transparentVertexSize = transparentMesh.getVertexSize() / 4; // Divide by 4 as it is in bytes
 				numTransparentVertices[i] = transparentNumVerts / 4 * transparentVertexSize;
-				transparentMesh.setVertices(transparentVertices, 0, transparentNumVerts * VoxelChunk.VERTEX_SIZE);
+				transparentMesh.setVertices(transparentVertices, 0, transparentNumVerts * VoxelChunkComponent.VERTEX_SIZE);
 				dirty[i] = false;
 			}
 			if (numVertices[i] != 0) {
