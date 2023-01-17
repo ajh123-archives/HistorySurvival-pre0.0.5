@@ -14,7 +14,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
 import tk.minersonline.history_survival.HistorySurvival;
 import tk.minersonline.history_survival.voxels.PerlinNoiseGenerator;
-import tk.minersonline.history_survival.voxels.Voxel;
+import tk.minersonline.history_survival.ecs.VoxelComponent;
 import tk.minersonline.history_survival.voxels.VoxelWorld;
 
 public class GameScreen implements Screen {
@@ -49,8 +49,8 @@ public class GameScreen implements Screen {
 		PerlinNoiseGenerator.generateVoxels(voxelWorld, 0, 63, 10);
 		float camX = voxelWorld.voxelsX / 2f;
 		float camZ = voxelWorld.voxelsZ / 2f;
-		float camY = voxelWorld.getHighest(camX, camZ) + (1.5f / Voxel.VOXEL_SIZE);
-		camera.position.set(Voxel.toRealPos(new Vector3(camX, camY, camZ)));
+		float camY = voxelWorld.getHighest(camX, camZ) + (1.5f / VoxelComponent.VOXEL_SIZE);
+		camera.position.set(VoxelComponent.toRealPos(new Vector3(camX, camY, camZ)));
 	}
 
 	@Override
@@ -61,8 +61,8 @@ public class GameScreen implements Screen {
 		modelBatch.end();
 		controller.update();
 
-		Vector3 voxelPos = Voxel.toVoxelPos(camera.position.cpy());
-		Voxel voxel = voxelWorld.get(voxelPos.x, voxelPos.y-(1.5f / Voxel.VOXEL_SIZE)-1, voxelPos.z);
+		Vector3 voxelPos = VoxelComponent.toVoxelPos(camera.position.cpy());
+		VoxelComponent voxel = voxelWorld.get(voxelPos.x, voxelPos.y-(1.5f / VoxelComponent.VOXEL_SIZE)-1, voxelPos.z);
 		if (voxel != null && !voxelPos.equals(lastPos)) {
 			voxel.onStep();
 		}

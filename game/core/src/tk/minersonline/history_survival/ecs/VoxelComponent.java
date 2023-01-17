@@ -1,11 +1,14 @@
-package tk.minersonline.history_survival.voxels;
+package tk.minersonline.history_survival.ecs;
 
+import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Vector3;
+import tk.minersonline.history_survival.voxels.VoxelType;
+import tk.minersonline.history_survival.voxels.VoxelWorld;
 
 import java.util.List;
 
-public class Voxel {
+public class VoxelComponent implements Component {
 	private final VoxelType type;
 	private final Vector3 position;
 	private final VoxelWorld world;
@@ -13,21 +16,21 @@ public class Voxel {
 
 	public static final float VOXEL_SIZE = 0.3f;
 
-	Voxel(VoxelType type, Vector3 position, VoxelWorld world) {
+	public VoxelComponent(VoxelType type, Vector3 position, VoxelWorld world) {
 		this.type = type;
 		this.position = position;
 		this.world = world;
 	}
 
-	protected VoxelWorld getWorld() {
+	public VoxelWorld getWorld() {
 		return world;
 	}
 
-	protected VoxelType getType() {
+	public VoxelType getType() {
 		return type;
 	}
 
-	protected Vector3 getPosition() {
+	public Vector3 getPosition() {
 		return position;
 	}
 	public static Vector3 toRealPos(Vector3 voxelPos) {

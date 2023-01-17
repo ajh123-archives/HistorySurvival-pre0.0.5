@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
+import tk.minersonline.history_survival.ecs.VoxelComponent;
 
 public class VoxelWorld implements RenderableProvider {
 	public static final int CHUNK_SIZE_X = 16;
@@ -47,9 +48,9 @@ public class VoxelWorld implements RenderableProvider {
 				for (int x = 0; x < chunksX; x++) {
 					VoxelChunk chunk = new VoxelChunk(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z, this);
 					chunk.offset.set(
-							(x * Voxel.VOXEL_SIZE) * CHUNK_SIZE_X,
-							(y * Voxel.VOXEL_SIZE) * CHUNK_SIZE_Y,
-							(z * Voxel.VOXEL_SIZE) * CHUNK_SIZE_Z
+							(x * VoxelComponent.VOXEL_SIZE) * CHUNK_SIZE_X,
+							(y * VoxelComponent.VOXEL_SIZE) * CHUNK_SIZE_Y,
+							(z * VoxelComponent.VOXEL_SIZE) * CHUNK_SIZE_Z
 					);
 					chunks[i++] = chunk;
 				}
@@ -102,7 +103,7 @@ public class VoxelWorld implements RenderableProvider {
 		}
 	}
 
-	public Voxel set (float x, float y, float z, VoxelType voxel) {
+	public VoxelComponent set (float x, float y, float z, VoxelType voxel) {
 		int ix = (int)x;
 		int iy = (int)y;
 		int iz = (int)z;
@@ -116,7 +117,7 @@ public class VoxelWorld implements RenderableProvider {
 				voxel);
 	}
 
-	public Voxel get (float x, float y, float z) {
+	public VoxelComponent get (float x, float y, float z) {
 		int ix = (int)x;
 		int iy = (int)y;
 		int iz = (int)z;
@@ -150,7 +151,7 @@ public class VoxelWorld implements RenderableProvider {
 		if (iz < 0 || iz >= voxelsZ) return 0;
 		// FIXME optimize
 		for (int y = voxelsY - 1; y > 0; y--) {
-			Voxel voxel = get(ix, y, iz);
+			VoxelComponent voxel = get(ix, y, iz);
 			if (voxel != null && voxel.getType() != VoxelType.AIR) {
 				return y + 1;
 			}
