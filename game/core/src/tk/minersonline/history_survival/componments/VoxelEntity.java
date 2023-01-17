@@ -1,13 +1,13 @@
 package tk.minersonline.history_survival.componments;
 
-import com.badlogic.ashley.core.Component;
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Vector3;
-import tk.minersonline.history_survival.voxels.VoxelWorld;
+import tk.minersonline.history_survival.systems.VoxelWorld;
 
 import java.util.List;
 
-public class VoxelComponent implements Component {
+public class VoxelEntity extends Entity {
 	private final VoxelTypeComponent type;
 	private final Vector3 position;
 	private final VoxelWorld world;
@@ -15,10 +15,11 @@ public class VoxelComponent implements Component {
 
 	public static final float VOXEL_SIZE = 0.3f;
 
-	public VoxelComponent(VoxelTypeComponent type, Vector3 position, VoxelWorld world) {
+	public VoxelEntity(VoxelTypeComponent type, Vector3 position, VoxelWorld world) {
 		this.type = type;
 		this.position = position;
 		this.world = world;
+		this.add(type);
 	}
 
 	public VoxelWorld getWorld() {
