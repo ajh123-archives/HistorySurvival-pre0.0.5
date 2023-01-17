@@ -24,6 +24,7 @@ public class GameScreen implements Screen {
 	Environment lights;
 	FirstPersonCameraController controller;
 	VoxelWorld voxelWorld;
+	Vector3 lastPos;
 
 	public GameScreen(HistorySurvival game) {
 		this.game = game;
@@ -59,6 +60,13 @@ public class GameScreen implements Screen {
 		modelBatch.render(voxelWorld, lights);
 		modelBatch.end();
 		controller.update();
+
+		Vector3 voxelPos = Voxel.toVoxelPos(camera.position.cpy());
+		Voxel voxel = voxelWorld.get(voxelPos.x, voxelPos.y-(1.5f / Voxel.VOXEL_SIZE)-1, voxelPos.z);
+		if (voxel != null && !voxelPos.equals(lastPos)) {
+			voxel.onStep();
+		}
+		lastPos = voxelPos.cpy();
 
 		game.spriteBatch.begin();
 		game.font.draw(game.spriteBatch, "fps: " + Gdx.graphics.getFramesPerSecond() + ", #visible chunks: " + voxelWorld.renderedChunks + "/"

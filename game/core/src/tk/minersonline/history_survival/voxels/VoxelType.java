@@ -1,5 +1,6 @@
 package tk.minersonline.history_survival.voxels;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import tk.minersonline.history_survival.voxels.data.VoxelProperties;
 
@@ -8,7 +9,8 @@ public class VoxelType {
 			Color.CLEAR
 	));
 	public static VoxelType GRASS = new VoxelType("grass", new VoxelProperties(
-			Color.FOREST
+			Color.FOREST,
+			Gdx.audio.newSound(Gdx.files.internal("data/grass/step_l.mp3"))
 	));
 	public static VoxelType STONE = new VoxelType("stone", new VoxelProperties(
 			Color.GRAY
