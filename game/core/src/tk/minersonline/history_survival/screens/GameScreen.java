@@ -1,5 +1,6 @@
 package tk.minersonline.history_survival.screens;
 
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -14,6 +15,9 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
 import tk.minersonline.history_survival.HistorySurvival;
+import tk.minersonline.history_survival.componments.ModelComponent;
+import tk.minersonline.history_survival.componments.TransformComponent;
+import tk.minersonline.history_survival.systems.ModelRenderer;
 import tk.minersonline.history_survival.systems.PerlinNoiseGenerator;
 import tk.minersonline.history_survival.componments.VoxelEntity;
 import tk.minersonline.history_survival.systems.VoxelWorld;
@@ -21,12 +25,14 @@ import tk.minersonline.history_survival.systems.WorldRenderer;
 
 public class GameScreen implements Screen {
 	final HistorySurvival game;
+	ModelBatch chunkBatch;
 	ModelBatch modelBatch;
 	PerspectiveCamera camera;
 	Environment environment;
 	FirstPersonCameraController controller;
 	VoxelWorld voxelWorld;
-	WorldRenderer render;
+	WorldRenderer worldRenderer;
+	ModelRenderer modelRenderer;
 	Vector3 lastPos;
 	PooledEngine engine;
 
@@ -37,6 +43,7 @@ public class GameScreen implements Screen {
 	@Override
 	public void show() {
 		engine = new PooledEngine();
+		chunkBatch = new ModelBatch();
 		modelBatch = new ModelBatch();
 		DefaultShader.defaultCullFace = GL20.GL_FRONT;
 		camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -51,22 +58,35 @@ public class GameScreen implements Screen {
 
 		MathUtils.random.setSeed(0);
 		voxelWorld = new VoxelWorld(20, 4, 20, engine);
-		render = new WorldRenderer(voxelWorld);
-		engine.addSystem(render);
+		worldRenderer = new WorldRenderer(voxelWorld);
+		engine.addSystem(worldRenderer);
 		PerlinNoiseGenerator.generateVoxels(voxelWorld, 0, 63, 10);
+		modelRenderer = new ModelRenderer();
+		engine.addSystem(modelRenderer);
 
 		float camX = voxelWorld.voxelsX / 2f;
 		float camZ = voxelWorld.voxelsZ / 2f;
 		float camY = voxelWorld.getHighest(camX, camZ) + (1.5f / VoxelEntity.VOXEL_SIZE);
-		camera.position.set(VoxelEntity.toRealPos(new Vector3(camX, camY, camZ)));
+		camera.position.set(VoxelEntity.toRealPos(new Vector3( camX, camY, camZ)));
+
+		Entity test = engine.createEntity();
+		test.add(new TransformComponent(
+				VoxelEntity.toRealPos(new Vector3(camX, voxelWorld.getHighest(camX, camZ)+1, camZ)),
+				(0.01f) * (VoxelEntity.VOXEL_SIZE / 2f)
+		));
+		test.add(new ModelComponent("data/models/cube/cube.g3dj"));
+		engine.addEntity(test);
 	}
 
 	@Override
 	public void render(float delta) {
 		engine.update(delta);
 		ScreenUtils.clear(Color.SKY, true);
+		chunkBatch.begin(camera);
+		chunkBatch.render(worldRenderer, environment);
+		chunkBatch.end();
 		modelBatch.begin(camera);
-		modelBatch.render(render, environment);
+		modelRenderer.render(modelBatch, environment);
 		modelBatch.end();
 		controller.update();
 
@@ -78,6 +98,7 @@ public class GameScreen implements Screen {
 		lastPos = voxelPos.cpy();
 
 		game.spriteBatch.begin();
+		game.font.draw(game.spriteBatch, "pos: " + voxelPos, 0, 36);
 		game.font.draw(game.spriteBatch, "fps: " + Gdx.graphics.getFramesPerSecond(), 0, 20);
 		game.spriteBatch.end();
 	}
@@ -107,6 +128,6 @@ public class GameScreen implements Screen {
 
 	@Override
 	public void dispose() {
-
+		modelRenderer.dispose();
 	}
 }

@@ -7,7 +7,7 @@ import tk.minersonline.history_survival.systems.VoxelWorld;
 
 import java.util.List;
 
-public class VoxelEntity extends Entity {
+public class VoxelEntity {
 	private final VoxelTypeComponent type;
 	private final Vector3 position;
 	private final VoxelWorld world;
@@ -19,7 +19,7 @@ public class VoxelEntity extends Entity {
 		this.type = type;
 		this.position = position;
 		this.world = world;
-		this.add(type);
+//		this.add(type);
 	}
 
 	public VoxelWorld getWorld() {
