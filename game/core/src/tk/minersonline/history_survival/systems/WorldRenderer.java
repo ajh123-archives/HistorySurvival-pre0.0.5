@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import tk.minersonline.history_survival.componments.VoxelChunkComponent;
 import tk.minersonline.history_survival.componments.VoxelEntity;
+import tk.minersonline.history_survival.util.VoxelUtils;
 
 import static tk.minersonline.history_survival.systems.VoxelWorld.*;
 
@@ -50,9 +51,9 @@ public class WorldRenderer extends IteratingSystem implements RenderableProvider
 				for (int x = 0; x < world.chunksX; x++) {
 					VoxelChunkComponent chunk = new VoxelChunkComponent(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z, world);
 					chunk.offset.set(
-							(x * VoxelEntity.VOXEL_SIZE) * CHUNK_SIZE_X,
-							(y * VoxelEntity.VOXEL_SIZE) * CHUNK_SIZE_Y,
-							(z * VoxelEntity.VOXEL_SIZE) * CHUNK_SIZE_Z
+							(x * VoxelUtils.VOXEL_SIZE) * CHUNK_SIZE_X,
+							(y * VoxelUtils.VOXEL_SIZE) * CHUNK_SIZE_Y,
+							(z * VoxelUtils.VOXEL_SIZE) * CHUNK_SIZE_Z
 					);
 					chunk.indices = indices;
 					chunk.mesh = new Mesh(true, CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * attributes.vertexSize * 4,

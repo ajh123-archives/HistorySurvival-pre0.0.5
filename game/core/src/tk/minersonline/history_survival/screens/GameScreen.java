@@ -22,6 +22,7 @@ import tk.minersonline.history_survival.systems.PerlinNoiseGenerator;
 import tk.minersonline.history_survival.componments.VoxelEntity;
 import tk.minersonline.history_survival.systems.VoxelWorld;
 import tk.minersonline.history_survival.systems.WorldRenderer;
+import tk.minersonline.history_survival.util.VoxelUtils;
 
 public class GameScreen implements Screen {
 	final HistorySurvival game;
@@ -64,13 +65,13 @@ public class GameScreen implements Screen {
 		modelRenderer = new ModelRenderer();
 		engine.addSystem(modelRenderer);
 
-		float camX = (float) Math.floor(voxelWorld.voxelsX / 2f);
-		float camZ = (float) Math.floor(voxelWorld.voxelsZ / 2f);
-		float camY = (float) Math.floor(voxelWorld.getHighest(camX, camZ) + (1.5f / VoxelEntity.VOXEL_SIZE));
-		camera.position.set(VoxelEntity.toRealPos(new Vector3( camX, camY, camZ)));
+		float camX = voxelWorld.voxelsX / 2f;
+		float camZ = voxelWorld.voxelsZ / 2f;
+		float camY = voxelWorld.getHighest(camX, camZ) + (1.5f / VoxelUtils.VOXEL_SIZE);
+		camera.position.set(VoxelUtils.toRealPos(new Vector3( camX, camY, camZ)));
 
 		Entity test = engine.createEntity();
-		test.add(new TransformComponent(VoxelEntity.toRealPos(new Vector3(camX, voxelWorld.getHighest(camX, camZ), camZ))));
+		test.add(VoxelUtils.getTransformComponent(new Vector3(camX, voxelWorld.getHighest(camX, camZ), camZ)));
 		test.add(new ModelComponent("data/models/cube/cube.g3dj"));
 		engine.addEntity(test);
 	}
@@ -87,8 +88,8 @@ public class GameScreen implements Screen {
 		modelBatch.end();
 		controller.update();
 
-		Vector3 voxelPos = VoxelEntity.toVoxelPos(camera.position.cpy());
-		VoxelEntity voxel = voxelWorld.get(voxelPos.x, voxelPos.y-(1.5f / VoxelEntity.VOXEL_SIZE)-1, voxelPos.z);
+		Vector3 voxelPos = VoxelUtils.toVoxelPos(camera.position.cpy());
+		VoxelEntity voxel = voxelWorld.get(voxelPos.x, voxelPos.y-(1.5f / VoxelUtils.VOXEL_SIZE)-1, voxelPos.z);
 		if (voxel != null && !voxelPos.equals(lastPos)) {
 			voxel.onStep();
 		}

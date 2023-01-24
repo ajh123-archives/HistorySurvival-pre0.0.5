@@ -1,0 +1,29 @@
+package tk.minersonline.history_survival.util;
+
+import com.badlogic.gdx.math.Vector3;
+import tk.minersonline.history_survival.componments.TransformComponent;
+
+public class VoxelUtils {
+	public static final float VOXEL_SIZE = 0.3f;
+	public static final float VOXEL_SCALE = ((VOXEL_SIZE  / (VOXEL_SIZE*100))*VOXEL_SIZE) * 0.5f;
+
+	public static Vector3 toRealPos(Vector3 voxelPos) {
+		return new Vector3(
+				(float) ((Math.floor(voxelPos.x) * VOXEL_SIZE) + (VOXEL_SIZE/2f)),
+				(float) ((Math.floor(voxelPos.y) * VOXEL_SIZE) + (VOXEL_SIZE/2f)),
+				(float) ((Math.floor(voxelPos.z) * VOXEL_SIZE) + (VOXEL_SIZE/2f))
+		);
+	}
+
+	public static Vector3 toVoxelPos(Vector3 realPos) {
+		return new Vector3(
+				realPos.x / VOXEL_SIZE,
+				realPos.y / VOXEL_SIZE,
+				realPos.z / VOXEL_SIZE
+		);
+	}
+
+	public static TransformComponent getTransformComponent(Vector3 pos) {
+		return new TransformComponent(toRealPos(pos), VOXEL_SCALE);
+	}
+}

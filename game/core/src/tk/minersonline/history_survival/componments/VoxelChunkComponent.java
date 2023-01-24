@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.math.Vector3;
 import tk.minersonline.history_survival.systems.VoxelWorld;
+import tk.minersonline.history_survival.util.VoxelUtils;
 
 import static tk.minersonline.history_survival.systems.VoxelWorld.*;
 
@@ -186,68 +187,68 @@ public class VoxelChunkComponent implements Component {
 	}
 
 	public static int createTop (Vector3 offset, int x, int y, int z, float[] vertices, int vertexOffset, VoxelEntity voxel) {
-		vertices[vertexOffset++] = offset.x + (x * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.y + (y * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.z + (z * VoxelEntity.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
 		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = 0;
-		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
-
-		vertices[vertexOffset++] = offset.x + (x * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.y + (y * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.z + (z * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = VoxelEntity.VOXEL_SIZE;
+		vertices[vertexOffset++] = VoxelUtils.VOXEL_SIZE;
 		vertices[vertexOffset++] = 0;
 		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.y + (y * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.z + (z * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
 		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = VoxelEntity.VOXEL_SIZE;
+		vertices[vertexOffset++] = VoxelUtils.VOXEL_SIZE;
 		vertices[vertexOffset++] = 0;
 		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.y + (y * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.z + (z * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
 		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = VoxelEntity.VOXEL_SIZE;
+		vertices[vertexOffset++] = VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = 0;
+		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
+
+		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = 0;
+		vertices[vertexOffset++] = VoxelUtils.VOXEL_SIZE;
 		vertices[vertexOffset++] = 0;
 		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
 		return vertexOffset;
 	}
 
 	public static int createBottom (Vector3 offset, int x, int y, int z, float[] vertices, int vertexOffset, VoxelEntity voxel) {
-		vertices[vertexOffset++] = offset.x + (x * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.y + (y * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.z + (z * VoxelEntity.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
 		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = -VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = 0;
-		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
-
-		vertices[vertexOffset++] = offset.x + (x * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.y + (y * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.z + (z * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = -VoxelEntity.VOXEL_SIZE;
+		vertices[vertexOffset++] = -VoxelUtils.VOXEL_SIZE;
 		vertices[vertexOffset++] = 0;
 		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.y + (y * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.z + (z * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
 		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = -VoxelEntity.VOXEL_SIZE;
+		vertices[vertexOffset++] = -VoxelUtils.VOXEL_SIZE;
 		vertices[vertexOffset++] = 0;
 		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.y + (y * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.z + (z * VoxelEntity.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = 0;
+		vertices[vertexOffset++] = -VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = 0;
+		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
+
+		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
 		vertices[vertexOffset++] = 0;
 		vertices[vertexOffset++] = -1;
 		vertices[vertexOffset++] = 0;
@@ -256,34 +257,34 @@ public class VoxelChunkComponent implements Component {
 	}
 
 	public static int createLeft (Vector3 offset, int x, int y, int z, float[] vertices, int vertexOffset, VoxelEntity voxel) {
-		vertices[vertexOffset++] = offset.x + (x * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.y + (y * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.z + (z * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = -VoxelEntity.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
+		vertices[vertexOffset++] = -VoxelUtils.VOXEL_SIZE;
 		vertices[vertexOffset++] = 0;
 		vertices[vertexOffset++] = 0;
 		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.y + (y * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.z + (z * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = -VoxelEntity.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
+		vertices[vertexOffset++] = -VoxelUtils.VOXEL_SIZE;
 		vertices[vertexOffset++] = 0;
 		vertices[vertexOffset++] = 0;
 		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.y + (y * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.z + (z * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = -VoxelEntity.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = -VoxelUtils.VOXEL_SIZE;
 		vertices[vertexOffset++] = 0;
 		vertices[vertexOffset++] = 0;
 		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.y + (y * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.z + (z * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = -VoxelEntity.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = -VoxelUtils.VOXEL_SIZE;
 		vertices[vertexOffset++] = 0;
 		vertices[vertexOffset++] = 0;
 		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
@@ -291,34 +292,34 @@ public class VoxelChunkComponent implements Component {
 	}
 
 	public static int createRight (Vector3 offset, int x, int y, int z, float[] vertices, int vertexOffset, VoxelEntity voxel) {
-		vertices[vertexOffset++] = offset.x + (x * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.y + (y * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.z + (z * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = VoxelEntity.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
+		vertices[vertexOffset++] = VoxelUtils.VOXEL_SIZE;
 		vertices[vertexOffset++] = 0;
 		vertices[vertexOffset++] = 0;
 		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.y + (y * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.z + (z * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = VoxelEntity.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = VoxelUtils.VOXEL_SIZE;
 		vertices[vertexOffset++] = 0;
 		vertices[vertexOffset++] = 0;
 		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.y + (y * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.z + (z * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = VoxelEntity.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = VoxelUtils.VOXEL_SIZE;
 		vertices[vertexOffset++] = 0;
 		vertices[vertexOffset++] = 0;
 		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.y + (y * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.z + (z * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = VoxelEntity.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
+		vertices[vertexOffset++] = VoxelUtils.VOXEL_SIZE;
 		vertices[vertexOffset++] = 0;
 		vertices[vertexOffset++] = 0;
 		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
@@ -326,71 +327,71 @@ public class VoxelChunkComponent implements Component {
 	}
 
 	public static int createFront (Vector3 offset, int x, int y, int z, float[] vertices, int vertexOffset, VoxelEntity voxel) {
-		vertices[vertexOffset++] = offset.x + (x * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.y + (y * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.z + (z * VoxelEntity.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
 		vertices[vertexOffset++] = 0;
 		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = VoxelEntity.VOXEL_SIZE;
+		vertices[vertexOffset++] = VoxelUtils.VOXEL_SIZE;
 		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.y + (y * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.z + (z * VoxelEntity.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
 		vertices[vertexOffset++] = 0;
 		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = VoxelEntity.VOXEL_SIZE;
+		vertices[vertexOffset++] = VoxelUtils.VOXEL_SIZE;
 		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.y + (y * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.z + (z * VoxelEntity.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
 		vertices[vertexOffset++] = 0;
 		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = VoxelEntity.VOXEL_SIZE;
+		vertices[vertexOffset++] = VoxelUtils.VOXEL_SIZE;
 		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.y + (y * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.z + (z * VoxelEntity.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
 		vertices[vertexOffset++] = 0;
 		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = VoxelEntity.VOXEL_SIZE;
+		vertices[vertexOffset++] = VoxelUtils.VOXEL_SIZE;
 		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
 		return vertexOffset;
 	}
 
 	public static int createBack (Vector3 offset, int x, int y, int z, float[] vertices, int vertexOffset, VoxelEntity voxel) {
-		vertices[vertexOffset++] = offset.x + (x * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.y + (y * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.z + (z * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
 		vertices[vertexOffset++] = 0;
 		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = -VoxelEntity.VOXEL_SIZE;
+		vertices[vertexOffset++] = -VoxelUtils.VOXEL_SIZE;
 		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.y + (y * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.z + (z * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
 		vertices[vertexOffset++] = 0;
 		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = -VoxelEntity.VOXEL_SIZE;
+		vertices[vertexOffset++] = -VoxelUtils.VOXEL_SIZE;
 		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.y + (y * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.z + (z * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
 		vertices[vertexOffset++] = 0;
 		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = -VoxelEntity.VOXEL_SIZE;
+		vertices[vertexOffset++] = -VoxelUtils.VOXEL_SIZE;
 		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.y + (y * VoxelEntity.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.z + (z * VoxelEntity.VOXEL_SIZE) + VoxelEntity.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
+		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
 		vertices[vertexOffset++] = 0;
 		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = -VoxelEntity.VOXEL_SIZE;
+		vertices[vertexOffset++] = -VoxelUtils.VOXEL_SIZE;
 		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
 		return vertexOffset;
 	}
