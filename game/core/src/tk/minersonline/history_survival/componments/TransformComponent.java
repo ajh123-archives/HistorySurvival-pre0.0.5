@@ -13,7 +13,12 @@ public class TransformComponent implements Component {
 	}
 
 	public TransformComponent(Vector3 pos) {
-		this(pos, 1f);
+		pos.x = pos.x + VoxelEntity.VOXEL_SCALE * VoxelEntity.VOXEL_SCALE;
+		pos.y = pos.y + VoxelEntity.VOXEL_SCALE * VoxelEntity.VOXEL_SCALE;
+		pos.z = pos.z + VoxelEntity.VOXEL_SCALE * VoxelEntity.VOXEL_SCALE;
+
+		this.pos = pos;
+		this.scale = VoxelEntity.VOXEL_SCALE;
 	}
 
 	public Vector3 getPos() {

@@ -14,6 +14,7 @@ public class VoxelEntity {
 	private float debounceSound = 0;
 
 	public static final float VOXEL_SIZE = 0.3f;
+	public static final float VOXEL_SCALE = ((VoxelEntity.VOXEL_SIZE  / (VoxelEntity.VOXEL_SIZE*100))*VoxelEntity.VOXEL_SIZE) * 0.5f;
 
 	public VoxelEntity(VoxelTypeComponent type, Vector3 position, VoxelWorld world) {
 		this.type = type;
@@ -34,7 +35,11 @@ public class VoxelEntity {
 		return position;
 	}
 	public static Vector3 toRealPos(Vector3 voxelPos) {
-		return voxelPos.scl(VOXEL_SIZE);
+		return new Vector3(
+			(voxelPos.x * VOXEL_SIZE) + (VOXEL_SIZE/2f),
+			(voxelPos.y * VOXEL_SIZE) + (VOXEL_SIZE/2f),
+			(voxelPos.z * VOXEL_SIZE) + (VOXEL_SIZE/2f)
+		);
 	}
 
 	public static Vector3 toVoxelPos(Vector3 realPos) {

@@ -64,16 +64,13 @@ public class GameScreen implements Screen {
 		modelRenderer = new ModelRenderer();
 		engine.addSystem(modelRenderer);
 
-		float camX = voxelWorld.voxelsX / 2f;
-		float camZ = voxelWorld.voxelsZ / 2f;
-		float camY = voxelWorld.getHighest(camX, camZ) + (1.5f / VoxelEntity.VOXEL_SIZE);
+		float camX = (float) Math.floor(voxelWorld.voxelsX / 2f);
+		float camZ = (float) Math.floor(voxelWorld.voxelsZ / 2f);
+		float camY = (float) Math.floor(voxelWorld.getHighest(camX, camZ) + (1.5f / VoxelEntity.VOXEL_SIZE));
 		camera.position.set(VoxelEntity.toRealPos(new Vector3( camX, camY, camZ)));
 
 		Entity test = engine.createEntity();
-		test.add(new TransformComponent(
-				VoxelEntity.toRealPos(new Vector3(camX, voxelWorld.getHighest(camX, camZ)+1, camZ)),
-				(0.01f) * (VoxelEntity.VOXEL_SIZE / 2f)
-		));
+		test.add(new TransformComponent(VoxelEntity.toRealPos(new Vector3(camX, voxelWorld.getHighest(camX, camZ), camZ))));
 		test.add(new ModelComponent("data/models/cube/cube.g3dj"));
 		engine.addEntity(test);
 	}
