@@ -1,5 +1,6 @@
 package tk.minersonline.history_survival;
 
+import com.google.gwt.thirdparty.guava.common.annotations.GwtIncompatible;
 import io.github.classgraph.ClassGraph;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
@@ -26,6 +27,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+
+@GwtIncompatible("")
 public class HistorySurvivalDefaultProvider implements GameProvider {
 	private static final String[] ALLOWED_EARLY_CLASS_PREFIXES = {"net.fabricmc.loader.api.", "net.fabricmc.loader.impl."};
 	private static final String[] ALLOWED_EARLY_CLASSES = {"net.fabricmc.loader.api.FabricLoader", "net.fabricmc.loader.impl.FabricLoaderImpl"};

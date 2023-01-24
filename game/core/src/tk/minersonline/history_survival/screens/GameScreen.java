@@ -16,7 +16,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
 import tk.minersonline.history_survival.HistorySurvival;
 import tk.minersonline.history_survival.componments.ModelComponent;
-import tk.minersonline.history_survival.componments.TransformComponent;
 import tk.minersonline.history_survival.systems.ModelRenderer;
 import tk.minersonline.history_survival.systems.PerlinNoiseGenerator;
 import tk.minersonline.history_survival.componments.VoxelEntity;
@@ -46,7 +45,7 @@ public class GameScreen implements Screen {
 		engine = new PooledEngine();
 		chunkBatch = new ModelBatch();
 		modelBatch = new ModelBatch();
-		DefaultShader.defaultCullFace = GL20.GL_FRONT;
+
 		camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		camera.near = 0.5f;
 		camera.far = 1000;
@@ -81,9 +80,11 @@ public class GameScreen implements Screen {
 		engine.update(delta);
 		ScreenUtils.clear(Color.SKY, true);
 		chunkBatch.begin(camera);
+		DefaultShader.defaultCullFace = GL20.GL_FRONT;
 		chunkBatch.render(worldRenderer, environment);
 		chunkBatch.end();
 		modelBatch.begin(camera);
+		DefaultShader.defaultCullFace = GL20.GL_BACK;
 		modelRenderer.render(modelBatch, environment);
 		modelBatch.end();
 		controller.update();

@@ -62,10 +62,12 @@ project(":game:html") {
 
     dependencies {
         implementation project(":game:core")
-        implementation 'net.fabricmc:fabric-loader:0.14.1'
+        implementation 'net.fabricmc:fabric-loader:0.14.1:sources'
         api "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion"
         api "com.badlogicgames.gdx:gdx:$gdxVersion:sources"
         api "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion:sources"
+        implementation "com.badlogicgames.ashley:ashley:1.7.4:sources"
+        implementation "com.kotcrab.vis:vis-ui:1.5.1:sources"
     }
 }
 
@@ -76,7 +78,6 @@ project(":game:core") {
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         api "com.kotcrab.vis:vis-ui:1.5.1"
         implementation "com.badlogicgames.ashley:ashley:1.7.4"
-        implementation 'com.github.crykn:kryonet:2.22.7'
         implementation 'net.fabricmc:fabric-loader:0.14.1'
 
         implementation "org.ow2.asm:asm:${project.asm_version}"
@@ -93,10 +94,10 @@ project(":game:core") {
         implementation 'net.fabricmc:tiny-remapper:0.8.5'
         implementation 'net.fabricmc:access-widener:2.1.0'
 
-        implementation 'org.apache.logging.log4j:log4j-slf4j2-impl:2.19.0'
-        implementation 'org.apache.logging.log4j:log4j-core:2.19.0'
-        implementation 'org.apache.logging.log4j:log4j:2.19.0'
         implementation 'io.github.classgraph:classgraph:4.8.153'
+
+        // https://mvnrepository.com/artifact/org.gwtproject/gwt-dev
+        compileOnly 'org.gwtproject:gwt-dev:2.10.0'
     }
 }
 

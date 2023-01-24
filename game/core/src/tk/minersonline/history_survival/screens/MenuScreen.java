@@ -1,11 +1,13 @@
 package tk.minersonline.history_survival.screens;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.google.gwt.thirdparty.guava.common.annotations.GwtIncompatible;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 import tk.minersonline.history_survival.HistorySurvival;
@@ -28,14 +30,8 @@ public class MenuScreen implements Screen {
 				game.setScreen(new GameScreen(game));
 			}
 		});
-		VisTextButton mods_button = new VisTextButton("Mods", new ChangeListener() {
-			@Override
-			public void changed (ChangeEvent event, Actor actor) {
-				game.setScreen(new ModsScreen(game));
-			}
-		});
+		group.add(button);
 
-		group.add(button, mods_button);
 		stage.addActor(group);
 	}
 
