@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.math.MathUtils;
-import com.google.gwt.thirdparty.guava.common.annotations.GwtIncompatible;
 import tk.minersonline.history_survival.componments.VoxelEntity;
 import tk.minersonline.history_survival.componments.VoxelTypeComponent;
 
@@ -104,7 +103,6 @@ public class PerlinNoiseGenerator {
 		return bytes;
 	}
 
-	@GwtIncompatible("")
 	public static Pixmap generatePixmap (int width, int height, int min, int max, int octaveCount) {
 		byte[] bytes = generateHeightMap(width, height, min, max, octaveCount);
 		Pixmap pixmap = new Pixmap(width, height, Format.RGBA8888);
@@ -118,7 +116,6 @@ public class PerlinNoiseGenerator {
 		return pixmap;
 	}
 
-	@GwtIncompatible("")
 	public static Pixmap colourPixmap (VoxelWorld voxelWorld, int startX, int startZ, int endX, int endZ) {
 		int scale = 5;
 		Pixmap pixmap = new Pixmap(endX * scale, endZ * scale, Format.RGBA8888);

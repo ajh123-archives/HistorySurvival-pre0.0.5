@@ -5,12 +5,10 @@ import com.badlogic.gdx.ApplicationAdapter;
 //import com.esotericsoftware.kryonet.Connection;
 //import com.esotericsoftware.kryonet.Listener;
 //import com.esotericsoftware.kryonet.Server;
-import com.google.gwt.thirdparty.guava.common.annotations.GwtIncompatible;
-import tk.minersonline.history_survival.net.Packet;
+//import tk.minersonline.history_survival.net.Packet;
+//
+//import java.io.IOException;
 
-import java.io.IOException;
-
-@GwtIncompatible("")
 public class ServerStart extends ApplicationAdapter {
 //	Server server;
 

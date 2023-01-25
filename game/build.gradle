@@ -4,6 +4,7 @@ buildscript {
         mavenCentral()
         gradlePluginPortal()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
         google()
     }
     dependencies {
@@ -17,15 +18,17 @@ buildscript {
 allprojects {
     apply plugin: "eclipse"
 
-    version = '1.0'
+    version = '0.0.4'
     ext {
-        appName = "HistorySurvival"
+        appName = "History Survival"
         gdxVersion = '1.11.0'
         roboVMVersion = '2.3.16'
         box2DLightsVersion = '1.5'
         ashleyVersion = '1.7.4'
         aiVersion = '1.8.2'
         gdxControllersVersion = '2.2.1'
+        switchGdxVersion = '2.1.0'
+        clearwingVersion = '2.1.0'
     }
 
     repositories {
@@ -35,8 +38,9 @@ allprojects {
         gradlePluginPortal()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+        maven { url 'https://s01.oss.sonatype.org' }
+        maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
         maven { url "https://jitpack.io" }
-        maven { url "https://maven.fabricmc.net/" }
     }
 }
 
@@ -45,14 +49,20 @@ project(":game:desktop") {
 
     dependencies {
         implementation project(":game:core")
-        implementation 'net.fabricmc:fabric-loader:0.14.1'
         api "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-        runtimeOnly project(":example_mod")
-        implementation 'net.fabricmc:fabric-loader:0.14.1'
     }
 }
 
+project(":game:desktop") {
+    apply plugin: "java-library"
+
+    dependencies {
+        implementation project(":game:core")
+        api "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+        api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+   }
+}
 
 project(":game:html") {
     apply plugin: "java-library"
@@ -62,7 +72,6 @@ project(":game:html") {
 
     dependencies {
         implementation project(":game:core")
-        implementation 'net.fabricmc:fabric-loader:0.14.1:sources'
         api "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion"
         api "com.badlogicgames.gdx:gdx:$gdxVersion:sources"
         api "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion:sources"
@@ -78,26 +87,6 @@ project(":game:core") {
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         api "com.kotcrab.vis:vis-ui:1.5.1"
         implementation "com.badlogicgames.ashley:ashley:1.7.4"
-        implementation 'net.fabricmc:fabric-loader:0.14.1'
-
-        implementation "org.ow2.asm:asm:${project.asm_version}"
-        implementation "org.ow2.asm:asm-analysis:${project.asm_version}"
-        implementation "org.ow2.asm:asm-commons:${project.asm_version}"
-        implementation "org.ow2.asm:asm-tree:${project.asm_version}"
-        implementation "org.ow2.asm:asm-util:${project.asm_version}"
-
-        implementation("net.fabricmc:sponge-mixin:${project.mixin_version}") {
-            exclude module: 'launchwrapper'
-            exclude module: 'guava'
-        }
-        implementation 'net.fabricmc:tiny-mappings-parser:0.3.0+build.17'
-        implementation 'net.fabricmc:tiny-remapper:0.8.5'
-        implementation 'net.fabricmc:access-widener:2.1.0'
-
-        implementation 'io.github.classgraph:classgraph:4.8.153'
-
-        // https://mvnrepository.com/artifact/org.gwtproject/gwt-dev
-        compileOnly 'org.gwtproject:gwt-dev:2.10.0'
     }
 }
 
@@ -106,7 +95,5 @@ project(":game:server") {
 
     dependencies {
         implementation project(":game:core")
-        implementation 'net.fabricmc:fabric-loader:0.14.1'
-        runtimeOnly project(":example_mod")
     }
 }

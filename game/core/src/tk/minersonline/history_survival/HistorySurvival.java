@@ -3,16 +3,12 @@ package tk.minersonline.history_survival;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.google.gwt.thirdparty.guava.common.annotations.GwtIncompatible;
 import com.kotcrab.vis.ui.VisUI;
-import net.fabricmc.loader.api.FabricLoader;
 import tk.minersonline.history_survival.screens.MenuScreen;
 
 public class HistorySurvival extends Game {
 	public SpriteBatch spriteBatch;
 	public BitmapFont font;
-	@GwtIncompatible("")
-	private FabricLoader loader = FabricLoader.getInstance();
 	public static HistorySurvival INSTANCE = InitHelper.get();
 
 	@Override
@@ -51,11 +47,6 @@ public class HistorySurvival extends Game {
 		font.dispose();
 	}
 
-	@GwtIncompatible("")
-	public FabricLoader getLoader() {
-		return loader;
-	}
-
 	/**
 	 * Provides singleton for static init assignment regardless of load order.
 	 */
@@ -67,10 +58,5 @@ public class HistorySurvival extends Game {
 
 			return instance;
 		}
-	}
-
-	@GwtIncompatible("")
-	public void setLoader(FabricLoader loader) {
-		this.loader = loader;
 	}
 }

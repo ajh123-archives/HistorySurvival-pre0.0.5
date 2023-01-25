@@ -1,7 +1,7 @@
 package tk.minersonline.history_survival;
 
-import net.fabricmc.loader.impl.launch.knot.KnotClient;
-
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 
 // Please note that on macOS your application needs to be started with the -XstartOnFirstThread JVM argument
 public class DesktopLauncher {
@@ -10,6 +10,10 @@ public class DesktopLauncher {
 	}
 
 	public void run(String[] arg) {
-		KnotClient.main(arg);
+		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
+		config.setForegroundFPS(60);
+		config.setTitle("HistorySurvival");
+
+		new Lwjgl3Application(HistorySurvival.INSTANCE, config);
 	}
 }
