@@ -4,6 +4,8 @@ import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 
+import java.util.Random;
+
 public class VoxelTypeComponent implements Component {
 	public static VoxelTypeComponent AIR = new VoxelTypeComponent("air", new SolidModelComponent(
 			Color.CLEAR
@@ -28,7 +30,6 @@ public class VoxelTypeComponent implements Component {
 	private final String name;
 
 	private final SolidModelComponent properties;
-
 
 	public VoxelTypeComponent(String name, SolidModelComponent properties) {
 		this.properties = properties;

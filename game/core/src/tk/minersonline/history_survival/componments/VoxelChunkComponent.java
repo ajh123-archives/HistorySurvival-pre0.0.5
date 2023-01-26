@@ -74,15 +74,16 @@ public class VoxelChunkComponent implements Component {
 		return voxels[x + z * width + y * widthTimesHeight];
 	}
 
-	public VoxelEntity set (int x, int y, int z, VoxelTypeComponent voxel) {
-		if (x < 0 || x >= width) return null;
-		if (y < 0 || y >= height) return null;
-		if (z < 0 || z >= depth) return null;
-		return setFast(x, y, z, voxel);
+	public void set (int x, int y, int z, VoxelTypeComponent voxel) {
+		if (x < 0 || x >= width) return;
+		if (y < 0 || y >= height) return;
+		if (z < 0 || z >= depth) return;
+		setFast(x, y, z, voxel);
 	}
 
-	public VoxelEntity setFast (int x, int y, int z, VoxelTypeComponent voxel) {
-		return voxels[x + z * width + y * widthTimesHeight] = new VoxelEntity(voxel, new Vector3(x, y, z), world);
+	public void setFast (int x, int y, int z, VoxelTypeComponent voxel) {
+		VoxelEntity voxelEntity = new VoxelEntity(voxel, new Vector3(x, y, z), world);
+		voxels[x + z * width + y * widthTimesHeight] = voxelEntity;
 	}
 
 	/** Creates a mesh out of the chunk, returning the number of indices produced
@@ -187,8 +188,10 @@ public class VoxelChunkComponent implements Component {
 	}
 
 	public static int createTop (Vector3 offset, int x, int y, int z, float[] vertices, int vertexOffset, VoxelEntity voxel) {
+		float topOffset = 0;
+
 		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE + topOffset;
 		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
 		vertices[vertexOffset++] = 0;
 		vertices[vertexOffset++] = VoxelUtils.VOXEL_SIZE;
@@ -196,7 +199,7 @@ public class VoxelChunkComponent implements Component {
 		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
 
 		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE + topOffset;
 		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
 		vertices[vertexOffset++] = 0;
 		vertices[vertexOffset++] = VoxelUtils.VOXEL_SIZE;
@@ -204,7 +207,7 @@ public class VoxelChunkComponent implements Component {
 		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
 
 		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE + topOffset;
 		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
 		vertices[vertexOffset++] = 0;
 		vertices[vertexOffset++] = VoxelUtils.VOXEL_SIZE;
@@ -212,7 +215,7 @@ public class VoxelChunkComponent implements Component {
 		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
 
 		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
+		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE + topOffset;
 		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
 		vertices[vertexOffset++] = 0;
 		vertices[vertexOffset++] = VoxelUtils.VOXEL_SIZE;

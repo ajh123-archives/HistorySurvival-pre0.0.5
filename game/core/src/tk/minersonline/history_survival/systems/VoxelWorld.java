@@ -29,17 +29,17 @@ public class VoxelWorld {
 		this.engine = engine;
 	}
 
-	public VoxelEntity set (float x, float y, float z, VoxelTypeComponent voxel) {
+	public void set (float x, float y, float z, VoxelTypeComponent voxel) {
 		int ix = (int)x;
 		int iy = (int)y;
 		int iz = (int)z;
 		int chunkX = ix / CHUNK_SIZE_X;
-		if (chunkX < 0 || chunkX >= chunksX) return null;
+		if (chunkX < 0 || chunkX >= chunksX) return;
 		int chunkY = iy / CHUNK_SIZE_Y;
-		if (chunkY < 0 || chunkY >= chunksY) return null;
+		if (chunkY < 0 || chunkY >= chunksY) return;
 		int chunkZ = iz / CHUNK_SIZE_Z;
-		if (chunkZ < 0 || chunkZ >= chunksZ) return null;
-		return getChunk(x, y, z).set(ix % CHUNK_SIZE_X, iy % CHUNK_SIZE_Y, iz % CHUNK_SIZE_Z,
+		if (chunkZ < 0 || chunkZ >= chunksZ) return;
+		getChunk(x, y, z).set(ix % CHUNK_SIZE_X, iy % CHUNK_SIZE_Y, iz % CHUNK_SIZE_Z,
 				voxel);
 	}
 

@@ -1,6 +1,5 @@
 package tk.minersonline.history_survival.componments;
 
-import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Vector3;
 import tk.minersonline.history_survival.systems.VoxelWorld;
@@ -18,7 +17,6 @@ public class VoxelEntity {
 		this.type = type;
 		this.position = position;
 		this.world = world;
-//		this.add(type);
 	}
 
 	public VoxelWorld getWorld() {
