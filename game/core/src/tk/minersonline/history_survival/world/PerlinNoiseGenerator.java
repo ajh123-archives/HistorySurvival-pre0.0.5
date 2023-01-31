@@ -1,12 +1,9 @@
-package tk.minersonline.history_survival.systems;
+package tk.minersonline.history_survival.world;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.math.MathUtils;
-import tk.minersonline.history_survival.world.Voxel;
-import tk.minersonline.history_survival.world.VoxelType;
-import tk.minersonline.history_survival.world.World;
 
 /** Adapted from <a href="http://devmag.org.za/2009/04/25/perlin-noise/">http://devmag.org.za/2009/04/25/perlin-noise/</a>
  * @author badlogic */
