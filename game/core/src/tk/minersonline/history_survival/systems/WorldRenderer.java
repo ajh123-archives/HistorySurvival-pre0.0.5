@@ -17,8 +17,9 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import tk.minersonline.history_survival.world.Chunk;
 import tk.minersonline.history_survival.util.VoxelUtils;
+import tk.minersonline.history_survival.world.VoxelWorld;
 
-import static tk.minersonline.history_survival.systems.VoxelWorld.*;
+import static tk.minersonline.history_survival.world.VoxelWorld.*;
 
 public class WorldRenderer extends IteratingSystem implements RenderableProvider {
 	ComponentMapper<Chunk> chunks;

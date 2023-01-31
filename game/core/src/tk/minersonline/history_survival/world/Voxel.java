@@ -2,18 +2,17 @@ package tk.minersonline.history_survival.world;
 
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Vector3;
-import tk.minersonline.history_survival.systems.VoxelWorld;
 
 import java.util.List;
 
-public class VoxelEntity {
+public class Voxel {
 	private final VoxelType type;
 	private final Vector3 position;
 	private final VoxelWorld world;
 	private float debounceSound = 0;
 
 
-	public VoxelEntity(VoxelType type, Vector3 position, VoxelWorld world) {
+	public Voxel(VoxelType type, Vector3 position, VoxelWorld world) {
 		this.type = type;
 		this.position = position;
 		this.world = world;

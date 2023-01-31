@@ -18,8 +18,8 @@ import tk.minersonline.history_survival.HistorySurvival;
 import tk.minersonline.history_survival.componments.ModelComponent;
 import tk.minersonline.history_survival.systems.ModelRenderer;
 import tk.minersonline.history_survival.systems.PerlinNoiseGenerator;
-import tk.minersonline.history_survival.world.VoxelEntity;
-import tk.minersonline.history_survival.systems.VoxelWorld;
+import tk.minersonline.history_survival.world.Voxel;
+import tk.minersonline.history_survival.world.VoxelWorld;
 import tk.minersonline.history_survival.systems.WorldRenderer;
 import tk.minersonline.history_survival.util.VoxelUtils;
 
@@ -88,7 +88,7 @@ public class GameScreen implements Screen {
 		controller.update();
 
 		Vector3 voxelPos = VoxelUtils.toVoxelPos(camera.position.cpy());
-		VoxelEntity voxel = voxelWorld.get(voxelPos.x, voxelPos.y-(1.5f / VoxelUtils.VOXEL_SIZE)-1, voxelPos.z);
+		Voxel voxel = voxelWorld.get(voxelPos.x, voxelPos.y-(1.5f / VoxelUtils.VOXEL_SIZE)-1, voxelPos.z);
 		if (voxel != null && !voxelPos.equals(lastPos)) {
 			voxel.onStep();
 		}

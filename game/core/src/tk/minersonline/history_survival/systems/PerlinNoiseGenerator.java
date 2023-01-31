@@ -4,8 +4,9 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.math.MathUtils;
-import tk.minersonline.history_survival.world.VoxelEntity;
+import tk.minersonline.history_survival.world.Voxel;
 import tk.minersonline.history_survival.world.VoxelType;
+import tk.minersonline.history_survival.world.VoxelWorld;
 
 /** Adapted from <a href="http://devmag.org.za/2009/04/25/perlin-noise/">http://devmag.org.za/2009/04/25/perlin-noise/</a>
  * @author badlogic */
@@ -122,7 +123,7 @@ public class PerlinNoiseGenerator {
 		for (int z = startZ; z < endZ; z++) {
 			for (int x = startX; x < endX; x++) {
 				int y = (int) Math.floor(voxelWorld.getHighest(x, z));
-				VoxelEntity voxel = voxelWorld.get(x, y-1, z);
+				Voxel voxel = voxelWorld.get(x, y-1, z);
 				Color color = Color.BLACK;
 				if (voxel != null && voxel.getType() != VoxelType.AIR ) {
 					color = voxel.getType().getProperties().getColor().cpy();

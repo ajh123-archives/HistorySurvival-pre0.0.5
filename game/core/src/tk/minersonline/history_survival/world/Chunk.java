@@ -6,15 +6,14 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.math.Vector3;
-import tk.minersonline.history_survival.systems.VoxelWorld;
 import tk.minersonline.history_survival.util.VoxelUtils;
 
-import static tk.minersonline.history_survival.systems.VoxelWorld.*;
+import static tk.minersonline.history_survival.world.VoxelWorld.*;
 
 public class Chunk implements Component {
 	public static final boolean USE_PACKED_COLOR = true;
 	public static final int VERTEX_SIZE = USE_PACKED_COLOR ? 7 : 10;
-	public final VoxelEntity[] voxels;
+	public final Voxel[] voxels;
 	public final int width;
 	public final int height;
 	public final int depth;
@@ -40,7 +39,7 @@ public class Chunk implements Component {
 
 	public Chunk(int width, int height, int depth, VoxelWorld world) {
 		this.world = world;
-		this.voxels = new VoxelEntity[width * height * depth];
+		this.voxels = new Voxel[width * height * depth];
 		this.width = width;
 		this.height = height;
 		this.depth = depth;
@@ -63,14 +62,14 @@ public class Chunk implements Component {
 		world.engine.addEntity(me);
 	}
 
-	public VoxelEntity get (int x, int y, int z) {
+	public Voxel get (int x, int y, int z) {
 		if (x < 0 || x >= width) return null;
 		if (y < 0 || y >= height) return null;
 		if (z < 0 || z >= depth) return null;
 		return getFast(x, y, z);
 	}
 
-	public VoxelEntity getFast (int x, int y, int z) {
+	public Voxel getFast (int x, int y, int z) {
 		return voxels[x + z * width + y * widthTimesHeight];
 	}
 
@@ -82,7 +81,7 @@ public class Chunk implements Component {
 	}
 
 	public void setFast (int x, int y, int z, VoxelType type) {
-		VoxelEntity voxelEntity = new VoxelEntity(type, new Vector3(x, y, z), world);
+		Voxel voxelEntity = new Voxel(type, new Vector3(x, y, z), world);
 		voxels[x + z * width + y * widthTimesHeight] = voxelEntity;
 	}
 
@@ -94,7 +93,7 @@ public class Chunk implements Component {
 		for (int y = 0; y < height; y++) {
 			for (int z = 0; z < depth; z++) {
 				for (int x = 0; x < width; x++, i++) {
-					VoxelEntity voxel = voxels[i];
+					Voxel voxel = voxels[i];
 					if (voxel.getType() == VoxelType.AIR) continue;
 					if (voxel.getType().getProperties().isTransparent()) continue;
 
@@ -148,7 +147,7 @@ public class Chunk implements Component {
 		for (int y = 0; y < height; y++) {
 			for (int z = 0; z < depth; z++) {
 				for (int x = 0; x < width; x++, i++) {
-					VoxelEntity voxel = voxels[i];
+					Voxel voxel = voxels[i];
 					if (!voxel.getType().getProperties().isTransparent()) continue;
 
 					if (y < height - 1) {
@@ -187,7 +186,7 @@ public class Chunk implements Component {
 		return vertexOffset / VERTEX_SIZE;
 	}
 
-	public static int createTop (Vector3 offset, int x, int y, int z, float[] vertices, int vertexOffset, VoxelEntity voxel) {
+	public static int createTop (Vector3 offset, int x, int y, int z, float[] vertices, int vertexOffset, Voxel voxel) {
 		float topOffset = 0;
 
 		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
@@ -224,7 +223,7 @@ public class Chunk implements Component {
 		return vertexOffset;
 	}
 
-	public static int createBottom (Vector3 offset, int x, int y, int z, float[] vertices, int vertexOffset, VoxelEntity voxel) {
+	public static int createBottom (Vector3 offset, int x, int y, int z, float[] vertices, int vertexOffset, Voxel voxel) {
 		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
 		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
 		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
@@ -259,7 +258,7 @@ public class Chunk implements Component {
 		return vertexOffset;
 	}
 
-	public static int createLeft (Vector3 offset, int x, int y, int z, float[] vertices, int vertexOffset, VoxelEntity voxel) {
+	public static int createLeft (Vector3 offset, int x, int y, int z, float[] vertices, int vertexOffset, Voxel voxel) {
 		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
 		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
 		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
@@ -294,7 +293,7 @@ public class Chunk implements Component {
 		return vertexOffset;
 	}
 
-	public static int createRight (Vector3 offset, int x, int y, int z, float[] vertices, int vertexOffset, VoxelEntity voxel) {
+	public static int createRight (Vector3 offset, int x, int y, int z, float[] vertices, int vertexOffset, Voxel voxel) {
 		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
 		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
 		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
@@ -329,7 +328,7 @@ public class Chunk implements Component {
 		return vertexOffset;
 	}
 
-	public static int createFront (Vector3 offset, int x, int y, int z, float[] vertices, int vertexOffset, VoxelEntity voxel) {
+	public static int createFront (Vector3 offset, int x, int y, int z, float[] vertices, int vertexOffset, Voxel voxel) {
 		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
 		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
 		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
@@ -364,7 +363,7 @@ public class Chunk implements Component {
 		return vertexOffset;
 	}
 
-	public static int createBack (Vector3 offset, int x, int y, int z, float[] vertices, int vertexOffset, VoxelEntity voxel) {
+	public static int createBack (Vector3 offset, int x, int y, int z, float[] vertices, int vertexOffset, Voxel voxel) {
 		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
 		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
 		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
@@ -399,7 +398,7 @@ public class Chunk implements Component {
 		return vertexOffset;
 	}
 
-	private static int addColorToVertices(float[] vertices, VoxelEntity voxel, int vertexOffset) {
+	private static int addColorToVertices(float[] vertices, Voxel voxel, int vertexOffset) {
 		Color color = voxel.getType().getProperties().getColor();
 		if (USE_PACKED_COLOR) {
 			vertices[vertexOffset] = color.toFloatBits();
