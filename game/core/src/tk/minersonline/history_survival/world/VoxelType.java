@@ -5,24 +5,24 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import tk.minersonline.history_survival.componments.SolidModelComponent;
 
-public class VoxelTypeComponent implements Component {
-	public static VoxelTypeComponent AIR = new VoxelTypeComponent("air", new SolidModelComponent(
+public class VoxelType implements Component {
+	public static VoxelType AIR = new VoxelType("air", new SolidModelComponent(
 			Color.CLEAR
 	));
-	public static VoxelTypeComponent GRASS = new VoxelTypeComponent("grass", new SolidModelComponent(
+	public static VoxelType GRASS = new VoxelType("grass", new SolidModelComponent(
 			Color.FOREST,
 			Gdx.audio.newSound(Gdx.files.internal("data/voxels/grass/step_l.mp3"))
 	));
-	public static VoxelTypeComponent STONE = new VoxelTypeComponent("stone", new SolidModelComponent(
+	public static VoxelType STONE = new VoxelType("stone", new SolidModelComponent(
 			Color.GRAY
 	));
-	public static VoxelTypeComponent DIRT = new VoxelTypeComponent("dirt", new SolidModelComponent(
+	public static VoxelType DIRT = new VoxelType("dirt", new SolidModelComponent(
 			Color.BROWN
 	));
-	public static VoxelTypeComponent SAND = new VoxelTypeComponent("sand", new SolidModelComponent(
+	public static VoxelType SAND = new VoxelType("sand", new SolidModelComponent(
 			Color.TAN
 	));
-	public static VoxelTypeComponent WATER = new VoxelTypeComponent("water", new SolidModelComponent(
+	public static VoxelType WATER = new VoxelType("water", new SolidModelComponent(
 			new Color(0, 0, 1, 0.5f), true
 	));
 
@@ -30,7 +30,7 @@ public class VoxelTypeComponent implements Component {
 
 	private final SolidModelComponent properties;
 
-	public VoxelTypeComponent(String name, SolidModelComponent properties) {
+	public VoxelType(String name, SolidModelComponent properties) {
 		this.properties = properties;
 		this.name = name;
 	}

@@ -11,7 +11,7 @@ import tk.minersonline.history_survival.util.VoxelUtils;
 
 import static tk.minersonline.history_survival.systems.VoxelWorld.*;
 
-public class VoxelChunkComponent implements Component {
+public class Chunk implements Component {
 	public static final boolean USE_PACKED_COLOR = true;
 	public static final int VERTEX_SIZE = USE_PACKED_COLOR ? 7 : 10;
 	public final VoxelEntity[] voxels;
@@ -38,7 +38,7 @@ public class VoxelChunkComponent implements Component {
 	int len = CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * 6 * 6 / 3;
 	public short[] indices = new short[len];
 
-	public VoxelChunkComponent(int width, int height, int depth, VoxelWorld world) {
+	public Chunk(int width, int height, int depth, VoxelWorld world) {
 		this.world = world;
 		this.voxels = new VoxelEntity[width * height * depth];
 		this.width = width;
@@ -54,7 +54,7 @@ public class VoxelChunkComponent implements Component {
 		for (int y = 0; y < height; y++) {
 			for (int z = 0; z < depth; z++) {
 				for (int x = 0; x < width; x++) {
-					set(x, y, z, VoxelTypeComponent.AIR);
+					set(x, y, z, VoxelType.AIR);
 				}
 			}
 		}
@@ -74,15 +74,15 @@ public class VoxelChunkComponent implements Component {
 		return voxels[x + z * width + y * widthTimesHeight];
 	}
 
-	public void set (int x, int y, int z, VoxelTypeComponent voxel) {
+	public void set (int x, int y, int z, VoxelType type) {
 		if (x < 0 || x >= width) return;
 		if (y < 0 || y >= height) return;
 		if (z < 0 || z >= depth) return;
-		setFast(x, y, z, voxel);
+		setFast(x, y, z, type);
 	}
 
-	public void setFast (int x, int y, int z, VoxelTypeComponent voxel) {
-		VoxelEntity voxelEntity = new VoxelEntity(voxel, new Vector3(x, y, z), world);
+	public void setFast (int x, int y, int z, VoxelType type) {
+		VoxelEntity voxelEntity = new VoxelEntity(type, new Vector3(x, y, z), world);
 		voxels[x + z * width + y * widthTimesHeight] = voxelEntity;
 	}
 
@@ -95,41 +95,41 @@ public class VoxelChunkComponent implements Component {
 			for (int z = 0; z < depth; z++) {
 				for (int x = 0; x < width; x++, i++) {
 					VoxelEntity voxel = voxels[i];
-					if (voxel.getType() == VoxelTypeComponent.AIR) continue;
+					if (voxel.getType() == VoxelType.AIR) continue;
 					if (voxel.getType().getProperties().isTransparent()) continue;
 
 					if (y < height - 1) {
-						if (voxels[i + topOffset].getType() == VoxelTypeComponent.AIR) vertexOffset = createTop(offset, x, y, z, vertices, vertexOffset, voxel);
+						if (voxels[i + topOffset].getType() == VoxelType.AIR) vertexOffset = createTop(offset, x, y, z, vertices, vertexOffset, voxel);
 						if (voxels[i + topOffset].getType().getProperties().isTransparent()) vertexOffset = createTop(offset, x, y, z, vertices, vertexOffset, voxel);
 					} else {
 						vertexOffset = createTop(offset, x, y, z, vertices, vertexOffset, voxel);
 					}
 					if (y > 0) {
-						if (voxels[i + bottomOffset].getType() == VoxelTypeComponent.AIR) vertexOffset = createBottom(offset, x, y, z, vertices, vertexOffset, voxel);
+						if (voxels[i + bottomOffset].getType() == VoxelType.AIR) vertexOffset = createBottom(offset, x, y, z, vertices, vertexOffset, voxel);
 						if (voxels[i + bottomOffset].getType().getProperties().isTransparent()) vertexOffset = createBottom(offset, x, y, z, vertices, vertexOffset, voxel);
 					} else {
 						vertexOffset = createBottom(offset, x, y, z, vertices, vertexOffset, voxel);
 					}
 					if (x > 0) {
-						if (voxels[i + leftOffset].getType() == VoxelTypeComponent.AIR) vertexOffset = createLeft(offset, x, y, z, vertices, vertexOffset, voxel);
+						if (voxels[i + leftOffset].getType() == VoxelType.AIR) vertexOffset = createLeft(offset, x, y, z, vertices, vertexOffset, voxel);
 						if (voxels[i + leftOffset].getType().getProperties().isTransparent()) vertexOffset = createLeft(offset, x, y, z, vertices, vertexOffset, voxel);
 					} else {
 						vertexOffset = createLeft(offset, x, y, z, vertices, vertexOffset, voxel);
 					}
 					if (x < width - 1) {
-						if (voxels[i + rightOffset].getType() == VoxelTypeComponent.AIR) vertexOffset = createRight(offset, x, y, z, vertices, vertexOffset, voxel);
+						if (voxels[i + rightOffset].getType() == VoxelType.AIR) vertexOffset = createRight(offset, x, y, z, vertices, vertexOffset, voxel);
 						if (voxels[i + rightOffset].getType().getProperties().isTransparent()) vertexOffset = createRight(offset, x, y, z, vertices, vertexOffset, voxel);
 					} else {
 						vertexOffset = createRight(offset, x, y, z, vertices, vertexOffset, voxel);
 					}
 					if (z > 0) {
-						if (voxels[i + frontOffset].getType() == VoxelTypeComponent.AIR) vertexOffset = createFront(offset, x, y, z, vertices, vertexOffset, voxel);
+						if (voxels[i + frontOffset].getType() == VoxelType.AIR) vertexOffset = createFront(offset, x, y, z, vertices, vertexOffset, voxel);
 						if (voxels[i + frontOffset].getType().getProperties().isTransparent()) vertexOffset = createFront(offset, x, y, z, vertices, vertexOffset, voxel);
 					} else {
 						vertexOffset = createFront(offset, x, y, z, vertices, vertexOffset, voxel);
 					}
 					if (z < depth - 1) {
-						if (voxels[i + backOffset].getType() == VoxelTypeComponent.AIR) vertexOffset = createBack(offset, x, y, z, vertices, vertexOffset, voxel);
+						if (voxels[i + backOffset].getType() == VoxelType.AIR) vertexOffset = createBack(offset, x, y, z, vertices, vertexOffset, voxel);
 						if (voxels[i + backOffset].getType().getProperties().isTransparent()) vertexOffset = createBack(offset, x, y, z, vertices, vertexOffset, voxel);
 					} else {
 						vertexOffset = createBack(offset, x, y, z, vertices, vertexOffset, voxel);
@@ -152,32 +152,32 @@ public class VoxelChunkComponent implements Component {
 					if (!voxel.getType().getProperties().isTransparent()) continue;
 
 					if (y < height - 1) {
-						if (voxels[i + topOffset].getType() == VoxelTypeComponent.AIR) vertexOffset = createTop(offset, x, y, z, vertices, vertexOffset, voxel);
+						if (voxels[i + topOffset].getType() == VoxelType.AIR) vertexOffset = createTop(offset, x, y, z, vertices, vertexOffset, voxel);
 					} else {
 						vertexOffset = createTop(offset, x, y, z, vertices, vertexOffset, voxel);
 					}
 					if (y > 0) {
-						if (voxels[i + bottomOffset].getType() == VoxelTypeComponent.AIR) vertexOffset = createBottom(offset, x, y, z, vertices, vertexOffset, voxel);
+						if (voxels[i + bottomOffset].getType() == VoxelType.AIR) vertexOffset = createBottom(offset, x, y, z, vertices, vertexOffset, voxel);
 					} else {
 						vertexOffset = createBottom(offset, x, y, z, vertices, vertexOffset, voxel);
 					}
 					if (x > 0) {
-						if (voxels[i + leftOffset].getType() == VoxelTypeComponent.AIR) vertexOffset = createLeft(offset, x, y, z, vertices, vertexOffset, voxel);
+						if (voxels[i + leftOffset].getType() == VoxelType.AIR) vertexOffset = createLeft(offset, x, y, z, vertices, vertexOffset, voxel);
 					} else {
 						vertexOffset = createLeft(offset, x, y, z, vertices, vertexOffset, voxel);
 					}
 					if (x < width - 1) {
-						if (voxels[i + rightOffset].getType() == VoxelTypeComponent.AIR) vertexOffset = createRight(offset, x, y, z, vertices, vertexOffset, voxel);
+						if (voxels[i + rightOffset].getType() == VoxelType.AIR) vertexOffset = createRight(offset, x, y, z, vertices, vertexOffset, voxel);
 					} else {
 						vertexOffset = createRight(offset, x, y, z, vertices, vertexOffset, voxel);
 					}
 					if (z > 0) {
-						if (voxels[i + frontOffset].getType() == VoxelTypeComponent.AIR) vertexOffset = createFront(offset, x, y, z, vertices, vertexOffset, voxel);
+						if (voxels[i + frontOffset].getType() == VoxelType.AIR) vertexOffset = createFront(offset, x, y, z, vertices, vertexOffset, voxel);
 					} else {
 						vertexOffset = createFront(offset, x, y, z, vertices, vertexOffset, voxel);
 					}
 					if (z < depth - 1) {
-						if (voxels[i + backOffset].getType() == VoxelTypeComponent.AIR) vertexOffset = createBack(offset, x, y, z, vertices, vertexOffset, voxel);
+						if (voxels[i + backOffset].getType() == VoxelType.AIR) vertexOffset = createBack(offset, x, y, z, vertices, vertexOffset, voxel);
 					} else {
 						vertexOffset = createBack(offset, x, y, z, vertices, vertexOffset, voxel);
 					}

@@ -7,13 +7,13 @@ import tk.minersonline.history_survival.systems.VoxelWorld;
 import java.util.List;
 
 public class VoxelEntity {
-	private final VoxelTypeComponent type;
+	private final VoxelType type;
 	private final Vector3 position;
 	private final VoxelWorld world;
 	private float debounceSound = 0;
 
 
-	public VoxelEntity(VoxelTypeComponent type, Vector3 position, VoxelWorld world) {
+	public VoxelEntity(VoxelType type, Vector3 position, VoxelWorld world) {
 		this.type = type;
 		this.position = position;
 		this.world = world;
@@ -23,7 +23,7 @@ public class VoxelEntity {
 		return world;
 	}
 
-	public VoxelTypeComponent getType() {
+	public VoxelType getType() {
 		return type;
 	}
 

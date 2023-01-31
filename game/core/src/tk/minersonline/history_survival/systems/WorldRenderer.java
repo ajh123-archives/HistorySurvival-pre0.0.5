@@ -15,19 +15,19 @@ import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
-import tk.minersonline.history_survival.world.VoxelChunkComponent;
+import tk.minersonline.history_survival.world.Chunk;
 import tk.minersonline.history_survival.util.VoxelUtils;
 
 import static tk.minersonline.history_survival.systems.VoxelWorld.*;
 
 public class WorldRenderer extends IteratingSystem implements RenderableProvider {
-	ComponentMapper<VoxelChunkComponent> chunks;
+	ComponentMapper<Chunk> chunks;
 	private final VoxelWorld world;
 
 	public WorldRenderer(VoxelWorld world) {
-		super(Family.all(VoxelChunkComponent.class).get());
+		super(Family.all(Chunk.class).get());
 		this.world = world;
-		chunks = ComponentMapper.getFor(VoxelChunkComponent.class);
+		chunks = ComponentMapper.getFor(Chunk.class);
 
 		int len = CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * 6 * 6 / 3;
 		short[] indices = new short[len];
@@ -41,14 +41,14 @@ public class WorldRenderer extends IteratingSystem implements RenderableProvider
 			indices[i + 5] = (short)(j + 0);
 		}
 
-		VertexAttribute colorAttribute = VoxelChunkComponent.USE_PACKED_COLOR ? VertexAttribute.ColorPacked() : VertexAttribute.ColorUnpacked();
+		VertexAttribute colorAttribute = Chunk.USE_PACKED_COLOR ? VertexAttribute.ColorPacked() : VertexAttribute.ColorUnpacked();
 		VertexAttributes attributes = new VertexAttributes(VertexAttribute.Position(), VertexAttribute.Normal(), colorAttribute);
 
 		int chunkIndex = 0;
 		for (int y = 0; y < world.chunksY; y++) {
 			for (int z = 0; z < world.chunksZ; z++) {
 				for (int x = 0; x < world.chunksX; x++) {
-					VoxelChunkComponent chunk = new VoxelChunkComponent(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z, world);
+					Chunk chunk = new Chunk(CHUNK_SIZE_X, CHUNK_SIZE_Y, CHUNK_SIZE_Z, world);
 					chunk.offset.set(
 							(x * VoxelUtils.VOXEL_SIZE) * CHUNK_SIZE_X,
 							(y * VoxelUtils.VOXEL_SIZE) * CHUNK_SIZE_Y,
@@ -74,7 +74,7 @@ public class WorldRenderer extends IteratingSystem implements RenderableProvider
 
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
-		VoxelChunkComponent chunk = chunks.get(entity);
+		Chunk chunk = chunks.get(entity);
 		if (chunk.dirty) {
 			Mesh mesh = chunk.mesh;
 			Mesh transparentMesh = chunk.transparentMesh;
@@ -82,19 +82,19 @@ public class WorldRenderer extends IteratingSystem implements RenderableProvider
 			int numVerts = chunk.calculateVertices(chunk.vertices);
 			int vertexSize = mesh.getVertexSize() / 4; // Divide by 4 as it is in bytes
 			chunk.numVertices = numVerts / 4 * vertexSize;
-			mesh.setVertices(chunk.vertices, 0, numVerts * VoxelChunkComponent.VERTEX_SIZE);
+			mesh.setVertices(chunk.vertices, 0, numVerts * Chunk.VERTEX_SIZE);
 
 			int transparentNumVerts = chunk.calculateTransparentVertices(chunk.transparentVertices);
 			int transparentVertexSize = transparentMesh.getVertexSize() / 4; // Divide by 4 as it is in bytes
 			chunk.numTransparentVertices = transparentNumVerts / 4 * transparentVertexSize;
-			transparentMesh.setVertices(chunk.transparentVertices, 0, transparentNumVerts * VoxelChunkComponent.VERTEX_SIZE);
+			transparentMesh.setVertices(chunk.transparentVertices, 0, transparentNumVerts * Chunk.VERTEX_SIZE);
 			chunk.dirty = false;
 		}
 	}
 
 	@Override
 	public void getRenderables (Array<Renderable> renderables, Pool<Renderable> pool) {
-		for (VoxelChunkComponent chunk : world.chunks) {
+		for (Chunk chunk : world.chunks) {
 			if (chunk.numVertices != 0) {
 				Renderable renderable = pool.obtain();
 				renderable.material = chunk.material;
@@ -105,7 +105,7 @@ public class WorldRenderer extends IteratingSystem implements RenderableProvider
 				renderables.add(renderable);
 			}
 		}
-		for (VoxelChunkComponent chunk : world.chunks) {
+		for (Chunk chunk : world.chunks) {
 			if (chunk.numTransparentVertices != 0) {
 				Renderable transparentRenderable = pool.obtain();
 				Material transparent = chunk.material;

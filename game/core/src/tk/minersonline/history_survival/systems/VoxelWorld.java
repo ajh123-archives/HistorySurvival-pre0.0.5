@@ -2,15 +2,15 @@ package tk.minersonline.history_survival.systems;
 
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.utils.Disposable;
-import tk.minersonline.history_survival.world.VoxelChunkComponent;
+import tk.minersonline.history_survival.world.Chunk;
 import tk.minersonline.history_survival.world.VoxelEntity;
-import tk.minersonline.history_survival.world.VoxelTypeComponent;
+import tk.minersonline.history_survival.world.VoxelType;
 
 public class VoxelWorld implements Disposable {
 	public static final int CHUNK_SIZE_X = 16;
 	public static final int CHUNK_SIZE_Y = 16;
 	public static final int CHUNK_SIZE_Z = 16;
-	public final VoxelChunkComponent[] chunks;
+	public final Chunk[] chunks;
 	public final int chunksX;
 	public final int chunksY;
 	public final int chunksZ;
@@ -20,7 +20,7 @@ public class VoxelWorld implements Disposable {
 	public PooledEngine engine;
 
 	public VoxelWorld (int chunksX, int chunksY, int chunksZ, PooledEngine engine) {
-		this.chunks = new VoxelChunkComponent[chunksX * chunksY * chunksZ];
+		this.chunks = new Chunk[chunksX * chunksY * chunksZ];
 		this.chunksX = chunksX;
 		this.chunksY = chunksY;
 		this.chunksZ = chunksZ;
@@ -30,7 +30,7 @@ public class VoxelWorld implements Disposable {
 		this.engine = engine;
 	}
 
-	public void set (float x, float y, float z, VoxelTypeComponent voxel) {
+	public void set (float x, float y, float z, VoxelType type) {
 		int ix = (int)x;
 		int iy = (int)y;
 		int iz = (int)z;
@@ -40,8 +40,7 @@ public class VoxelWorld implements Disposable {
 		if (chunkY < 0 || chunkY >= chunksY) return;
 		int chunkZ = iz / CHUNK_SIZE_Z;
 		if (chunkZ < 0 || chunkZ >= chunksZ) return;
-		getChunk(x, y, z).set(ix % CHUNK_SIZE_X, iy % CHUNK_SIZE_Y, iz % CHUNK_SIZE_Z,
-				voxel);
+		getChunk(x, y, z).set(ix % CHUNK_SIZE_X, iy % CHUNK_SIZE_Y, iz % CHUNK_SIZE_Z, type);
 	}
 
 	public VoxelEntity get (float x, float y, float z) {
@@ -58,7 +57,7 @@ public class VoxelWorld implements Disposable {
 				iz % CHUNK_SIZE_Z);
 	}
 
-	public VoxelChunkComponent getChunk (float x, float y, float z) {
+	public Chunk getChunk (float x, float y, float z) {
 		int ix = (int)x;
 		int iy = (int)y;
 		int iz = (int)z;
@@ -79,18 +78,18 @@ public class VoxelWorld implements Disposable {
 		// FIXME optimize
 		for (int y = voxelsY - 1; y > 0; y--) {
 			VoxelEntity voxel = get(ix, y, iz);
-			if (voxel != null && voxel.getType() != VoxelTypeComponent.AIR) {
+			if (voxel != null && voxel.getType() != VoxelType.AIR) {
 				return y + 1;
 			}
 		}
 		return 0;
 	}
 
-	public void setColumn (float x, float y, float z, VoxelTypeComponent voxel) {
-		setColumn(x, 0, y, z, voxel);
+	public void setColumn (float x, float y, float z, VoxelType type) {
+		setColumn(x, 0, y, z, type);
 	}
 
-	public void setColumn (float x, float startY, float endY, float z, VoxelTypeComponent voxel) {
+	public void setColumn (float x, float startY, float endY, float z, VoxelType type) {
 		int ix = (int)x;
 		int iy = (int)endY;
 		int iz = (int)z;
@@ -99,11 +98,11 @@ public class VoxelWorld implements Disposable {
 		if (iz < 0 || iz >= voxelsZ) return;
 		// FIXME optimize
 		for (; iy > startY; iy--) {
-			set(ix, iy, iz, voxel);
+			set(ix, iy, iz, type);
 		}
 	}
 
-	public void setCube (float x, float y, float z, float width, float height, float depth, VoxelTypeComponent voxel) {
+	public void setCube (float x, float y, float z, float width, float height, float depth, VoxelType type) {
 		int ix = (int)x;
 		int iy = (int)y;
 		int iz = (int)z;
@@ -120,7 +119,7 @@ public class VoxelWorld implements Disposable {
 		for (iy = startY; iy < endY; iy++) {
 			for (iz = startZ; iz < endZ; iz++) {
 				for (ix = startX; ix < endX; ix++) {
-					set(ix, iy, iz, voxel);
+					set(ix, iy, iz, type);
 				}
 			}
 		}
