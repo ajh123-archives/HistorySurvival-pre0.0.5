@@ -5,6 +5,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,9 +24,9 @@ public class SolidModelComponent implements Component {
 		this.sounds.addAll(sounds);
 	}
 
-	public SolidModelComponent(Color color, Sound sound) {
+	public SolidModelComponent(Color color, Sound... sounds) {
 		this(color, false);
-		this.sounds.add(sound);
+		this.sounds.addAll(Arrays.asList(sounds));
 	}
 
 	public SolidModelComponent(Color color) {

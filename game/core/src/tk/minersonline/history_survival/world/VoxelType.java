@@ -11,7 +11,8 @@ public class VoxelType implements Component {
 	));
 	public static VoxelType GRASS = new VoxelType("grass", new SolidModelComponent(
 			Color.FOREST,
-			Gdx.audio.newSound(Gdx.files.internal("data/voxels/grass/step_l.mp3"))
+			Gdx.audio.newSound(Gdx.files.internal("data/voxels/grass/step_l.mp3")),
+			Gdx.audio.newSound(Gdx.files.internal("data/voxels/grass/step_r.mp3"))
 	));
 	public static VoxelType STONE = new VoxelType("stone", new SolidModelComponent(
 			Color.GRAY
