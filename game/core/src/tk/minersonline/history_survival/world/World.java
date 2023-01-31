@@ -2,6 +2,8 @@ package tk.minersonline.history_survival.world;
 
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.utils.Disposable;
+import tk.minersonline.history_survival.world.voxels.Voxel;
+import tk.minersonline.history_survival.world.voxels.VoxelType;
 
 public class World implements Disposable {
 	public static final int CHUNK_SIZE_X = 16;

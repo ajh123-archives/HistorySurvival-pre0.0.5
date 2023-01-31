@@ -1,4 +1,4 @@
-package tk.minersonline.history_survival.world;
+package tk.minersonline.history_survival.world.voxels;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.Gdx;

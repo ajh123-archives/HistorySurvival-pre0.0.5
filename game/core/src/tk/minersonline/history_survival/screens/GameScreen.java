@@ -18,7 +18,7 @@ import tk.minersonline.history_survival.HistorySurvival;
 import tk.minersonline.history_survival.componments.ModelComponent;
 import tk.minersonline.history_survival.systems.ModelRenderer;
 import tk.minersonline.history_survival.world.PerlinNoiseGenerator;
-import tk.minersonline.history_survival.world.Voxel;
+import tk.minersonline.history_survival.world.voxels.Voxel;
 import tk.minersonline.history_survival.world.World;
 import tk.minersonline.history_survival.systems.WorldRenderer;
 import tk.minersonline.history_survival.world.util.VoxelUtils;

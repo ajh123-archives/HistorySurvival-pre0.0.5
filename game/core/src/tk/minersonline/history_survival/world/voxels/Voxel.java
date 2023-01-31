@@ -1,7 +1,8 @@
-package tk.minersonline.history_survival.world;
+package tk.minersonline.history_survival.world.voxels;
 
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Vector3;
+import tk.minersonline.history_survival.world.World;
 
 import java.util.List;
 
