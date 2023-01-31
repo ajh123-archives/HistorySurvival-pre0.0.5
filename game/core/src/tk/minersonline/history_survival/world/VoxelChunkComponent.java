@@ -1,4 +1,4 @@
-package tk.minersonline.history_survival.componments;
+package tk.minersonline.history_survival.world;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;

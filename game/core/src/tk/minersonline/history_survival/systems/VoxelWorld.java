@@ -2,9 +2,9 @@ package tk.minersonline.history_survival.systems;
 
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.utils.Disposable;
-import tk.minersonline.history_survival.componments.VoxelChunkComponent;
-import tk.minersonline.history_survival.componments.VoxelEntity;
-import tk.minersonline.history_survival.componments.VoxelTypeComponent;
+import tk.minersonline.history_survival.world.VoxelChunkComponent;
+import tk.minersonline.history_survival.world.VoxelEntity;
+import tk.minersonline.history_survival.world.VoxelTypeComponent;
 
 public class VoxelWorld implements Disposable {
 	public static final int CHUNK_SIZE_X = 16;

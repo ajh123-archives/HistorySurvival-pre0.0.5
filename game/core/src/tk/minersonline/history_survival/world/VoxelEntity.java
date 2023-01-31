@@ -1,4 +1,4 @@
-package tk.minersonline.history_survival.componments;
+package tk.minersonline.history_survival.world;
 
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Vector3;

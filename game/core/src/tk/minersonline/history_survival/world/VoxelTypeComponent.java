@@ -1,10 +1,9 @@
-package tk.minersonline.history_survival.componments;
+package tk.minersonline.history_survival.world;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-
-import java.util.Random;
+import tk.minersonline.history_survival.componments.SolidModelComponent;
 
 public class VoxelTypeComponent implements Component {
 	public static VoxelTypeComponent AIR = new VoxelTypeComponent("air", new SolidModelComponent(

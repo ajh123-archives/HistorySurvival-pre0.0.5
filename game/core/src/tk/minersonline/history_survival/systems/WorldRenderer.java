@@ -15,8 +15,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
-import tk.minersonline.history_survival.componments.VoxelChunkComponent;
-import tk.minersonline.history_survival.componments.VoxelEntity;
+import tk.minersonline.history_survival.world.VoxelChunkComponent;
 import tk.minersonline.history_survival.util.VoxelUtils;
 
 import static tk.minersonline.history_survival.systems.VoxelWorld.*;
