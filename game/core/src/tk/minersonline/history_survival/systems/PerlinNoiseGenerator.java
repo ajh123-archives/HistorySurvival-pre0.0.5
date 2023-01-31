@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.math.MathUtils;
 import tk.minersonline.history_survival.world.Voxel;
 import tk.minersonline.history_survival.world.VoxelType;
-import tk.minersonline.history_survival.world.VoxelWorld;
+import tk.minersonline.history_survival.world.World;
 
 /** Adapted from <a href="http://devmag.org.za/2009/04/25/perlin-noise/">http://devmag.org.za/2009/04/25/perlin-noise/</a>
  * @author badlogic */
@@ -117,7 +117,7 @@ public class PerlinNoiseGenerator {
 		return pixmap;
 	}
 
-	public static Pixmap colourPixmap (VoxelWorld voxelWorld, int startX, int startZ, int endX, int endZ) {
+	public static Pixmap colourPixmap (World voxelWorld, int startX, int startZ, int endX, int endZ) {
 		int scale = 5;
 		Pixmap pixmap = new Pixmap(endX * scale, endZ * scale, Format.RGBA8888);
 		for (int z = startZ; z < endZ; z++) {
@@ -133,10 +133,10 @@ public class PerlinNoiseGenerator {
 				pixmap.fillRectangle((x-startX)*scale, (z-startZ)*scale, scale, scale);
 				pixmap.setColor(Color.CYAN);
 
-				if (x % VoxelWorld.CHUNK_SIZE_X == 0) {
+				if (x % World.CHUNK_SIZE_X == 0) {
 					pixmap.drawLine((x-startX)*scale, (endX-startX)*scale, (x-startX)*scale, 0);
 				}
-				if (z % VoxelWorld.CHUNK_SIZE_Z == 0) {
+				if (z % World.CHUNK_SIZE_Z == 0) {
 					pixmap.drawLine((endZ-startZ)*scale, (z-startZ)*scale, 0, (z-startZ)*scale);
 				}
 
@@ -155,7 +155,7 @@ public class PerlinNoiseGenerator {
 		return pixmap;
 	}
 
-	public static void generateVoxels (VoxelWorld voxelWorld, int min, int max, int octaveCount) {
+	public static void generateVoxels (World voxelWorld, int min, int max, int octaveCount) {
 		byte[] heightMap = PerlinNoiseGenerator.generateHeightMap(voxelWorld.voxelsX, voxelWorld.voxelsZ, min, max, octaveCount);
 		int idx = 0;
 		for (int z = 0; z < voxelWorld.voxelsZ; z++) {

@@ -17,15 +17,15 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import tk.minersonline.history_survival.world.Chunk;
 import tk.minersonline.history_survival.util.VoxelUtils;
-import tk.minersonline.history_survival.world.VoxelWorld;
+import tk.minersonline.history_survival.world.World;
 
-import static tk.minersonline.history_survival.world.VoxelWorld.*;
+import static tk.minersonline.history_survival.world.World.*;
 
 public class WorldRenderer extends IteratingSystem implements RenderableProvider {
 	ComponentMapper<Chunk> chunks;
-	private final VoxelWorld world;
+	private final World world;
 
-	public WorldRenderer(VoxelWorld world) {
+	public WorldRenderer(World world) {
 		super(Family.all(Chunk.class).get());
 		this.world = world;
 		chunks = ComponentMapper.getFor(Chunk.class);

@@ -8,17 +8,17 @@ import java.util.List;
 public class Voxel {
 	private final VoxelType type;
 	private final Vector3 position;
-	private final VoxelWorld world;
+	private final World world;
 	private float debounceSound = 0;
 
 
-	public Voxel(VoxelType type, Vector3 position, VoxelWorld world) {
+	public Voxel(VoxelType type, Vector3 position, World world) {
 		this.type = type;
 		this.position = position;
 		this.world = world;
 	}
 
-	public VoxelWorld getWorld() {
+	public World getWorld() {
 		return world;
 	}
 

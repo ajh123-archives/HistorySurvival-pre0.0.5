@@ -2,11 +2,8 @@ package tk.minersonline.history_survival.world;
 
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.utils.Disposable;
-import tk.minersonline.history_survival.world.Chunk;
-import tk.minersonline.history_survival.world.Voxel;
-import tk.minersonline.history_survival.world.VoxelType;
 
-public class VoxelWorld implements Disposable {
+public class World implements Disposable {
 	public static final int CHUNK_SIZE_X = 16;
 	public static final int CHUNK_SIZE_Y = 16;
 	public static final int CHUNK_SIZE_Z = 16;
@@ -19,7 +16,7 @@ public class VoxelWorld implements Disposable {
 	public final int voxelsZ;
 	public PooledEngine engine;
 
-	public VoxelWorld (int chunksX, int chunksY, int chunksZ, PooledEngine engine) {
+	public World(int chunksX, int chunksY, int chunksZ, PooledEngine engine) {
 		this.chunks = new Chunk[chunksX * chunksY * chunksZ];
 		this.chunksX = chunksX;
 		this.chunksY = chunksY;

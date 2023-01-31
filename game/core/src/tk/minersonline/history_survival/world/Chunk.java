@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.math.Vector3;
 import tk.minersonline.history_survival.util.VoxelUtils;
 
-import static tk.minersonline.history_survival.world.VoxelWorld.*;
+import static tk.minersonline.history_survival.world.World.*;
 
 public class Chunk implements Component {
 	public static final boolean USE_PACKED_COLOR = true;
@@ -25,7 +25,7 @@ public class Chunk implements Component {
 	private final int rightOffset;
 	private final int frontOffset;
 	private final int backOffset;
-	private final VoxelWorld world;
+	private final World world;
 	public Mesh mesh;
 	public Mesh transparentMesh;
 	public Material material;
@@ -37,7 +37,7 @@ public class Chunk implements Component {
 	int len = CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * 6 * 6 / 3;
 	public short[] indices = new short[len];
 
-	public Chunk(int width, int height, int depth, VoxelWorld world) {
+	public Chunk(int width, int height, int depth, World world) {
 		this.world = world;
 		this.voxels = new Voxel[width * height * depth];
 		this.width = width;

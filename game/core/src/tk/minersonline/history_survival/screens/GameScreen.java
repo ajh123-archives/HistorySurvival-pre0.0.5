@@ -19,7 +19,7 @@ import tk.minersonline.history_survival.componments.ModelComponent;
 import tk.minersonline.history_survival.systems.ModelRenderer;
 import tk.minersonline.history_survival.systems.PerlinNoiseGenerator;
 import tk.minersonline.history_survival.world.Voxel;
-import tk.minersonline.history_survival.world.VoxelWorld;
+import tk.minersonline.history_survival.world.World;
 import tk.minersonline.history_survival.systems.WorldRenderer;
 import tk.minersonline.history_survival.util.VoxelUtils;
 
@@ -30,7 +30,7 @@ public class GameScreen implements Screen {
 	PerspectiveCamera camera = HistorySurvival.INSTANCE.camera;
 	Environment environment;
 	FirstPersonCameraController controller;
-	VoxelWorld voxelWorld;
+	World voxelWorld;
 	WorldRenderer worldRenderer;
 	ModelRenderer modelRenderer;
 	Vector3 lastPos;
@@ -55,7 +55,7 @@ public class GameScreen implements Screen {
 		environment.add(new DirectionalLight().set(1, 1, 1, 0, -1, 0));
 
 		MathUtils.random.setSeed(0);
-		voxelWorld = new VoxelWorld(20, 4, 20, engine);
+		voxelWorld = new World(20, 4, 20, engine);
 		worldRenderer = new WorldRenderer(voxelWorld);
 		engine.addSystem(worldRenderer);
 		PerlinNoiseGenerator.generateVoxels(voxelWorld, 0, 63, 10);
