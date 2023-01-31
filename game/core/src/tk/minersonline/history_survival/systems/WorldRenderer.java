@@ -16,7 +16,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import tk.minersonline.history_survival.world.Chunk;
-import tk.minersonline.history_survival.util.VoxelUtils;
+import tk.minersonline.history_survival.world.util.VoxelUtils;
 import tk.minersonline.history_survival.world.World;
 
 import static tk.minersonline.history_survival.world.World.*;

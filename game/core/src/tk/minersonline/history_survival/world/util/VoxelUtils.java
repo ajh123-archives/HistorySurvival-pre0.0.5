@@ -1,4 +1,4 @@
-package tk.minersonline.history_survival.util;
+package tk.minersonline.history_survival.world.util;
 
 import com.badlogic.gdx.math.Vector3;
 import tk.minersonline.history_survival.componments.TransformComponent;

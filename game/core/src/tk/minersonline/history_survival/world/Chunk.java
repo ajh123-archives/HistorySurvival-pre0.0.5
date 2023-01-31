@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.math.Vector3;
-import tk.minersonline.history_survival.util.VoxelUtils;
+import tk.minersonline.history_survival.world.util.VoxelUtils;
 
 import static tk.minersonline.history_survival.world.World.*;
 
