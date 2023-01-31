@@ -27,7 +27,7 @@ public class GameScreen implements Screen {
 	final HistorySurvival game;
 	ModelBatch chunkBatch;
 	ModelBatch modelBatch;
-	PerspectiveCamera camera;
+	PerspectiveCamera camera = HistorySurvival.INSTANCE.camera;
 	Environment environment;
 	FirstPersonCameraController controller;
 	VoxelWorld voxelWorld;
@@ -46,9 +46,7 @@ public class GameScreen implements Screen {
 		chunkBatch = new ModelBatch();
 		modelBatch = new ModelBatch();
 
-		camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		camera.near = 0.5f;
-		camera.far = 1000;
+
 		controller = new FirstPersonCameraController(camera);
 		Gdx.input.setInputProcessor(controller);
 
@@ -70,7 +68,7 @@ public class GameScreen implements Screen {
 		camera.position.set(VoxelUtils.toRealPos(new Vector3( camX, camY, camZ)));
 
 		Entity test = engine.createEntity();
-		test.add(VoxelUtils.getTransformComponent(new Vector3(camX, voxelWorld.getHighest(camX, camZ), camZ)));
+		test.add(VoxelUtils.realScaledTransform(new Vector3(camX, voxelWorld.getHighest(camX, camZ), camZ)));
 		test.add(new ModelComponent("data/models/cube/cube.g3dj"));
 		engine.addEntity(test);
 	}
@@ -100,6 +98,15 @@ public class GameScreen implements Screen {
 		game.font.draw(game.spriteBatch, "pos: " + voxelPos, 0, 36);
 		game.font.draw(game.spriteBatch, "fps: " + Gdx.graphics.getFramesPerSecond(), 0, 20);
 		game.spriteBatch.end();
+
+		float camX = voxelWorld.voxelsX / 2f;
+		float camZ = voxelWorld.voxelsZ / 2f;
+		float camY = voxelWorld.getHighest(camX, camZ) + (1.5f / VoxelUtils.VOXEL_SIZE) - 2;
+		Vector3 pos = VoxelUtils.toRealPos(new Vector3( camX, camY, camZ));
+		HistorySurvival.INSTANCE.bulletPhysicsSystem.getDebugDrawer().begin(camera);
+		HistorySurvival.INSTANCE.bulletPhysicsSystem.getDebugDrawer().draw3dText(pos, "Spawn");
+		HistorySurvival.INSTANCE.bulletPhysicsSystem.getDebugDrawer().end();
+		HistorySurvival.INSTANCE.bulletPhysicsSystem.render(camera);
 	}
 
 	@Override
@@ -128,5 +135,6 @@ public class GameScreen implements Screen {
 	@Override
 	public void dispose() {
 		modelRenderer.dispose();
+		voxelWorld.dispose();
 	}
 }

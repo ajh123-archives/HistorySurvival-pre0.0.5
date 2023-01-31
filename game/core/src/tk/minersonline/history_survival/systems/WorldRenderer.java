@@ -63,6 +63,7 @@ public class WorldRenderer extends IteratingSystem implements RenderableProvider
 							CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * 36 / 3, attributes);
 					chunk.transparentMesh.setIndices(indices);
 					chunk.dirty = true;
+//					chunk.renderDirty = true;
 					chunk.numVertices = 0;
 					chunk.numTransparentVertices = 0;
 					chunk.material = new Material();

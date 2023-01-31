@@ -9,12 +9,11 @@ public class VoxelUtils {
 
 	public static Vector3 toRealPos(Vector3 voxelPos) {
 		return new Vector3(
-				(float) ((Math.floor(voxelPos.x) * VOXEL_SIZE) + (VOXEL_SIZE/2f)),
-				(float) ((Math.floor(voxelPos.y) * VOXEL_SIZE) + (VOXEL_SIZE/2f)),
-				(float) ((Math.floor(voxelPos.z) * VOXEL_SIZE) + (VOXEL_SIZE/2f))
+			(float) ((Math.floor(voxelPos.x) * VOXEL_SIZE) + (VOXEL_SIZE/2f)),
+			(float) ((Math.floor(voxelPos.y) * VOXEL_SIZE) + (VOXEL_SIZE/2f)),
+			(float) ((Math.floor(voxelPos.z) * VOXEL_SIZE) + (VOXEL_SIZE/2f))
 		);
 	}
-
 	public static Vector3 toVoxelPos(Vector3 realPos) {
 		return new Vector3(
 				realPos.x / VOXEL_SIZE,
@@ -23,7 +22,11 @@ public class VoxelUtils {
 		);
 	}
 
-	public static TransformComponent getTransformComponent(Vector3 pos) {
-		return new TransformComponent(toRealPos(pos), VOXEL_SCALE);
+	public static float toRealScale(float voxelPos) {
+		return  (float) ((Math.floor(voxelPos) * VOXEL_SIZE) + (VOXEL_SIZE / 2f));
+	}
+
+	public static TransformComponent realScaledTransform(Vector3 voxelPos) {
+		return new TransformComponent(toRealPos(voxelPos), VOXEL_SCALE);
 	}
 }

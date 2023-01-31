@@ -1,18 +1,35 @@
 package tk.minersonline.history_survival;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.Bullet;
+import com.badlogic.gdx.physics.bullet.DebugDrawer;
+import com.badlogic.gdx.physics.bullet.collision.*;
+import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
 import com.kotcrab.vis.ui.VisUI;
 import tk.minersonline.history_survival.screens.MenuScreen;
+import tk.minersonline.history_survival.systems.BulletPhysicsSystem;
 
 public class HistorySurvival extends Game {
 	public SpriteBatch spriteBatch;
 	public BitmapFont font;
 	public static HistorySurvival INSTANCE = InitHelper.get();
-
+	public BulletPhysicsSystem bulletPhysicsSystem;
+	public PerspectiveCamera camera;
 	@Override
 	public void create () {
+		Bullet.init();
+		bulletPhysicsSystem = new BulletPhysicsSystem();
+
+		camera = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		camera.near = 0.5f;
+		camera.far = 1000;
+
 		spriteBatch = new SpriteBatch();
 		font = new BitmapFont();
 		VisUI.load();
@@ -37,6 +54,7 @@ public class HistorySurvival extends Game {
 
 	@Override
 	public void render () {
+		bulletPhysicsSystem.update(Gdx.graphics.getDeltaTime());
 		super.render();
 	}
 
@@ -45,6 +63,7 @@ public class HistorySurvival extends Game {
 		VisUI.dispose();
 		spriteBatch.dispose();
 		font.dispose();
+		bulletPhysicsSystem.dispose();
 	}
 
 	/**

@@ -1,11 +1,12 @@
 package tk.minersonline.history_survival.systems;
 
 import com.badlogic.ashley.core.PooledEngine;
+import com.badlogic.gdx.utils.Disposable;
 import tk.minersonline.history_survival.componments.VoxelChunkComponent;
 import tk.minersonline.history_survival.componments.VoxelEntity;
 import tk.minersonline.history_survival.componments.VoxelTypeComponent;
 
-public class VoxelWorld {
+public class VoxelWorld implements Disposable {
 	public static final int CHUNK_SIZE_X = 16;
 	public static final int CHUNK_SIZE_Y = 16;
 	public static final int CHUNK_SIZE_Z = 16;
@@ -123,5 +124,12 @@ public class VoxelWorld {
 				}
 			}
 		}
+	}
+
+	@Override
+	public void dispose() {
+//		for (VoxelChunkComponent chunkComponent : chunks) {
+//			chunkComponent.dispose();
+//		}
 	}
 }
