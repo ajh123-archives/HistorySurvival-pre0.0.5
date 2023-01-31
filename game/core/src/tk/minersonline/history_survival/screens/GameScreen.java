@@ -20,8 +20,8 @@ import tk.minersonline.history_survival.systems.ModelRenderer;
 import tk.minersonline.history_survival.world.PerlinNoiseGenerator;
 import tk.minersonline.history_survival.world.voxels.Voxel;
 import tk.minersonline.history_survival.world.World;
-import tk.minersonline.history_survival.systems.WorldRenderer;
-import tk.minersonline.history_survival.world.util.VoxelUtils;
+import tk.minersonline.history_survival.world.systems.WorldRenderer;
+import tk.minersonline.history_survival.world.utils.VoxelUtils;
 
 public class GameScreen implements Screen {
 	final HistorySurvival game;

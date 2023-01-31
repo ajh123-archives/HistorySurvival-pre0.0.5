@@ -1,4 +1,4 @@
-package tk.minersonline.history_survival.systems;
+package tk.minersonline.history_survival.world.systems;
 
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
@@ -16,7 +16,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.FloatAttribute;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import tk.minersonline.history_survival.world.Chunk;
-import tk.minersonline.history_survival.world.util.VoxelUtils;
+import tk.minersonline.history_survival.world.utils.VoxelUtils;
 import tk.minersonline.history_survival.world.World;
 
 import static tk.minersonline.history_survival.world.World.*;
