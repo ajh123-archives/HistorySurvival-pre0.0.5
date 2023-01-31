@@ -1,7 +1,6 @@
 package tk.minersonline.history_survival.world.data;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.math.Vector3;
 import tk.minersonline.history_survival.world.Chunk;
 import tk.minersonline.history_survival.world.utils.VoxelUtils;
@@ -12,361 +11,334 @@ import static tk.minersonline.history_survival.world.data.ChunkMesh.USE_PACKED_C
 import static tk.minersonline.history_survival.world.data.ChunkMesh.VERTEX_SIZE;
 
 public class ChunkMeshBuilder {
-	int width;
-	int height;
-	int depth;
-	Chunk chunk;
+	public static ChunkMesh build(Chunk chunk, ChunkBuilderData builderData) {
+		builderData.begin(chunk, true);
+		builderData.end();
 
-	private ChunkMeshBuilder(int width, int height, int depth, Chunk chunk) {
-		this.width = width;
-		this.height = height;
-		this.depth = depth;
-		this.chunk = chunk;
-	}
-
-	public static ChunkMesh build(Chunk chunk) {
-		ChunkMeshBuilder builder = new ChunkMeshBuilder(chunk.width, chunk.height, chunk.depth, chunk);
-
-		Mesh mesh = chunk.chunkMesh.mesh;
-		Mesh transparentMesh = chunk.chunkMesh.transparentMesh;
-
-		int numVerts = builder.calculateVertices(chunk.chunkMesh.vertices);
-		int vertexSize = mesh.getVertexSize() / 4; // Divide by 4 as it is in bytes
-		chunk.chunkMesh.numVertices = numVerts / 4 * vertexSize;
-		mesh.setVertices(chunk.chunkMesh.vertices, 0, numVerts * VERTEX_SIZE);
-
-		int transparentNumVerts = builder.calculateTransparentVertices(chunk.chunkMesh.transparentVertices);
-		int transparentVertexSize = transparentMesh.getVertexSize() / 4; // Divide by 4 as it is in bytes
-		chunk.chunkMesh.numTransparentVertices = transparentNumVerts / 4 * transparentVertexSize;
-		transparentMesh.setVertices(chunk.chunkMesh.transparentVertices, 0, transparentNumVerts * VERTEX_SIZE);
+		builderData.begin(chunk, false);
+		builderData.end();
 
 		return chunk.chunkMesh;
 	}
 
 	/** Creates a mesh out of the chunk, returning the number of indices produced
 	 * @return the number of vertices produced */
-	private int calculateVertices (float[] vertices) {
+	static int calculateVertices(ChunkBuilderData builderData) {
 		int i = 0;
-		int vertexOffset = 0;
-		for (int y = 0; y < height; y++) {
-			for (int z = 0; z < depth; z++) {
-				for (int x = 0; x < width; x++, i++) {
-					Voxel voxel = chunk.voxels[i];
+
+		for (int y = 0; y < builderData.height; y++) {
+			for (int z = 0; z < builderData.depth; z++) {
+				for (int x = 0; x < builderData.width; x++, i++) {
+					Voxel voxel = builderData.chunk.voxels[i];
 					if (voxel.getType() == VoxelType.AIR) continue;
 					if (voxel.getType().getProperties().isTransparent()) continue;
 
-					if (y < height - 1) {
-						if (chunk.voxels[i + chunk.chunkMesh.topOffset].getType() == VoxelType.AIR) vertexOffset = createTop(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
-						if (chunk.voxels[i + chunk.chunkMesh.topOffset].getType().getProperties().isTransparent()) vertexOffset = createTop(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
+					if (y < builderData.height - 1) {
+						if (builderData.chunk.voxels[i + builderData.chunk.chunkMesh.topOffset].getType() == VoxelType.AIR) createTop(builderData.chunk.offset, x, y, z, builderData, voxel);
+						if (builderData.chunk.voxels[i + builderData.chunk.chunkMesh.topOffset].getType().getProperties().isTransparent()) createTop(builderData.chunk.offset, x, y, z, builderData, voxel);
 					} else {
-						vertexOffset = createTop(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
+						createTop(builderData.chunk.offset, x, y, z, builderData, voxel);
 					}
 					if (y > 0) {
-						if (chunk.voxels[i + chunk.chunkMesh.bottomOffset].getType() == VoxelType.AIR) vertexOffset = createBottom(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
-						if (chunk.voxels[i + chunk.chunkMesh.bottomOffset].getType().getProperties().isTransparent()) vertexOffset = createBottom(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
+						if (builderData.chunk.voxels[i + builderData.chunk.chunkMesh.bottomOffset].getType() == VoxelType.AIR) createBottom(builderData.chunk.offset, x, y, z, builderData, voxel);
+						if (builderData.chunk.voxels[i + builderData.chunk.chunkMesh.bottomOffset].getType().getProperties().isTransparent()) createBottom(builderData.chunk.offset, x, y, z, builderData, voxel);
 					} else {
-						vertexOffset = createBottom(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
+						createBottom(builderData.chunk.offset, x, y, z, builderData, voxel);
 					}
 					if (x > 0) {
-						if (chunk.voxels[i + chunk.chunkMesh.leftOffset].getType() == VoxelType.AIR) vertexOffset = createLeft(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
-						if (chunk.voxels[i + chunk.chunkMesh.leftOffset].getType().getProperties().isTransparent()) vertexOffset = createLeft(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
+						if (builderData.chunk.voxels[i + builderData.chunk.chunkMesh.leftOffset].getType() == VoxelType.AIR) createLeft(builderData.chunk.offset, x, y, z, builderData, voxel);
+						if (builderData.chunk.voxels[i + builderData.chunk.chunkMesh.leftOffset].getType().getProperties().isTransparent()) createLeft(builderData.chunk.offset, x, y, z, builderData, voxel);
 					} else {
-						vertexOffset = createLeft(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
+						createLeft(builderData.chunk.offset, x, y, z, builderData, voxel);
 					}
-					if (x < width - 1) {
-						if (chunk.voxels[i + chunk.chunkMesh.rightOffset].getType() == VoxelType.AIR) vertexOffset = createRight(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
-						if (chunk.voxels[i + chunk.chunkMesh.rightOffset].getType().getProperties().isTransparent()) vertexOffset = createRight(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
+					if (x < builderData.width - 1) {
+						if (builderData.chunk.voxels[i + builderData.chunk.chunkMesh.rightOffset].getType() == VoxelType.AIR) createRight(builderData.chunk.offset, x, y, z, builderData, voxel);
+						if (builderData.chunk.voxels[i + builderData.chunk.chunkMesh.rightOffset].getType().getProperties().isTransparent()) createRight(builderData.chunk.offset, x, y, z, builderData, voxel);
 					} else {
-						vertexOffset = createRight(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
+						createRight(builderData.chunk.offset, x, y, z, builderData, voxel);
 					}
 					if (z > 0) {
-						if (chunk.voxels[i + chunk.chunkMesh.frontOffset].getType() == VoxelType.AIR) vertexOffset = createFront(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
-						if (chunk.voxels[i + chunk.chunkMesh.frontOffset].getType().getProperties().isTransparent()) vertexOffset = createFront(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
+						if (builderData.chunk.voxels[i + builderData.chunk.chunkMesh.frontOffset].getType() == VoxelType.AIR) createFront(builderData.chunk.offset, x, y, z, builderData, voxel);
+						if (builderData.chunk.voxels[i + builderData.chunk.chunkMesh.frontOffset].getType().getProperties().isTransparent()) createFront(builderData.chunk.offset, x, y, z, builderData, voxel);
 					} else {
-						vertexOffset = createFront(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
+						createFront(builderData.chunk.offset, x, y, z, builderData, voxel);
 					}
-					if (z < depth - 1) {
-						if (chunk.voxels[i + chunk.chunkMesh.backOffset].getType() == VoxelType.AIR) vertexOffset = createBack(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
-						if (chunk.voxels[i + chunk.chunkMesh.backOffset].getType().getProperties().isTransparent()) vertexOffset = createBack(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
+					if (z < builderData.depth - 1) {
+						if (builderData.chunk.voxels[i + builderData.chunk.chunkMesh.backOffset].getType() == VoxelType.AIR) createBack(builderData.chunk.offset, x, y, z, builderData, voxel);
+						if (builderData.chunk.voxels[i + builderData.chunk.chunkMesh.backOffset].getType().getProperties().isTransparent()) createBack(builderData.chunk.offset, x, y, z, builderData, voxel);
 					} else {
-						vertexOffset = createBack(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
+						createBack(builderData.chunk.offset, x, y, z, builderData, voxel);
 					}
 				}
 			}
 		}
-		return vertexOffset / VERTEX_SIZE;
+		return builderData.vertexOffset / VERTEX_SIZE;
 	}
 
 	/** Creates a mesh out of the transparent parts of the chunk, returning the number of indices produced
 	 * @return the number of vertices produced */
-	private int calculateTransparentVertices(float[] vertices) {
+	static int calculateTransparentVertices(ChunkBuilderData builderData) {
 		int i = 0;
-		int vertexOffset = 0;
-		for (int y = 0; y < height; y++) {
-			for (int z = 0; z < depth; z++) {
-				for (int x = 0; x < width; x++, i++) {
-					Voxel voxel = chunk.voxels[i];
+
+		for (int y = 0; y < builderData.height; y++) {
+			for (int z = 0; z < builderData.depth; z++) {
+				for (int x = 0; x < builderData.width; x++, i++) {
+					Voxel voxel = builderData.chunk.voxels[i];
 					if (!voxel.getType().getProperties().isTransparent()) continue;
 
-					if (y < height - 1) {
-						if (chunk.voxels[i + chunk.chunkMesh.topOffset].getType() == VoxelType.AIR) vertexOffset = createTop(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
+					if (y < builderData.height - 1) {
+						if (builderData.chunk.voxels[i + builderData.chunk.chunkMesh.topOffset].getType() == VoxelType.AIR) createTop(builderData.chunk.offset, x, y, z, builderData, voxel);
 					} else {
-						vertexOffset = createTop(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
+						createTop(builderData.chunk.offset, x, y, z, builderData, voxel);
 					}
 					if (y > 0) {
-						if (chunk.voxels[i + chunk.chunkMesh.bottomOffset].getType() == VoxelType.AIR) vertexOffset = createBottom(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
+						if (builderData.chunk.voxels[i + builderData.chunk.chunkMesh.bottomOffset].getType() == VoxelType.AIR) createBottom(builderData.chunk.offset, x, y, z, builderData, voxel);
 					} else {
-						vertexOffset = createBottom(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
+						createBottom(builderData.chunk.offset, x, y, z, builderData, voxel);
 					}
 					if (x > 0) {
-						if (chunk.voxels[i + chunk.chunkMesh.leftOffset].getType() == VoxelType.AIR) vertexOffset = createLeft(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
+						if (builderData.chunk.voxels[i + builderData.chunk.chunkMesh.leftOffset].getType() == VoxelType.AIR) createLeft(builderData.chunk.offset, x, y, z, builderData, voxel);
 					} else {
-						vertexOffset = createLeft(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
+						createLeft(builderData.chunk.offset, x, y, z, builderData, voxel);
 					}
-					if (x < width - 1) {
-						if (chunk.voxels[i + chunk.chunkMesh.rightOffset].getType() == VoxelType.AIR) vertexOffset = createRight(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
+					if (x < builderData.width - 1) {
+						if (builderData.chunk.voxels[i + builderData.chunk.chunkMesh.rightOffset].getType() == VoxelType.AIR) createRight(builderData.chunk.offset, x, y, z, builderData, voxel);
 					} else {
-						vertexOffset = createRight(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
+						createRight(builderData.chunk.offset, x, y, z, builderData, voxel);
 					}
 					if (z > 0) {
-						if (chunk.voxels[i + chunk.chunkMesh.frontOffset].getType() == VoxelType.AIR) vertexOffset = createFront(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
+						if (builderData.chunk.voxels[i + builderData.chunk.chunkMesh.frontOffset].getType() == VoxelType.AIR) createFront(builderData.chunk.offset, x, y, z, builderData, voxel);
 					} else {
-						vertexOffset = createFront(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
+						createFront(builderData.chunk.offset, x, y, z, builderData, voxel);
 					}
-					if (z < depth - 1) {
-						if (chunk.voxels[i + chunk.chunkMesh.backOffset].getType() == VoxelType.AIR) vertexOffset = createBack(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
+					if (z < builderData.depth - 1) {
+						if (builderData.chunk.voxels[i + builderData.chunk.chunkMesh.backOffset].getType() == VoxelType.AIR) createBack(builderData.chunk.offset, x, y, z, builderData, voxel);
 					} else {
-						vertexOffset = createBack(chunk.offset, x, y, z, vertices, vertexOffset, voxel);
+						createBack(builderData.chunk.offset, x, y, z, builderData, voxel);
 					}
 				}
 			}
 		}
-		return vertexOffset / VERTEX_SIZE;
+		return builderData.vertexOffset / VERTEX_SIZE;
 	}
 
-	private static int createTop(Vector3 offset, int x, int y, int z, float[] vertices, int vertexOffset, Voxel voxel) {
+	private static void createTop(Vector3 offset, int x, int y, int z, ChunkBuilderData builderData, Voxel voxel) {
 		float topOffset = 0;
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE + topOffset;
-		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = 0;
-		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
+		builderData.append(offset.x + (x * VoxelUtils.VOXEL_SIZE));
+		builderData.append(offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE + topOffset);
+		builderData.append(offset.z + (z * VoxelUtils.VOXEL_SIZE));
+		builderData.append(0);
+		builderData.append(VoxelUtils.VOXEL_SIZE);
+		builderData.append(0);
+		addColorToVertices(builderData, voxel);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE + topOffset;
-		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = 0;
-		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
+		builderData.append(offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE + topOffset);
+		builderData.append(offset.z + (z * VoxelUtils.VOXEL_SIZE));
+		builderData.append(0);
+		builderData.append(VoxelUtils.VOXEL_SIZE);
+		builderData.append(0);
+		addColorToVertices(builderData, voxel);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE + topOffset;
-		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = 0;
-		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
+		builderData.append(offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE + topOffset);
+		builderData.append(offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(0);
+		builderData.append(VoxelUtils.VOXEL_SIZE);
+		builderData.append(0);
+		addColorToVertices(builderData, voxel);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE + topOffset;
-		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = 0;
-		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
-		return vertexOffset;
+		builderData.append(offset.x + (x * VoxelUtils.VOXEL_SIZE));
+		builderData.append(offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE + topOffset);
+		builderData.append(offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(0);
+		builderData.append(VoxelUtils.VOXEL_SIZE);
+		builderData.append(0);
+		addColorToVertices(builderData, voxel);
 	}
 
-	private static int createBottom(Vector3 offset, int x, int y, int z, float[] vertices, int vertexOffset, Voxel voxel) {
-		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = -VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = 0;
-		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
+	private static void createBottom(Vector3 offset, int x, int y, int z, ChunkBuilderData builderData, Voxel voxel) {
+		builderData.append(offset.x + (x * VoxelUtils.VOXEL_SIZE));
+		builderData.append(offset.y + (y * VoxelUtils.VOXEL_SIZE));
+		builderData.append(offset.z + (z * VoxelUtils.VOXEL_SIZE));
+		builderData.append(0);
+		builderData.append(-VoxelUtils.VOXEL_SIZE);
+		builderData.append(0);
+		addColorToVertices(builderData, voxel);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = -VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = 0;
-		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
+		builderData.append(offset.x + (x * VoxelUtils.VOXEL_SIZE));
+		builderData.append(offset.y + (y * VoxelUtils.VOXEL_SIZE));
+		builderData.append(offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(0);
+		builderData.append(-VoxelUtils.VOXEL_SIZE);
+		builderData.append(0);
+		addColorToVertices(builderData, voxel);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = -VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = 0;
-		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
+		builderData.append(offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(offset.y + (y * VoxelUtils.VOXEL_SIZE));
+		builderData.append(offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(0);
+		builderData.append(-VoxelUtils.VOXEL_SIZE);
+		builderData.append(0);
+		addColorToVertices(builderData, voxel);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = -1;
-		vertices[vertexOffset++] = 0;
-		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
-		return vertexOffset;
+		builderData.append(offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(offset.y + (y * VoxelUtils.VOXEL_SIZE));
+		builderData.append(offset.z + (z * VoxelUtils.VOXEL_SIZE));
+		builderData.append(0);
+		builderData.append(-1);
+		builderData.append(0);
+		addColorToVertices(builderData, voxel);
 	}
 
-	private static int createLeft(Vector3 offset, int x, int y, int z, float[] vertices, int vertexOffset, Voxel voxel) {
-		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = -VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = 0;
-		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
+	private static void createLeft(Vector3 offset, int x, int y, int z, ChunkBuilderData builderData, Voxel voxel) {
+		builderData.append(offset.x + (x * VoxelUtils.VOXEL_SIZE));
+		builderData.append(offset.y + (y * VoxelUtils.VOXEL_SIZE));
+		builderData.append(offset.z + (z * VoxelUtils.VOXEL_SIZE));
+		builderData.append(-VoxelUtils.VOXEL_SIZE);
+		builderData.append(0);
+		builderData.append(0);
+		addColorToVertices(builderData, voxel);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = -VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = 0;
-		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
+		builderData.append(offset.x + (x * VoxelUtils.VOXEL_SIZE));
+		builderData.append(offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(offset.z + (z * VoxelUtils.VOXEL_SIZE));
+		builderData.append(-VoxelUtils.VOXEL_SIZE);
+		builderData.append(0);
+		builderData.append(0);
+		addColorToVertices(builderData, voxel);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = -VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = 0;
-		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
+		builderData.append(offset.x + (x * VoxelUtils.VOXEL_SIZE));
+		builderData.append(offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(-VoxelUtils.VOXEL_SIZE);
+		builderData.append(0);
+		builderData.append(0);
+		addColorToVertices(builderData, voxel);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = -VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = 0;
-		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
-		return vertexOffset;
+		builderData.append(offset.x + (x * VoxelUtils.VOXEL_SIZE));
+		builderData.append(offset.y + (y * VoxelUtils.VOXEL_SIZE));
+		builderData.append(offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(-VoxelUtils.VOXEL_SIZE);
+		builderData.append(0);
+		builderData.append(0);
+		addColorToVertices(builderData, voxel);
 	}
 
-	private static int createRight(Vector3 offset, int x, int y, int z, float[] vertices, int vertexOffset, Voxel voxel) {
-		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = 0;
-		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
+	private static void createRight(Vector3 offset, int x, int y, int z, ChunkBuilderData builderData, Voxel voxel) {
+		builderData.append(offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(offset.y + (y * VoxelUtils.VOXEL_SIZE));
+		builderData.append(offset.z + (z * VoxelUtils.VOXEL_SIZE));
+		builderData.append(VoxelUtils.VOXEL_SIZE);
+		builderData.append(0);
+		builderData.append(0);
+		addColorToVertices(builderData, voxel);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = 0;
-		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
+		builderData.append(offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(offset.y + (y * VoxelUtils.VOXEL_SIZE));
+		builderData.append(offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(VoxelUtils.VOXEL_SIZE);
+		builderData.append(0);
+		builderData.append(0);
+		addColorToVertices(builderData, voxel);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = 0;
-		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
+		builderData.append(offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(VoxelUtils.VOXEL_SIZE);
+		builderData.append(0);
+		builderData.append(0);
+		addColorToVertices(builderData, voxel);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = 0;
-		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
-		return vertexOffset;
+		builderData.append(offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(offset.z + (z * VoxelUtils.VOXEL_SIZE));
+		builderData.append(VoxelUtils.VOXEL_SIZE);
+		builderData.append(0);
+		builderData.append(0);
+		addColorToVertices(builderData, voxel);
 	}
 
-	private static int createFront(Vector3 offset, int x, int y, int z, float[] vertices, int vertexOffset, Voxel voxel) {
-		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = VoxelUtils.VOXEL_SIZE;
-		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
+	private static void createFront(Vector3 offset, int x, int y, int z, ChunkBuilderData builderData, Voxel voxel) {
+		builderData.append(offset.x + (x * VoxelUtils.VOXEL_SIZE));
+		builderData.append(offset.y + (y * VoxelUtils.VOXEL_SIZE));
+		builderData.append(offset.z + (z * VoxelUtils.VOXEL_SIZE));
+		builderData.append(0);
+		builderData.append(0);
+		builderData.append(VoxelUtils.VOXEL_SIZE);
+		addColorToVertices(builderData, voxel);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = VoxelUtils.VOXEL_SIZE;
-		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
+		builderData.append(offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(offset.y + (y * VoxelUtils.VOXEL_SIZE));
+		builderData.append(offset.z + (z * VoxelUtils.VOXEL_SIZE));
+		builderData.append(0);
+		builderData.append(0);
+		builderData.append(VoxelUtils.VOXEL_SIZE);
+		addColorToVertices(builderData, voxel);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = VoxelUtils.VOXEL_SIZE;
-		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
+		builderData.append(offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(offset.z + (z * VoxelUtils.VOXEL_SIZE));
+		builderData.append(0);
+		builderData.append(0);
+		builderData.append(VoxelUtils.VOXEL_SIZE);
+		addColorToVertices(builderData, voxel);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = VoxelUtils.VOXEL_SIZE;
-		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
-		return vertexOffset;
+		builderData.append(offset.x + (x * VoxelUtils.VOXEL_SIZE));
+		builderData.append(offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(offset.z + (z * VoxelUtils.VOXEL_SIZE));
+		builderData.append(0);
+		builderData.append(0);
+		builderData.append(VoxelUtils.VOXEL_SIZE);
+		addColorToVertices(builderData, voxel);
 	}
 
-	private static int createBack(Vector3 offset, int x, int y, int z, float[] vertices, int vertexOffset, Voxel voxel) {
-		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = -VoxelUtils.VOXEL_SIZE;
-		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
+	private static void createBack(Vector3 offset, int x, int y, int z, ChunkBuilderData builderData, Voxel voxel) {
+		builderData.append(offset.x + (x * VoxelUtils.VOXEL_SIZE));
+		builderData.append(offset.y + (y * VoxelUtils.VOXEL_SIZE));
+		builderData.append(offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(0);
+		builderData.append(0);
+		builderData.append(-VoxelUtils.VOXEL_SIZE);
+		addColorToVertices(builderData, voxel);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = -VoxelUtils.VOXEL_SIZE;
-		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
+		builderData.append(offset.x + (x * VoxelUtils.VOXEL_SIZE));
+		builderData.append(offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(0);
+		builderData.append(0);
+		builderData.append(-VoxelUtils.VOXEL_SIZE);
+		addColorToVertices(builderData, voxel);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = -VoxelUtils.VOXEL_SIZE;
-		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
+		builderData.append(offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(offset.y + (y * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(0);
+		builderData.append(0);
+		builderData.append(-VoxelUtils.VOXEL_SIZE);
+		addColorToVertices(builderData, voxel);
 
-		vertices[vertexOffset++] = offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = offset.y + (y * VoxelUtils.VOXEL_SIZE);
-		vertices[vertexOffset++] = offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE;
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = 0;
-		vertices[vertexOffset++] = -VoxelUtils.VOXEL_SIZE;
-		vertexOffset += addColorToVertices(vertices, voxel, vertexOffset);
-		return vertexOffset;
+		builderData.append(offset.x + (x * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(offset.y + (y * VoxelUtils.VOXEL_SIZE));
+		builderData.append(offset.z + (z * VoxelUtils.VOXEL_SIZE) + VoxelUtils.VOXEL_SIZE);
+		builderData.append(0);
+		builderData.append(0);
+		builderData.append(-VoxelUtils.VOXEL_SIZE);
+		addColorToVertices(builderData, voxel);
 	}
 
-	private static int addColorToVertices(float[] vertices, Voxel voxel, int vertexOffset) {
+	private static void addColorToVertices(ChunkBuilderData builderData, Voxel voxel) {
 		Color color = voxel.getType().getProperties().getColor();
 		if (USE_PACKED_COLOR) {
-			vertices[vertexOffset] = color.toFloatBits();
-			return 1;
+			builderData.append(color.toFloatBits());
+//			return 1;
 		} else {
-			vertices[vertexOffset++] = color.r;
-			vertices[vertexOffset++] = color.g;
-			vertices[vertexOffset++] = color.b;
-			vertices[vertexOffset] = color.a;
-			return 4;
+			builderData.append(color.r);
+			builderData.append(color.g);
+			builderData.append(color.b);
+			builderData.append(color.a);
+//			return 4;
 		}
 	}
 }

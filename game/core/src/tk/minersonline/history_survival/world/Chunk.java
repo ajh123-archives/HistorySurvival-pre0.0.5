@@ -2,18 +2,10 @@ package tk.minersonline.history_survival.world;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Mesh;
-import com.badlogic.gdx.graphics.VertexAttribute;
-import com.badlogic.gdx.graphics.VertexAttributes;
-import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.math.Vector3;
 import tk.minersonline.history_survival.world.data.ChunkMesh;
-import tk.minersonline.history_survival.world.utils.VoxelUtils;
 import tk.minersonline.history_survival.world.voxels.Voxel;
 import tk.minersonline.history_survival.world.voxels.VoxelType;
-
-import static tk.minersonline.history_survival.world.World.*;
 
 public class Chunk implements Component {
 	public final Voxel[] voxels;
@@ -67,36 +59,7 @@ public class Chunk implements Component {
 	}
 
 	public void setFast (int x, int y, int z, VoxelType type) {
-		Voxel voxelEntity = new Voxel(type, new Vector3(x, y, z), world);
-		voxels[x + z * width + y * widthTimesHeight] = voxelEntity;
-	}
-
-	public void initMesh() {
-		int len = CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * 6 * 6 / 3;
-		short[] indices = new short[len];
-		short j = 0;
-		for (int i = 0; i < len; i += 6, j += (short) 4) {
-			indices[i + 0] = (short)(j + 0);
-			indices[i + 1] = (short)(j + 1);
-			indices[i + 2] = (short)(j + 2);
-			indices[i + 3] = (short)(j + 2);
-			indices[i + 4] = (short)(j + 3);
-			indices[i + 5] = (short)(j + 0);
-		}
-
-		VertexAttribute colorAttribute = ChunkMesh.USE_PACKED_COLOR ? VertexAttribute.ColorPacked() : VertexAttribute.ColorUnpacked();
-		VertexAttributes attributes = new VertexAttributes(VertexAttribute.Position(), VertexAttribute.Normal(), colorAttribute);
-
-		chunkMesh.indices = indices;
-		chunkMesh.mesh = new Mesh(true, CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * attributes.vertexSize * 4,
-				CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * 36 / 3, attributes);
-		chunkMesh.mesh.setIndices(indices);
-		chunkMesh.transparentMesh = new Mesh(true, CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * attributes.vertexSize * 4,
-				CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * 36 / 3, attributes);
-		chunkMesh.transparentMesh.setIndices(indices);
-
-		chunkMesh.numVertices = 0;
-		chunkMesh.numTransparentVertices = 0;
-		chunkMesh.material = new Material();
+		Voxel voxel = new Voxel(type, new Vector3(x, y, z), world);
+		voxels[x + z * width + y * widthTimesHeight] = voxel;
 	}
 }

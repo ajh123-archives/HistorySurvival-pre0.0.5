@@ -2,6 +2,8 @@ package tk.minersonline.history_survival.world.data;
 
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.graphics.VertexAttribute;
+import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
@@ -16,23 +18,41 @@ public class ChunkMesh {
 	public static final boolean USE_PACKED_COLOR = true;
 	public static final int VERTEX_SIZE = USE_PACKED_COLOR ? 7 : 10;
 
-	public final int topOffset;
-	public final int bottomOffset;
-	public final int leftOffset;
-	public final int rightOffset;
-	public final int frontOffset;
-	public final int backOffset;
+	final int topOffset;
+	final int bottomOffset;
+	final int leftOffset;
+	final int rightOffset;
+	final int frontOffset;
+	final int backOffset;
 
-	public Mesh mesh;
-	public Mesh transparentMesh;
-	public Material material;
-	public int numVertices;
-	public int numTransparentVertices;
-	public float[] vertices = new float[VERTEX_SIZE * 6 * CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z];
-	public float[] transparentVertices = new float[VERTEX_SIZE * 6 * CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z];
+	Mesh mesh;
+	Mesh transparentMesh;
+	Material material;
 
-	int len = CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * 6 * 6 / 3;
-	public short[] indices = new short[len];
+	int numVertices;
+	int numTransparentVertices;
+	float[] vertices = new float[VERTEX_SIZE * 6 * CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z];
+	float[] transparentVertices = new float[VERTEX_SIZE * 6 * CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z];
+
+	int numRawVertices;
+	int numRawTransparentVertices;
+	float[] rawVertices = new float[3 * 6 * CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z];
+	float[] rawTransparentVertices = new float[3 * 6 * CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z];
+
+	static int len = CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * 6 * 6 / 3;
+	static short[] indices = new short[len];
+	static {
+		short j = 0;
+		for (int i = 0; i < len; i += 6, j += (short) 4) {
+			indices[i + 0] = (short) (j + 0);
+			indices[i + 1] = (short) (j + 1);
+			indices[i + 2] = (short) (j + 2);
+			indices[i + 3] = (short) (j + 2);
+			indices[i + 4] = (short) (j + 3);
+			indices[i + 5] = (short) (j + 0);
+		}
+	}
+
 
 	public ChunkMesh(int width, int depth) {
 		this.topOffset = width * depth;
@@ -65,5 +85,29 @@ public class ChunkMesh {
 		transparentRenderable.meshPart.size = numTransparentVertices;
 		transparentRenderable.meshPart.primitiveType = GL20.GL_TRIANGLES;
 		renderables.add(transparentRenderable);
+	}
+
+	public void begin() {
+		VertexAttribute colorAttribute = ChunkMesh.USE_PACKED_COLOR ? VertexAttribute.ColorPacked() : VertexAttribute.ColorUnpacked();
+		VertexAttributes attributes = new VertexAttributes(VertexAttribute.Position(), VertexAttribute.Normal(), colorAttribute);
+
+		mesh = new Mesh(true, CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * attributes.vertexSize * 4,
+				CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * 36 / 3, attributes);
+		mesh.setIndices(indices);
+		transparentMesh = new Mesh(true, CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * attributes.vertexSize * 4,
+				CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * 36 / 3, attributes);
+		transparentMesh.setIndices(indices);
+
+		numVertices = 0;
+		numTransparentVertices = 0;
+		material = new Material();
+	}
+
+	public int getNumVertices() {
+		return numVertices;
+	}
+
+	public int getNumTransparentVertices() {
+		return numTransparentVertices;
 	}
 }

@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import tk.minersonline.history_survival.world.Chunk;
+import tk.minersonline.history_survival.world.data.ChunkBuilderData;
 import tk.minersonline.history_survival.world.data.ChunkMeshBuilder;
 import tk.minersonline.history_survival.world.utils.VoxelUtils;
 import tk.minersonline.history_survival.world.World;
@@ -16,8 +17,9 @@ import tk.minersonline.history_survival.world.World;
 import static tk.minersonline.history_survival.world.World.*;
 
 public class WorldRenderer extends IteratingSystem implements RenderableProvider {
-	ComponentMapper<Chunk> chunks;
+	private final ComponentMapper<Chunk> chunks;
 	private final World world;
+	private final ChunkBuilderData builderData = new ChunkBuilderData();
 
 	public WorldRenderer(World world) {
 		super(Family.all(Chunk.class).get());
@@ -34,7 +36,7 @@ public class WorldRenderer extends IteratingSystem implements RenderableProvider
 							(y * VoxelUtils.VOXEL_SIZE) * CHUNK_SIZE_Y,
 							(z * VoxelUtils.VOXEL_SIZE) * CHUNK_SIZE_Z
 					);
-					chunk.initMesh();
+					chunk.chunkMesh.begin();
 					chunk.dirty = true;
 					world.chunks[chunkIndex++] = chunk;
 				}
@@ -46,7 +48,7 @@ public class WorldRenderer extends IteratingSystem implements RenderableProvider
 	protected void processEntity(Entity entity, float deltaTime) {
 		Chunk chunk = chunks.get(entity);
 		if (chunk.dirty) {
-			ChunkMeshBuilder.build(chunk);
+			ChunkMeshBuilder.build(chunk, builderData);
 			chunk.dirty = false;
 		}
 	}
@@ -54,12 +56,12 @@ public class WorldRenderer extends IteratingSystem implements RenderableProvider
 	@Override
 	public void getRenderables(Array<Renderable> renderables, Pool<Renderable> pool) {
 		for (Chunk chunk : world.chunks) {
-			if (chunk.chunkMesh.numVertices != 0) {
+			if (chunk.chunkMesh.getNumVertices() != 0) {
 				chunk.chunkMesh.getRenderables(renderables, pool);
 			}
 		}
 		for (Chunk chunk : world.chunks) {
-			if (chunk.chunkMesh.numTransparentVertices != 0) {
+			if (chunk.chunkMesh.getNumTransparentVertices() != 0) {
 				chunk.chunkMesh.getTransparentRenderables(renderables, pool);
 			}
 		}
