@@ -2,7 +2,10 @@ package tk.minersonline.history_survival.world;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.graphics.g3d.model.MeshPart;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
+import com.badlogic.gdx.utils.Array;
 import tk.minersonline.history_survival.componments.DisposableComponent;
 import tk.minersonline.history_survival.world.data.ChunkMesh;
 import tk.minersonline.history_survival.world.voxels.VoxelType;
@@ -16,6 +19,12 @@ public class Chunk extends DisposableComponent implements Component {
 	private final int widthTimesHeight;
 	public boolean dirty = false;
 	public final ChunkMesh chunkMesh;
+	public btRigidBody body;
+	public btRigidBody transparentBody;
+	public Array<MeshPart> collision = new Array<>();
+	public btRigidBody.btRigidBodyConstructionInfo collisionInfo;
+	public Array<MeshPart> transCollision = new Array<>();
+	public btRigidBody.btRigidBodyConstructionInfo transCollisionInfo;
 
 
 	public Chunk(int width, int height, int depth, World world) {

@@ -5,9 +5,9 @@ import com.badlogic.gdx.utils.Disposable;
 import tk.minersonline.history_survival.world.voxels.VoxelType;
 
 public class World implements Disposable {
-	public static final int CHUNK_SIZE_X = 16;
-	public static final int CHUNK_SIZE_Y = 16;
-	public static final int CHUNK_SIZE_Z = 16;
+	public static final int CHUNK_SIZE_X = 32;
+	public static final int CHUNK_SIZE_Y = 32;
+	public static final int CHUNK_SIZE_Z = 32;
 	public final Chunk[] chunks;
 	public final int chunksX;
 	public final int chunksY;

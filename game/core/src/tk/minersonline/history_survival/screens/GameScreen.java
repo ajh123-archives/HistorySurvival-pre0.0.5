@@ -54,7 +54,7 @@ public class GameScreen implements Screen {
 		environment.add(new DirectionalLight().set(1, 1, 1, 0, -1, 0));
 
 		MathUtils.random.setSeed(0);
-		voxelWorld = new World(20, 4, 20, engine);
+		voxelWorld = new World(10, 2, 10, engine);
 		worldRenderer = new WorldRenderer(voxelWorld);
 		engine.addSystem(worldRenderer);
 		PerlinNoiseGenerator.generateVoxels(voxelWorld, 0, 63, 10);

@@ -1,5 +1,6 @@
 package tk.minersonline.history_survival.world.utils;
 
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import tk.minersonline.history_survival.componments.TransformComponent;
 
@@ -28,5 +29,11 @@ public class VoxelUtils {
 
 	public static TransformComponent realScaledTransform(Vector3 voxelPos) {
 		return new TransformComponent(toRealPos(voxelPos), VOXEL_SCALE);
+	}
+
+	public static Matrix4 realScaledMatrix(Vector3 voxelPos) {
+		Matrix4 matrix4 = new Matrix4();
+		matrix4.setToTranslation(toRealPos(voxelPos));
+		return matrix4;
 	}
 }

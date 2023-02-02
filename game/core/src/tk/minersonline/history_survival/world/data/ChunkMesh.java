@@ -27,17 +27,14 @@ public class ChunkMesh {
 
 	Mesh mesh;
 	Mesh transparentMesh;
+	Mesh collisionMesh;
+	Mesh collisionTransparentMesh;
 	Material material;
 
 	int numVertices;
 	int numTransparentVertices;
-//	float[] vertices = new float[VERTEX_SIZE * 6 * CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z];
-//	float[] transparentVertices = new float[VERTEX_SIZE * 6 * CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z];
-
 	int numRawVertices;
 	int numRawTransparentVertices;
-//	float[] rawVertices = new float[3 * 6 * CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z];
-//	float[] rawTransparentVertices = new float[3 * 6 * CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z];
 
 	static int len = CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * 6 * 6 / 3;
 	static short[] indices = new short[len];
@@ -98,8 +95,18 @@ public class ChunkMesh {
 				CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * 36 / 3, attributes);
 		transparentMesh.setIndices(indices);
 
+		VertexAttributes collisionAttributes = new VertexAttributes(VertexAttribute.Position());
+		collisionMesh = new Mesh(true, CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * collisionAttributes.vertexSize * 4,
+				CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * 36 / 3, collisionAttributes);
+		collisionMesh.setIndices(indices);
+		collisionTransparentMesh = new Mesh(true, CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * collisionAttributes.vertexSize * 4,
+				CHUNK_SIZE_X * CHUNK_SIZE_Y * CHUNK_SIZE_Z * 36 / 3, collisionAttributes);
+		collisionTransparentMesh.setIndices(indices);
+
 		numVertices = 0;
 		numTransparentVertices = 0;
+		numRawTransparentVertices = 0;
+		numRawVertices = 0;
 		material = new Material();
 	}
 
