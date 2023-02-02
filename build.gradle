@@ -1,65 +1,16 @@
-
-
-class docProject {
-    String packageName
-    List<String> sources
-
-
-    @Override
-    String toString() {
-        return "{" +
-                "\'packageName\':\'"+ packageName + "\'" +
-                ", \'sources\':" + sources +
-                "}"
-    }
+plugins {
+    id 'maven-publish'
 }
 
-ext {
-    docProjects = new HashMap<String, String>()
-}
-
-gradle.projectsEvaluated {
-    allprojects {
-        task packageSources { task ->
-            if (task.project.name != rootProject.name) {
-                SourceSet sourceSet = task.project.sourceSets.main
-                String packageName = task.project.group+"."+task.project.name
-                List<String> dirs = new ArrayList<>()
-                for (File file : sourceSet.java.srcDirs){
-                    String name = file.absolutePath
-                    name = name.replace("\\", "\\\\")
-                    dirs.add("\'"+name+"\'")
-                }
-                rootProject.ext.docProjects.put("\'"+task.project.name+"\'", new docProject(packageName: packageName, sources: dirs))
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/ajh123-development/HistorySurvival"
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
             }
         }
-    }
-}
-
-task buildJsonDocs(type:Exec){
-    commandLine "python",
-            "buildTools/build_json_docs.py",
-            "\"$docProjects\"",
-            "$buildDir/mark-docs"
-}
-
-subprojects {
-    repositories {
-        mavenCentral()
-        maven {
-            name = "jitpack"
-            url = "https://jitpack.io"
-        }
-        maven {
-            name = "minecraft-libraries"
-            url = "https://libraries.minecraft.net"
-        }
-        maven {
-            name = "sonatype-nexus-snapshots"
-            url = "https://oss.sonatype.org/content/repositories/snapshots"
-        }
-//        flatDir {
-//            dirs "E:\\web\\maven\\repositories\\releases"
-//        }
     }
 }
