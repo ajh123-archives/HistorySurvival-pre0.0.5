@@ -22,8 +22,10 @@ logs
 *.log
 imgui.ini
 __pycache__
+*.dmp
 
 # Game
 /run_client
 /run_server
 /gameplay/plugins
+mods

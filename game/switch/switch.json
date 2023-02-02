@@ -1,0 +1,10 @@
+{
+    "mainClass": "tk.minersonline.history_survival.switchgdx.SwitchLauncher",
+    "reflective": [
+        "com.badlogic.ashley.core.Entity",
+        "com.kotcrab.vis.ui.**Style"
+    ],
+    "useStackTraces": true,
+    "useLineNumbers": true,
+    "useValueChecks": true
+}

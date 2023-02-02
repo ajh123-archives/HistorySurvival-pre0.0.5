@@ -1,9 +1,5 @@
 pluginManagement {
     repositories {
-        maven {
-            name = 'Fabric'
-            url = 'https://maven.fabricmc.net/'
-        }
         mavenCentral()
         gradlePluginPortal()
     }
@@ -11,6 +7,5 @@ pluginManagement {
 
 rootProject.name = 'HistorySurvival'
 
-include ':api'
-include ':gameplay'
 include ':game'
+include ':game:desktop', ':game:html', ':game:switch', ':game:core', ':game:server'

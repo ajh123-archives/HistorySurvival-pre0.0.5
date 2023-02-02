@@ -1,38 +1,21 @@
 # HistorySurvival
 [![CodeQL](https://github.com/ajh123-development/HistorySurvival/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/ajh123-development/HistorySurvival/actions/workflows/codeql-analysis.yml)
+[![CLA assistant](https://cla-assistant.io/readme/badge/ajh123-development/HistorySurvival)](https://cla-assistant.io/ajh123-development/HistorySurvival)
 
 ## Videos
 
 You may watch some of the videos made by [Minecraft ICT on YouTube](https://www.youtube.com/@minecraftict), the channel is owned by ajh123!
 Check out their [History Survival | Devlog](https://www.youtube.com/playlist?list=PL_my8olCrl67TPxaGK4g0OPohqD4Bw7Ye) playlist.
 
-## Where some of the code is from
-
-This "game" has been made partly from the tutorial series "OpenGL 3D Game Tutorials" published on YouTube by ThinMatrix.
-https://youtu.be/VS8wlS9hF8E
-
-This code made from https://github.com/gruberchris/ThinMatrixGame which was to be a migration of ThinMatrix's tutorial game from LWJGL 2 to modern LWJGL 3.
-
-## Keyboard Controls
-* W is forward movement
-* S is backward movement
-* A is turn left
-* D is turn right
-* SPACE BAR is jump
-
-Keyboard arrow keys also work for movement. 
-~~Mouse input is buggy. Good luck!~~ 
-Mouse input now fixed! Used left control + and move mouse to rotate the camera
-Or use left control + middle mouse button (2) to reset the camera's angle
+## Controls
+This will be upadated later.
 
 ## Multiplayer!
 This feature is sill in-development! Beware!
 Please register an account [here](https://minersonline.tk/register.php) to enjoy encrypted servers!
+**Account registration and multiplayer is being reworked and is unusable at the moment**
 
-## Dependencies - Currently inaccurate, these are possible to change quickly
-All their licenses can be found [here](3rd_party)
- * Brigadier
- * LWJGL 3
- * JOML
- * ~~Mod Loader~~ They [refused to help](https://github.com/McModLauncher/modlauncher/issues/109)
  
+##  The Old [History Survival](https://github.com/ajh123-development/HistorySurvival/tree/ade18db7c828f26b5020bcc73b8ef14f8dbbeaf3)
+[@gruberchris](https://github.com/gruberchris) has indirectly helped with the old History Survival - they may still appear in the commit history.
+All future work is inspired by the previous versions of History Survival.
