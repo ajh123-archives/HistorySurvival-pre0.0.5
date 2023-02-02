@@ -5,6 +5,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import tk.minersonline.history_survival.componments.SolidModelComponent;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class VoxelType implements Component {
 	public static VoxelType AIR = new VoxelType("air", new SolidModelComponent(
 			Color.CLEAR
@@ -31,7 +34,7 @@ public class VoxelType implements Component {
 
 	private final SolidModelComponent properties;
 
-	public VoxelType(String name, SolidModelComponent properties) {
+	private VoxelType(String name, SolidModelComponent properties) {
 		this.properties = properties;
 		this.name = name;
 	}

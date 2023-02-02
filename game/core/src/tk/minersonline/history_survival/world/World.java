@@ -2,7 +2,6 @@ package tk.minersonline.history_survival.world;
 
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.utils.Disposable;
-import tk.minersonline.history_survival.world.voxels.Voxel;
 import tk.minersonline.history_survival.world.voxels.VoxelType;
 
 public class World implements Disposable {
@@ -42,7 +41,7 @@ public class World implements Disposable {
 		getChunk(x, y, z).set(ix % CHUNK_SIZE_X, iy % CHUNK_SIZE_Y, iz % CHUNK_SIZE_Z, type);
 	}
 
-	public Voxel get (float x, float y, float z) {
+	public VoxelType get (float x, float y, float z) {
 		int ix = (int)x;
 		int iy = (int)y;
 		int iz = (int)z;
@@ -76,8 +75,8 @@ public class World implements Disposable {
 		if (iz < 0 || iz >= voxelsZ) return 0;
 		// FIXME optimize
 		for (int y = voxelsY - 1; y > 0; y--) {
-			Voxel voxel = get(ix, y, iz);
-			if (voxel != null && voxel.getType() != VoxelType.AIR) {
+			VoxelType voxel = get(ix, y, iz);
+			if (voxel != null && voxel != VoxelType.AIR) {
 				return y + 1;
 			}
 		}
@@ -126,8 +125,8 @@ public class World implements Disposable {
 
 	@Override
 	public void dispose() {
-//		for (VoxelChunkComponent chunkComponent : chunks) {
-//			chunkComponent.dispose();
-//		}
+		for (Chunk chunk : chunks) {
+			chunk.dispose();
+		}
 	}
 }

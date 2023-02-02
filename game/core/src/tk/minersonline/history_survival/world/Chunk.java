@@ -3,25 +3,23 @@ package tk.minersonline.history_survival.world;
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.Vector3;
+import tk.minersonline.history_survival.componments.DisposableComponent;
 import tk.minersonline.history_survival.world.data.ChunkMesh;
-import tk.minersonline.history_survival.world.voxels.Voxel;
 import tk.minersonline.history_survival.world.voxels.VoxelType;
 
-public class Chunk implements Component {
-	public final Voxel[] voxels;
+public class Chunk extends DisposableComponent implements Component {
+	public VoxelType[] voxels;
 	public final int width;
 	public final int height;
 	public final int depth;
 	public final Vector3 offset = new Vector3();
 	private final int widthTimesHeight;
-	private final World world;
 	public boolean dirty = false;
 	public final ChunkMesh chunkMesh;
 
 
 	public Chunk(int width, int height, int depth, World world) {
-		this.world = world;
-		this.voxels = new Voxel[width * height * depth];
+		this.voxels = new VoxelType[width * height * depth];
 		this.width = width;
 		this.height = height;
 		this.depth = depth;
@@ -40,26 +38,36 @@ public class Chunk implements Component {
 		world.engine.addEntity(me);
 	}
 
-	public Voxel get (int x, int y, int z) {
+	public VoxelType get(int x, int y, int z) {
 		if (x < 0 || x >= width) return null;
 		if (y < 0 || y >= height) return null;
 		if (z < 0 || z >= depth) return null;
 		return getFast(x, y, z);
 	}
 
-	public Voxel getFast (int x, int y, int z) {
+	public VoxelType getFast(int x, int y, int z) {
 		return voxels[x + z * width + y * widthTimesHeight];
 	}
 
-	public void set (int x, int y, int z, VoxelType type) {
+	public VoxelType get(int index) {
+		return voxels[index];
+	}
+
+	public void set(int x, int y, int z, VoxelType voxel) {
 		if (x < 0 || x >= width) return;
 		if (y < 0 || y >= height) return;
 		if (z < 0 || z >= depth) return;
-		setFast(x, y, z, type);
+		setFast(x, y, z, voxel);
 	}
 
-	public void setFast (int x, int y, int z, VoxelType type) {
-		Voxel voxel = new Voxel(type, new Vector3(x, y, z), world);
+	public void setFast(int x, int y, int z, VoxelType voxel) {
 		voxels[x + z * width + y * widthTimesHeight] = voxel;
+	}
+
+	@Override
+	public void dispose() {
+		super.dispose();
+		this.voxels = null;
+		System.gc();
 	}
 }
