@@ -1,3 +1,5 @@
+# Project moved to https://github.com/ajh123-development/HistorySurvival!
+<hr>
 # HistorySurvival
 [![CodeQL](https://github.com/ajh123-development/HistorySurvival/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/ajh123-development/HistorySurvival/actions/workflows/codeql-analysis.yml)
 [![CLA assistant](https://cla-assistant.io/readme/badge/ajh123-development/HistorySurvival)](https://cla-assistant.io/ajh123-development/HistorySurvival)
